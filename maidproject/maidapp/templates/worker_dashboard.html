@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="fw-bold mb-1">Welcome back, <span class="vibrant-text">{{ worker.user.username }}</span></h2>
+            <p class="text-muted">Manage your bookings and availability</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar Stats -->
+        <div class="col-lg-4 mb-4">
+            <div class="hover-card p-4 text-center">
+                <div class="position-relative d-inline-block mb-3">
+                    {% if worker.photo %}
+                        <img src="{{ worker.photo.url }}" class="rounded-circle shadow" style="width: 120px; height: 120px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-vibrant text-white d-flex align-items-center justify-content-center shadow" style="width: 120px; height: 120px; font-size: 3rem;">
+                            {{ worker.user.username|make_list|first|upper }}
+                        </div>
+                    {% endif %}
+                    
+                    {% if worker.verified %}
+                        <span class="position-absolute bottom-0 end-0 p-2 bg-white border border-light rounded-circle" data-bs-toggle="tooltip" title="Verified Worker">
+                            <i class="fa-solid fa-shield-check text-primary fs-5"></i>
+                        </span>
+                    {% endif %}
+                </div>
+
+                <h4 class="fw-bold">{{ worker.user.username }}</h4>
+                <p class="text-muted small mb-3">{{ worker.skills }}</p>
+
+                <div class="d-flex justify-content-center gap-2 mb-4">
+                    <span class="badge bg-light text-dark border px-3 py-2">₹{{ worker.price_per_day }}/day</span>
+                    <span class="badge bg-light text-warning border px-3 py-2"><i class="fa-solid fa-star me-1"></i> {{ worker.rating_avg|default:"New" }}</span>
+                </div>
+
+                <hr class="mb-4">
+
+                <div class="text-start">
+                    <h6 class="fw-bold mb-3 text-muted">Availability Status</h6>
+                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-3 border">
+                        <div class="fw-medium">
+                            {% if worker.availability == 'available' %}
+                                <i class="fa-solid fa-circle text-success me-2"></i> Available
+                            {% else %}
+                                <i class="fa-solid fa-circle text-danger me-2"></i> Busy
+                            {% endif %}
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill">Change</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Bookings Area -->
+        <div class="col-lg-8">
+            <div class="mb-4 d-flex justify-content-between align-items-center">
+                <h4 class="fw-bold mb-0">Booking Requests</h4>
+                <span class="badge bg-vibrant rounded-pill px-3 py-2">{{ bookings|length }} Total</span>
+            </div>
+
+            {% for booking in bookings %}
+                <div class="hover-card p-4 mb-3 border-start border-4 {% if booking.status == 'pending' %}border-warning{% elif booking.status == 'confirmed' %}border-success{% else %}border-danger{% endif %}" id="booking-card-{{ booking.id }}">
+                    <div class="row align-items-center">
+                        <div class="col-md-7 mb-3 mb-md-0">
+                            <div class="d-flex align-items-center mb-2">
+                                <h5 class="fw-bold mb-0 me-3">{{ booking.user.username|title }}</h5>
+                                {% if booking.status == 'pending' %}
+                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-3">Pending Response</span>
+                                {% elif booking.status == 'confirmed' %}
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3">Accepted</span>
+                                {% else %}
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3">Cancelled</span>
+                                {% endif %}
+                            </div>
+                            <p class="text-muted small mb-0"><i class="fa-regular fa-clock me-2"></i>Requested on: {{ booking.booking_date|date:"M d, Y" }}</p>
+                        </div>
+                        
+                        <div class="col-md-5 text-md-end">
+                            {% if booking.status == 'pending' %}
+                                <button onclick="updateBooking('{{ booking.id }}', 'accept')" class="btn btn-success rounded-pill px-4 me-2 shadow-sm"><i class="fa-solid fa-check me-1"></i> Accept</button>
+                                <button onclick="updateBooking('{{ booking.id }}', 'reject')" class="btn btn-outline-danger rounded-pill px-4"><i class="fa-solid fa-xmark me-1"></i> Reject</button>
+                            {% elif booking.status == 'confirmed' %}
+                                <button class="btn btn-primary rounded-pill px-4 shadow-sm"><i class="fa-regular fa-comments me-2"></i> Message Client</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="text-center py-5 bg-light rounded-4 border border-dashed">
+                    <div class="display-4 text-muted mb-3 opacity-25"><i class="fa-regular fa-calendar-xmark"></i></div>
+                    <h5 class="fw-bold text-muted">No bookings yet</h5>
+                    <p class="text-muted small">When users book your services, they will appear here.</p>
+                </div>
+            {% endfor %}
+            
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateBooking(bookingId, action) {
+        if(!confirm(`Are you sure you want to ${action} this booking?`)) return;
+
+        fetch(`/booking/${bookingId}/${action}/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === "success") {
+                location.reload(); // Reload to see fresh UI states
+            } else {
+                alert("Error: " + data.message);
+            }
+        });
+    }
+</script>
+{% endblock %}

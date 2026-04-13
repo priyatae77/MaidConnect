@@ -1,0 +1,153 @@
+/* Google Fonts Implementation */
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: #f8fafc;
+    color: #334155;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #0f172a;
+}
+
+/* Color Variables */
+:root {
+    --primary-blue: #2563eb;
+    --primary-blue-hover: #1d4ed8;
+    --vibrant-teal: #0d9488;
+    --vibrant-purple: #7c3aed;
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.3);
+}
+
+/* Typography Utilities */
+.vibrant-text {
+    background: linear-gradient(135deg, var(--primary-blue), var(--vibrant-purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+.text-vibrant {
+    color: var(--primary-blue) !important;
+}
+
+.bg-vibrant {
+    background: linear-gradient(135deg, var(--primary-blue), var(--vibrant-teal));
+}
+
+/* Loader Animation */
+.loader-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+}
+
+.loader-content {
+    text-align: center;
+}
+
+.loader-text {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-blue), var(--vibrant-purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    letter-spacing: 1px;
+}
+
+.vibrant-blue { color: var(--primary-blue); }
+.vibrant-teal { color: var(--vibrant-teal); }
+.vibrant-purple { color: var(--vibrant-purple); }
+
+/* Glassmorphism Navigation */
+.glass-nav {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+}
+
+.nav-link {
+    font-weight: 500;
+    color: #475569 !important;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--primary-blue) !important;
+}
+
+/* Custom Buttons */
+.btn-vibrant {
+    background: linear-gradient(135deg, var(--primary-blue), var(--vibrant-teal));
+    color: white;
+    border: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-vibrant:hover {
+    background: linear-gradient(135deg, var(--primary-blue-hover), #0f766e);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+}
+
+.btn-outline-vibrant {
+    color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-vibrant:hover {
+    background: var(--primary-blue);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.15);
+}
+
+/* Avatars & Users */
+.avatar-circle {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Cards & Containers */
+.hover-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    background: #ffffff;
+}
+
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+    border-color: #cbd5e1;
+}
+
+/* Footer styling */
+footer {
+    border-top: 1px solid #e2e8f0;
+}

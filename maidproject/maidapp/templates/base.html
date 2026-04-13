@@ -1,0 +1,166 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MaidConnect - Professional Maid & Care Services{% endblock %}</title>
+
+    <!-- Google Fonts for Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom Stylings (Clean White + Vibrant) -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+</head>
+<body>
+
+    <!-- 🔥 LUXURY LOADING ANIMATION -->
+    <div id="loader" class="loader-container">
+        <div class="loader-content">
+            <div class="spinner-grow vibrant-blue" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="spinner-grow vibrant-teal mx-2" role="status" style="animation-delay: 0.2s;"></div>
+            <div class="spinner-grow vibrant-purple" role="status" style="animation-delay: 0.4s;"></div>
+            <h4 class="mt-4 loader-text">MaidConnect</h4>
+            <p class="text-muted">Preparing elegant services...</p>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT (Hidden until loaded) -->
+    <div id="main-content" style="opacity: 0; transition: opacity 0.8s ease-in-out;">
+        
+        <!-- Premium Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light glass-nav fixed-top">
+            <div class="container">
+                <a class="navbar-brand fw-bold vibrant-text" href="/">
+                    <i class="fa-solid fa-hands-holding-child me-2"></i>MaidConnect
+                </a>
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-toggle="navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        <li class="nav-item"><a class="nav-link px-3" href="/">Home</a></li>
+                        <li class="nav-item"><a class="nav-link px-3" href="/workers/">Find Workers</a></li>
+                        
+                        {% if user.is_authenticated %}
+                            <li class="nav-item ms-3">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                                    <div class="avatar-circle rounded-circle bg-vibrant text-white d-flex align-items-center justify-content-center me-2">
+                                        {{ user.username|make_list|first|upper }}
+                                    </div>
+                                    <span class="fw-medium">{{ user.username }}</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-4 mt-2 p-2">
+                                    {% if user.role == "admin" %}
+                                    <li><a class="dropdown-item rounded-3" href="/admin/"><i class="fa-solid fa-gauge me-2"></i> Dashboard</a></li>
+                                    {% elif user.role == "worker" %}
+                                    <li><a class="dropdown-item rounded-3" href="/worker-dashboard/"><i class="fa-solid fa-briefcase me-2"></i> My Jobs</a></li>
+                                    {% else %}
+                                    <li><a class="dropdown-item rounded-3" href="/my-bookings/"><i class="fa-solid fa-calendar-check me-2"></i> My Bookings</a></li>
+                                    {% endif %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item rounded-3 text-danger" href="/logout/"><i class="fa-solid fa-sign-out-alt me-2"></i> Logout</a></li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                                <a class="btn btn-outline-vibrant px-4 me-2 rounded-pill fw-medium" href="/login/">Sign In</a>
+                            </li>
+                            <li class="nav-item mt-2 mt-lg-0">
+                                <a class="btn btn-vibrant px-4 rounded-pill fw-medium shadow-sm" href="/user/register/">Get Started</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="content-wrapper" style="margin-top: 80px; min-height: 80vh;">
+            {% if messages %}
+                <div class="container mt-4">
+                    {% for message in messages %}
+                        <div class="toast align-items-center text-bg-{{ message.tags }} border-0 show shadow-lg w-100 mb-3 rounded-4" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="d-flex">
+                                <div class="toast-body fw-medium">
+                                    <i class="fa-solid fa-circle-info me-2"></i> {{ message }}
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}
+            {% endblock %}
+        </div>
+
+        <!-- Premium Footer -->
+        <footer class="bg-light py-5 mt-5">
+            <div class="container text-center text-md-start">
+                <div class="row align-items-center">
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <h4 class="fw-bold vibrant-text mb-2"><i class="fa-solid fa-hands-holding-child me-2"></i>MaidConnect</h4>
+                        <p class="text-muted small mb-0">Professional care, trusted hands.<br>Connecting families with verified helpers.</p>
+                    </div>
+                    <div class="col-md-4 mb-3 mb-md-0 text-center">
+                        <a href="#" class="text-muted mx-2 fs-5"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="text-muted mx-2 fs-5"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="#" class="text-muted mx-2 fs-5"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                    <div class="col-md-4 text-center text-md-end">
+                        <p class="text-muted small mb-0">&copy; 2026 MaidConnect. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Bootstrap & JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Loading Screen Animation logic
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const loader = document.getElementById('loader');
+                const mainContent = document.getElementById('main-content');
+                
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    mainContent.style.display = 'block';
+                    mainContent.style.opacity = '1';
+                }, 500); // Wait for fade out
+            }, 800); // Initial artificial delay for premium feel
+        });
+
+        // CSRF helper (VERY IMPORTANT in Django)
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

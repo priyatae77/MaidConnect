@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    
+    <div class="row mb-4">
+        <div class="col-12 text-center text-md-start">
+            <h2 class="fw-bold mb-1">My <span class="vibrant-text">Bookings</span></h2>
+            <p class="text-muted">Track your service requests and payments</p>
+        </div>
+    </div>
+
+    <!-- Bookings List -->
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            {% for booking in bookings %}
+                <div class="hover-card p-4 mb-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 text-center mb-3 mb-md-0">
+                            {% if booking.worker.photo %}
+                                <img src="{{ booking.worker.photo.url }}" class="rounded-circle shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle bg-vibrant text-white d-flex align-items-center justify-content-center mx-auto shadow-sm" style="width: 80px; height: 80px; font-size: 2rem;">
+                                    {{ booking.worker.user.username|make_list|first|upper }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <h4 class="fw-bold mb-1">{{ booking.worker.user.username|title }}</h4>
+                            <p class="text-muted small mb-2"><i class="fa-solid fa-briefcase vibrant-blue me-1"></i> {{ booking.worker.skills }}</p>
+                            
+                            <div class="d-flex flex-wrap gap-2 align-items-center">
+                                <span class="badge bg-light text-dark border px-2 py-1">₹{{ booking.worker.price_per_day }}/day</span>
+                                <span class="small text-muted"><i class="fa-regular fa-clock me-1"></i> Booked: {{ booking.booking_date|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 text-center text-md-end">
+                            <div class="mb-3">
+                                {% if booking.status == 'pending' %}
+                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-3 py-2"><i class="fa-solid fa-hourglass-half me-1"></i> Awaiting Worker Response</span>
+                                {% elif booking.status == 'confirmed' %}
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2"><i class="fa-solid fa-check-double me-1"></i> Worker Accepted</span>
+                                {% elif booking.status == 'completed' %}
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2"><i class="fa-solid fa-clipboard-check me-1"></i> Payment Completed</span>
+                                {% else %}
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-2"><i class="fa-solid fa-xmark me-1"></i> Cancelled</span>
+                                {% endif %}
+                            </div>
+
+                            {% if booking.status == 'confirmed' %}
+                                <a href="{% url 'initiate_payment' booking.id %}" class="btn btn-vibrant rounded-pill px-4 shadow-sm w-100">
+                                    <i class="fa-solid fa-wallet me-2"></i> Pay Now to Confirm
+                                </a>
+                            {% elif booking.status == 'completed' %}
+                                <button class="btn btn-outline-secondary rounded-pill px-4 w-100" data-bs-toggle="modal" data-bs-target="#reviewModal-{{ booking.id }}">
+                                    <i class="fa-solid fa-star me-2 text-warning"></i> Leave Review
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review Modal -->
+                <div class="modal fade" id="reviewModal-{{ booking.id }}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content border-0 rounded-4 shadow-lg">
+                            <div class="modal-header border-0 pb-0">
+                                <h5 class="fw-bold">Rate {{ booking.worker.user.username|title }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="text-muted">How was your experience?</p>
+                                <!-- Review form implementation can go here -->
+                                <textarea class="form-control mb-3" rows="3" placeholder="Write your feedback..."></textarea>
+                                <button class="btn btn-vibrant w-100 rounded-pill">Submit Review</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            {% empty %}
+                <div class="text-center py-5 bg-white rounded-4 border p-4 shadow-sm">
+                    <div class="display-3 text-muted mb-3 opacity-25"><i class="fa-solid fa-calendar-xmark"></i></div>
+                    <h4 class="fw-bold text-muted">No Bookings Yet</h4>
+                    <p class="text-muted mb-4">You haven't booked any services yet.</p>
+                    <a href="{% url 'worker_list' %}" class="btn btn-vibrant rounded-pill px-4">Find a Helper</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

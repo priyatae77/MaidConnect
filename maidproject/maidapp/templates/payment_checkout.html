@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="hover-card p-5 mt-4 text-center border-0 shadow-lg position-relative overflow-hidden">
+                
+                <!-- Decorative background elements -->
+                <div class="position-absolute bg-vibrant opacity-10 rounded-circle" style="width: 200px; height: 200px; top: -100px; right: -100px;"></div>
+                
+                <h3 class="fw-bold mb-3">Secure Checkout</h3>
+                <p class="text-muted small mb-4">Complete your payment to confirm the booking with <strong>{{ booking.worker.user.username }}</strong>.</p>
+                
+                <div class="p-4 bg-light rounded-4 mb-4 border border-info border-opacity-25">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Service Fee (1 Day)</span>
+                        <span class="fw-medium">₹{{ payment.amount }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Platform Fee</span>
+                        <span class="text-success text-uppercase small pt-1">Free</span>
+                    </div>
+                    <hr class="my-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold fs-5 text-dark">Total Amount</span>
+                        <span class="fw-bold fs-3 text-success">₹{{ payment.amount }}</span>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-center gap-2 mb-4">
+                    <i class="fa-solid fa-lock text-success"></i>
+                    <small class="text-muted">Secured by <strong>Razorpay</strong></small>
+                </div>
+
+                <!-- Razorpay Payment Form -->
+                <form action="{% url 'payment_success' %}" method="POST">
+                    {% csrf_token %}
+                    <script
+                        src="https://checkout.razorpay.com/v1/checkout.js"
+                        data-key="{{ razorpay_key_id }}"
+                        data-amount="{{ amount }}"
+                        data-currency="INR"
+                        data-order_id="{{ order_id }}"
+                        data-buttontext="Pay Now Using Razorpay"
+                        data-name="MaidConnect"
+                        data-description="Domestic Service Booking Payment"
+                        data-image="https://ui-avatars.com/api/?name=MaidConnect&background=2563eb&color=fff"
+                        data-theme.color="#2563eb"
+                        data-prefill.name="{{ request.user.username }}"
+                        data-prefill.email="{{ request.user.email }}">
+                    </script>
+                    <!-- Customizing the razorpay button classes -->
+                    <style>
+                        .razorpay-payment-button {
+                            background: linear-gradient(135deg, #2563eb, #0d9488) !important;
+                            color: white !important;
+                            border: none !important;
+                            padding: 12px 24px !important;
+                            border-radius: 50px !important;
+                            width: 100% !important;
+                            font-weight: 600 !important;
+                            font-size: 1.1rem !important;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                        }
+                        .razorpay-payment-button:hover {
+                            box-shadow: 0 10px 20px rgba(37,99,235,0.2) !important;
+                            transform: translateY(-2px);
+                        }
+                    </style>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

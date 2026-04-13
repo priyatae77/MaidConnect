@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    
+    <!-- PAGE HEADER -->
+    <div class="text-center mb-5 mt-4">
+        <span class="badge bg-vibrant rounded-pill px-3 py-2 mb-3 fw-medium">Hire Professionals</span>
+        <h2 class="fw-bold display-6">Available <span class="vibrant-text">Workers</span></h2>
+        <p class="text-muted">Find trusted helpers verified by MaidConnect</p>
+    </div>
+
+    <!-- SEARCH FILTER BAR -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-10">
+            <div class="glass-nav rounded-4 shadow-sm p-4 border">
+                <form method="GET" class="row g-3 align-items-end">
+                    
+                    <div class="col-md-4">
+                        <label class="form-label text-muted small fw-bold">Search Skills</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-search text-muted"></i></span>
+                            <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="e.g. Cooking, Baby Care, Cleaning..." value="{{ request.GET.search }}">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small fw-bold">Location</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-location-dot text-muted"></i></span>
+                            <input type="text" name="location" class="form-control border-start-0 ps-0" placeholder="City or Area" value="{{ request.GET.location }}">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small fw-bold">Max Price (₹)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-indian-rupee-sign text-muted"></i></span>
+                            <input type="number" name="price" class="form-control border-start-0 ps-0" placeholder="Max budget" value="{{ request.GET.price }}">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-vibrant w-100 py-2 rounded-3 shadow-sm fw-medium">
+                            Apply Filter
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- WORKER GRID -->
+    <div class="row g-4">
+        {% for worker in workers %}
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="hover-card h-100 d-flex flex-column position-relative">
+                
+                <!-- Availability Badge -->
+                <div class="position-absolute top-0 end-0 m-3 z-3">
+                    {% if worker.availability == 'available' %}
+                        <span class="badge bg-success rounded-pill px-3 shadow-sm"><i class="fa-solid fa-circle-check me-1"></i> Available</span>
+                    {% else %}
+                        <span class="badge bg-secondary rounded-pill px-3 shadow-sm"><i class="fa-solid fa-clock me-1"></i> Busy</span>
+                    {% endif %}
+                </div>
+
+                <!-- Verified Badge -->
+                {% if worker.verified %}
+                <div class="position-absolute top-0 start-0 m-2 z-3" data-bs-toggle="tooltip" title="Admin Verified Worker">
+                    <div class="bg-white rounded-circle p-1 shadow-sm d-inline-flex align-items-center justify-content-center" style="width:35px; height:35px;">
+                        <i class="fa-solid fa-shield-check text-primary fs-5"></i>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Worker Image -->
+                <div class="position-relative">
+                    {% if worker.photo %}
+                        <img src="{{ worker.photo.url }}" class="card-img-top object-fit-cover rounded-top-4" alt="{{ worker.user.username }}" style="height: 250px;">
+                    {% else %}
+                        <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=800&auto=format&fit=crop" class="card-img-top object-fit-cover rounded-top-4" alt="Default Worker Image" style="height: 250px;">
+                    {% endif %}
+                    
+                    <!-- Gradient overlay for text visibility -->
+                    <div class="position-absolute bottom-0 w-100 p-3 bg-gradient" style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                        <h4 class="text-white mb-0 fw-bold">{{ worker.user.username|title }}</h4>
+                        {% if worker.gender and worker.age %}
+                            <small class="text-light">{{ worker.gender|title }}, {{ worker.age }} yrs</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Worker Details -->
+                <div class="p-4 flex-grow-1 bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                        <span class="fw-bold fs-5 text-success">
+                            ₹{{ worker.price_per_day }}<span class="text-muted fs-6 fw-normal">/day</span>
+                        </span>
+                        <div class="text-warning fw-bold bg-warning bg-opacity-10 px-2 py-1 rounded-2 small border border-warning border-opacity-25">
+                            <i class="fa-solid fa-star"></i> {{ worker.rating_avg|default:"New" }}
+                        </div>
+                    </div>
+
+                    <p class="small text-muted mb-2"><i class="fa-solid fa-briefcase me-2 vibrant-teal"></i><strong>Skills:</strong> {{ worker.skills }}</p>
+                    <p class="small text-muted mb-2"><i class="fa-solid fa-location-dot me-2 vibrant-blue"></i><strong>Location:</strong> {{ worker.location }}</p>
+                    
+                    {% if worker.languages %}
+                        <p class="small text-muted mb-2"><i class="fa-solid fa-language me-2 vibrant-purple"></i><strong>Speaks:</strong> {{ worker.languages }}</p>
+                    {% endif %}
+                    {% if worker.work_timings %}
+                        <p class="small text-muted mb-3"><i class="fa-solid fa-business-time me-2 text-danger"></i><strong>Timings:</strong> {{ worker.work_timings }}</p>
+                    {% endif %}
+
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="p-3 pt-0 bg-white rounded-bottom-4 mt-auto">
+                    <!-- bookWorker function is from base.html -->
+                    <button class="btn btn-vibrant w-100 rounded-pill py-2 shadow-sm fw-medium" onclick="bookWorker('{{ worker.id }}')">
+                        <i class="fa-solid fa-calendar-check me-2"></i> Book Worker
+                    </button>
+                    <a href="#" class="btn btn-outline-secondary w-100 rounded-pill py-2 mt-2 fw-medium border-0 bg-light">
+                        View Full Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="display-1 text-muted mb-3 opacity-25"><i class="fa-solid fa-search"></i></div>
+            <h3 class="text-muted fw-bold">No workers found.</h3>
+            <p class="text-muted">Try adjusting your search criteria to see more helpers.</p>
+            <a href="{% url 'worker_list' %}" class="btn btn-outline-vibrant rounded-pill px-4 mt-3">Clear Filters</a>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<!-- Initialize tooltips -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+
+    function bookWorker(workerId) {
+        if (!confirm("Do you want to send a booking request to this worker?")) return;
+
+        fetch(`/book/${workerId}/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+                "Content-Type": "application/json"
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success" || data.message) {
+                alert("Booking request sent successfully! You can track it in 'My Bookings'.");
+            } else {
+                alert("Error sending booking request. Please try again.");
+            }
+        })
+        .catch(err => console.error(err));
+    }
+</script>
+{% endblock %}

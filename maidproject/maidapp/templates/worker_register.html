@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="hover-card p-5">
+                
+                <div class="text-center mb-5">
+                    <span class="badge bg-vibrant rounded-pill px-3 py-2 mb-3 fw-medium">Join Our Platform</span>
+                    <h2 class="fw-bold display-6">Worker <span class="vibrant-text">Registration</span></h2>
+                    <p class="text-muted">Join our network of verified professionals and get booked instantly.</p>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="fa-solid fa-user me-2 vibrant-blue"></i>Account Details</h5>
+                            {{ user_form|crispy }}
+                        </div>
+                        
+                        <div class="col-md-6 mb-4 border-start px-md-4">
+                            <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="fa-solid fa-briefcase me-2 vibrant-teal"></i>Professional Info</h5>
+                            {{ worker_form|crispy }}
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-vibrant btn-lg px-5 rounded-pill shadow-sm mt-2">
+                            Submit Application <i class="fa-solid fa-check ms-2"></i>
+                        </button>
+                        <p class="text-muted small mt-3">By registering, you agree to our verification protocols.</p>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
