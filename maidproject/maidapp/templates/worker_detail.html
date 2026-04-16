@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% load static %}
+{% load mc_tags %}
+
+{% block title %}{{ worker.user.username|title }} — MaidConnect{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+<div class="container py-4">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb" style="font-size:0.82rem;">
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none" style="color:var(--brand);">Home</a></li>
+            <li class="breadcrumb-item"><a href="/workers/" class="text-decoration-none" style="color:var(--brand);">Workers</a></li>
+            <li class="breadcrumb-item active text-muted">{{ worker.user.username|title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+
+        <!-- ══ LEFT: Photo + Booking Panel ══ -->
+        <div class="col-lg-5">
+
+            <!-- Photo Card -->
+            <div class="detail-photo-wrap mb-4">
+                {% if worker.photo %}
+                    <img src="{{ worker.photo.url }}" alt="{{ worker.user.username }}">
+                {% else %}
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=800&auto=format&fit=crop"
+                         alt="{{ worker.user.username }}">
+                {% endif %}
+
+                <!-- Rating badge -->
+                <div class="detail-rating-badge">
+                    <i class="fa-solid fa-star" style="font-size:0.75rem;"></i>
+                    {{ worker.rating_avg|default:"New" }}
+                </div>
+
+                <!-- Verified badge -->
+                {% if worker.verified %}
+                <div class="detail-verified-badge">
+                    <i class="fa-solid fa-circle-check"></i> VERIFIED
+                </div>
+                {% endif %}
+
+                <!-- Name overlay -->
+                <div class="detail-overlay">
+                    <div class="detail-name">{{ worker.user.username|title }}</div>
+                    <div class="detail-loc-tag">
+                        <i class="fa-solid fa-location-dot me-1" style="color:var(--brand);"></i>
+                        {{ worker.location }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats row -->
+            <div class="row g-2 mb-4">
+                <div class="col-4">
+                    <div class="stat-pill">
+                        <div class="stat-val">{{ worker.experience }}+</div>
+                        <div class="stat-label">Yrs Exp.</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="stat-pill">
+                        <div class="stat-val">{{ worker.review_set.count }}</div>
+                        <div class="stat-label">Reviews</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="stat-pill">
+                        <div class="stat-val" style="font-size:1.1rem;">
+                            {% if worker.availability == 'available' %}
+                            <span style="color:var(--success);">Open</span>
+                            {% else %}
+                            <span style="color:#D97706;">Busy</span>
+                            {% endif %}
+                        </div>
+                        <div class="stat-label">Status</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Booking CTA Panel ── -->
+            <div class="booking-panel">
+                <div class="d-flex justify-content-between align-items-baseline mb-1">
+                    <div class="price-main">₹{{ worker.price_per_day }}</div>
+                    <div class="price-sub">per day</div>
+                </div>
+                <p class="text-muted small mb-3">
+                    <i class="fa-solid fa-clock me-1" style="color:var(--brand);"></i>
+                    {% if worker.work_timings %}{{ worker.work_timings }}{% else %}Flexible timing{% endif %}
+                </p>
+
+                {% if user.is_authenticated %}
+                    {% if worker.availability == 'available' %}
+                    <a href="{% url 'booking_config' worker.id %}" class="btn-brand btn-brand-lg w-100 justify-content-center mb-2">
+                        <i class="fa-solid fa-calendar-plus me-1"></i> Book Now
+                    </a>
+                    {% else %}
+                    <button class="btn-brand btn-brand-lg w-100 justify-content-center mb-2" disabled
+                            style="opacity:0.5; cursor:not-allowed;">
+                        <i class="fa-solid fa-ban me-1"></i> Currently Busy
+                    </button>
+                    {% endif %}
+                {% else %}
+                <a href="/login/?next={% url 'booking_config' worker.id %}" class="btn-brand btn-brand-lg w-100 justify-content-center mb-2">
+                    <i class="fa-solid fa-right-to-bracket me-1"></i> Login to Book
+                </a>
+                {% endif %}
+
+                <div class="d-flex align-items-center justify-content-center gap-2 mt-3 text-muted" style="font-size:0.78rem;">
+                    <i class="fa-solid fa-shield-halved" style="color:var(--success);"></i>
+                    <span>Free cancellation up to 24 hours before service</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ RIGHT: Details & Reviews ══ -->
+        <div class="col-lg-7">
+
+            <!-- About Section -->
+            <div class="mb-4 p-4 rounded-3" style="background:#fff; border:1px solid var(--border);">
+                <h2 class="fw-bold mb-3" style="font-size:1.2rem;">
+                    About {{ worker.user.username|title }}
+                </h2>
+                <p class="text-muted" style="line-height:1.8;">
+                    {{ worker.user.username|title }} is a dedicated home care professional with
+                    <strong>{{ worker.experience }} years</strong> of experience based in
+                    <strong>{{ worker.location }}</strong>.
+                    {% if worker.gender %}{{ worker.gender|title }},{% endif %}
+                    {% if worker.age %}{{ worker.age }} years old,{% endif %}
+                    known for being helpful, punctual, and doing excellent work.
+                </p>
+
+                <!-- Work timings -->
+                {% if worker.work_timings %}
+                <div class="d-flex align-items-center gap-2 mt-3 p-3 rounded-3"
+                     style="background:var(--brand-light); border:1px solid rgba(255, 75, 145,0.15);">
+                    <i class="fa-solid fa-clock" style="color:var(--brand);"></i>
+                    <span class="fw-semibold small" style="color:var(--brand-deep);">
+                        Available: {{ worker.work_timings }}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Skills & Languages -->
+            <div class="mb-4 p-4 rounded-3" style="background:#fff; border:1px solid var(--border);">
+                <div class="row g-4">
+                    <div class="col-sm-6">
+                        <h3 class="fw-bold mb-3" style="font-size:0.95rem;">
+                            <i class="fa-solid fa-tools me-2" style="color:var(--brand);"></i> Skills
+                        </h3>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for skill in worker.skills|split:" " %}
+                                <span class="skill-chip">{{ skill|title }}</span>
+                            {% empty %}
+                                <span class="text-muted small">Not specified</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <h3 class="fw-bold mb-3" style="font-size:0.95rem;">
+                            <i class="fa-solid fa-language me-2" style="color:var(--brand);"></i> Languages
+                        </h3>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% if worker.languages %}
+                                {% for lang in worker.languages|split:" " %}
+                                    <span class="lang-chip">{{ lang|title }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="lang-chip">Hindi</span>
+                                <span class="lang-chip">English</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Service Categories -->
+            {% if worker.categories.all %}
+            <div class="mb-4 p-4 rounded-3" style="background:#fff; border:1px solid var(--border);">
+                <h3 class="fw-bold mb-3" style="font-size:0.95rem;">
+                    <i class="fa-solid fa-layer-group me-2" style="color:var(--brand);"></i> Service Categories
+                </h3>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for cat in worker.categories.all %}
+                    <a href="/workers/?category={{ cat.id }}"
+                       class="d-inline-flex align-items-center gap-1 px-3 py-1 rounded-pill text-decoration-none fw-semibold small"
+                       style="background:var(--brand-light); color:var(--brand-deep); border:1px solid rgba(255, 75, 145,0.2);">
+                        {{ cat.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Reviews -->
+            <div class="p-4 rounded-3" style="background:#fff; border:1px solid var(--border);">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fw-bold mb-0" style="font-size:1.1rem;">
+                        <i class="fa-solid fa-star me-2" style="color:#F59E0B;"></i>
+                        Reviews
+                        <span class="text-muted fw-normal" style="font-size:0.88rem;">({{ worker.review_set.count }})</span>
+                    </h3>
+                    {% if worker.rating_avg %}
+                    <div class="d-flex align-items-center gap-1 fw-bold" style="color:var(--text);">
+                        <span style="font-size:1.4rem; font-family:'Outfit',sans-serif; color:var(--brand);">{{ worker.rating_avg }}</span>
+                        <span class="text-muted small">/ 5</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex flex-column gap-3">
+                    {% for review in worker.review_set.all %}
+                    <div class="review-card">
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <div class="review-avatar">{{ review.user.username|first|upper }}</div>
+                            <div>
+                                <div class="fw-bold" style="font-size:0.9rem;">{{ review.user.username|title }}</div>
+                                <div class="text-warning" style="font-size:0.72rem;">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= review.rating %}<i class="fa-solid fa-star"></i>
+                                        {% else %}<i class="fa-regular fa-star"></i>{% endif %}
+                                    {% endfor %}
+                                    <span class="text-muted ms-1">{{ review.created_at|date:"M d, Y" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-muted mb-0 small" style="line-height:1.65;">"{{ review.comment }}"</p>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4">
+                        <div style="font-size:2.5rem; margin-bottom:0.5rem;">💬</div>
+                        <p class="text-muted small fw-semibold">No reviews yet. You can be the first one to book!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── Related Workers ── -->
+    {% if related_workers %}
+    <div class="mt-5 pt-2">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="section-title mb-0">Similar Workers</h2>
+            <a href="/workers/" class="section-see-all">See all <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="row g-3">
+            {% for rw in related_workers %}
+            <div class="col-6 col-md-4">
+                <a href="{% url 'worker_detail' rw.id %}" class="sc-card">
+                    <div class="sc-card-img">
+                        {% if rw.photo %}
+                            <img src="{{ rw.photo.url }}" alt="{{ rw.user.username }}" loading="lazy">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=400&auto=format&fit=crop" alt="Worker" loading="lazy">
+                        {% endif %}
+                        <div class="sc-card-rating">
+                            <i class="fa-solid fa-star" style="font-size:0.65rem;"></i>
+                            {{ rw.rating_avg|default:"New" }}
+                        </div>
+                    </div>
+                    <div class="sc-card-body">
+                        <div class="sc-card-name">{{ rw.user.username|title }}</div>
+                        <div class="sc-card-meta">{{ rw.skills|truncatechars:38 }}</div>
+                        <div class="sc-card-footer">
+                            <div class="sc-card-price">₹{{ rw.price_per_day }}<span>/day</span></div>
+                            <div class="sc-card-loc"><i class="fa-solid fa-location-dot" style="color:var(--brand);"></i>{{ rw.location|truncatechars:10 }}</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+</div>
+{% endblock %}

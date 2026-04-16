@@ -1,21 +1,38 @@
 from django.urls import path
-from . import views
+from django import views
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('about/', views.about, name='about'),
 
-    path('worker/register/', views.worker_register, name='worker_register'),
-    path('user/register/', views.user_register, name='user_register'),
-    path('workers/', views.worker_list, name='worker_list'),
-
+    # Auth
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
-    path('worker-dashboard/', views.worker_dashboard, name='worker_dashboard'),
 
-    path('book/<int:worker_id>/', views.book_worker, name='book_worker'),
-    path('booking/<int:booking_id>/<str:action>/', views.update_booking_status, name='update_booking_status'),
+    # Register
+    path('register/', views.register_choice, name='register_choice'),
+    path('register/worker/', views.worker_register, name='worker_register'),
+    path('register/user/', views.user_register, name='user_register'),
 
-    path('my-bookings/', views.my_bookings, name='my_bookings'),
-    path('payment/initiate/<int:booking_id>/', views.initiate_payment, name='initiate_payment'),
-    path('payment/success/', views.payment_success, name='payment_success'),
+    # Dashboards
+    path('dashboard/admin/', views.admin_dashboard, name='admin_dashboard'),
+    path('dashboard/user/', views.user_dashboard, name='user_dashboard'),
+    path('dashboard/worker/', views.worker_dashboard, name='worker_dashboard'),
+
+    # Workers
+    path('workers/', views.worker_list, name='worker_list'),
+    path('worker/<int:worker_id>/', views.worker_detail, name='worker_detail'),
+
+    # Receipt
+    path('receipt/<int:booking_id>/', views.view_receipt, name='view_receipt'),
+    
+    # Admin Management
+    path('admin/workers/', views.manage_workers, name='manage_workers'),
+    path('admin/workers/verify/<int:worker_id>/', views.toggle_worker_verification, name='toggle_worker_verification'),
+    path('admin/users/', views.manage_users, name='manage_users'),
+    path('admin/complaints/', views.admin_complaints, name='admin_complaints'),
+
+    # APIs
+    path('api/worker/new-jobs/', views.check_new_jobs, name='check_new_jobs'),
+    path('api/locations/', views.api_get_locations, name='api_get_locations'),
 ]

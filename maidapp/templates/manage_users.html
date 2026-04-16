@@ -1,0 +1,61 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}User Management — MaidConnect{% endblock %}
+
+{% block dashboard_content %}
+<div class="container animate-fade-in">
+    <div class="mb-5">
+        <h2 class="fw-black mb-1">Customer Management</h2>
+        <p class="text-muted">Monitor customer accounts and manage platform access.</p>
+    </div>
+
+    <div class="dash-card p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">User Details</th>
+                        <th>Joined Date</th>
+                        <th>Access Status</th>
+                        <th class="pe-4 text-end">Control</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-sm bg-dark text-white rounded-circle d-flex align-items-center justify-content-center fw-bold">
+                                    {{ u.username|make_list|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ u.get_full_name|default:u.username }}</div>
+                                    <div class="text-muted small">{{ u.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ u.date_joined|date:"M d, Y" }}</td>
+                        <td>
+                            {% if u.is_active %}
+                                <span class="badge rounded-pill bg-success-light text-success px-3 py-1">ACTIVE</span>
+                            {% else %}
+                                <span class="badge rounded-pill bg-danger-light text-danger px-3 py-1">BLOCKED</span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 text-end">
+                            <button class="btn btn-sm btn-outline-dark rounded-pill px-4">Manage</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-success-light { background: rgba(34, 197, 94, 0.1); }
+    .bg-danger-light { background: rgba(239, 68, 68, 0.1); }
+</style>
+{% endblock %}

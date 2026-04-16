@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Join MaidConnect — Choose Your Path{% endblock %}
+
+{% block content %}
+<div class="container py-5 animate-fade-in">
+    <div class="text-center mb-5">
+        <h1 class="fw-black display-5 mb-2" style="letter-spacing:-1.5px;">Welcome to <span style="color:var(--brand);">MaidConnect</span></h1>
+        <p class="text-muted fs-5">Select how you'd like to participate in our verified marketplace.</p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <!-- Option 1: Customer -->
+        <div class="col-md-5">
+            <div class="selection-card h-100 text-center p-5 shadow-sm animate-scale">
+                <div class="icon-circle mb-4 mx-auto" style="background:rgba(59, 130, 246, 0.1); color:#3b82f6;">
+                    <i class="fa-solid fa-house-user fs-2"></i>
+                </div>
+                <h3 class="fw-black mb-3">I want to hire help</h3>
+                <p class="text-muted mb-4">Find verified cooks, cleaners, and caretakers for your home in minutes.</p>
+                <a href="{% url 'user_register' %}" class="btn btn-outline-primary rounded-pill px-5 py-3 fw-bold w-100">Register as Customer</a>
+            </div>
+        </div>
+
+        <!-- Option 2: Worker -->
+        <div class="col-md-5">
+            <div class="selection-card h-100 text-center p-5 shadow-sm animate-scale">
+                <div class="icon-circle mb-4 mx-auto" style="background:rgba(255, 75, 145, 0.1); color:var(--brand);">
+                    <i class="fa-solid fa-briefcase fs-2"></i>
+                </div>
+                <h3 class="fw-black mb-3">I want to work</h3>
+                <p class="text-muted mb-4">Join our community of professional partners and start earning today.</p>
+                <a href="{% url 'worker_register' %}" class="btn btn-brand rounded-pill px-5 py-3 fw-bold w-100">Join as Service Partner</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <p class="text-muted">Already have an account? <a href="{% url 'login' %}" class="text-brand fw-bold">Sign In here</a></p>
+    </div>
+</div>
+
+<style>
+    .selection-card {
+        background: #fff;
+        border-radius: 2rem;
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    .selection-card:hover { border-color: var(--brand); transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.05) !important; }
+    .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+</style>
+{% endblock %}

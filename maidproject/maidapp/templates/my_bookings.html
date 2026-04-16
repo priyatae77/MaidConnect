@@ -1,95 +1,126 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title %}My Bookings & Service History — MaidConnect{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    
-    <div class="row mb-4">
-        <div class="col-12 text-center text-md-start">
-            <h2 class="fw-bold mb-1">My <span class="vibrant-text">Bookings</span></h2>
-            <p class="text-muted">Track your service requests and payments</p>
-        </div>
+<div class="container py-5 animate-fade-in">
+
+    <!-- ── Header ── -->
+    <div class="mb-5">
+        <h1 class="fw-black" style="font-size:2.4rem; letter-spacing:-1.2px;">
+            Your <span style="color:var(--brand);">Service</span> Journey
+        </h1>
+        <p class="text-muted fw-medium">Tracking your active help and past service memories.</p>
     </div>
 
-    <!-- Bookings List -->
-    <div class="row">
-        <div class="col-lg-10 mx-auto">
-            {% for booking in bookings %}
-                <div class="hover-card p-4 mb-4">
-                    <div class="row align-items-center">
-                        <div class="col-md-2 text-center mb-3 mb-md-0">
-                            {% if booking.worker.photo %}
-                                <img src="{{ booking.worker.photo.url }}" class="rounded-circle shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
-                            {% else %}
-                                <div class="rounded-circle bg-vibrant text-white d-flex align-items-center justify-content-center mx-auto shadow-sm" style="width: 80px; height: 80px; font-size: 2rem;">
-                                    {{ booking.worker.user.username|make_list|first|upper }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="col-md-6 mb-3 mb-md-0">
-                            <h4 class="fw-bold mb-1">{{ booking.worker.user.username|title }}</h4>
-                            <p class="text-muted small mb-2"><i class="fa-solid fa-briefcase vibrant-blue me-1"></i> {{ booking.worker.skills }}</p>
-                            
-                            <div class="d-flex flex-wrap gap-2 align-items-center">
-                                <span class="badge bg-light text-dark border px-2 py-1">₹{{ booking.worker.price_per_day }}/day</span>
-                                <span class="small text-muted"><i class="fa-regular fa-clock me-1"></i> Booked: {{ booking.booking_date|date:"M d, Y" }}</span>
+    <!-- ── Bookings Grid ── -->
+    <div class="row g-4">
+        {% for booking in bookings %}
+        <div class="col-lg-12">
+            <div class="booking-premium-card shadow-sm border border-light">
+                <div class="row g-0">
+                    <!-- Worker Brief -->
+                    <div class="col-md-3 border-end">
+                        <div class="p-4 text-center">
+                            <div class="worker-avatar-lg mx-auto mb-3" 
+                                 style="background-image: url('{% if booking.worker.photo %}{{ booking.worker.photo.url }}{% else %}https://ui-avatars.com/api/?name={{ booking.worker.user.username }}{% endif %}');">
+                            </div>
+                            <h6 class="fw-black mb-1">{{ booking.worker.user.first_name }} {{ booking.worker.user.last_name }}</h6>
+                            <div class="badge bg-light text-dark x-small px-3 rounded-pill">{{ booking.worker.categories.first.name }}</div>
+                            <div class="mt-3">
+                                <span class="fw-bold small text-warning">4.8 <i class="fa-solid fa-star"></i></span>
+                                <span class="text-muted small ms-1">({{ booking.worker.experience }}y exp)</span>
                             </div>
                         </div>
-                        
-                        <div class="col-md-4 text-center text-md-end">
-                            <div class="mb-3">
-                                {% if booking.status == 'pending' %}
-                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-3 py-2"><i class="fa-solid fa-hourglass-half me-1"></i> Awaiting Worker Response</span>
-                                {% elif booking.status == 'confirmed' %}
-                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2"><i class="fa-solid fa-check-double me-1"></i> Worker Accepted</span>
+                    </div>
+
+                    <!-- Booking Details -->
+                    <div class="col-md-6 border-end">
+                        <div class="p-4 h-100 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-4">
+                                <div>
+                                    <div class="label-sm">SERVICE DATE</div>
+                                    <div class="fw-black h5 mb-0">{{ booking.booking_date|date:"F d, Y" }}</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="label-sm">BOOKING ID</div>
+                                    <div class="fw-bold text-muted small">#MC-B{{ booking.id }}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-auto">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i class="fa-solid fa-location-dot text-brand"></i>
+                                    <span class="small fw-bold">{{ booking.worker.location }}</span>
+                                </div>
+                                <p class="text-muted x-small mb-0">{{ booking.special_instructions|default:"No special instructions provided." }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status & Actions -->
+                    <div class="col-md-3">
+                        <div class="p-4 h-100 d-flex flex-column justify-content-center text-center">
+                            <div class="mb-4">
+                                <div class="label-sm mb-2">CURRENT STATUS</div>
+                                {% if booking.status == 'confirmed' %}
+                                    <span class="badge rounded-pill bg-primary px-3 py-2 fw-bold">ONGOING</span>
+                                {% elif booking.status == 'pending' %}
+                                    <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold">PENDING</span>
+                                {% elif booking.status == 'cancelled' %}
+                                    <span class="badge rounded-pill bg-danger px-3 py-2 fw-bold">CANCELLED</span>
                                 {% elif booking.status == 'completed' %}
-                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2"><i class="fa-solid fa-clipboard-check me-1"></i> Payment Completed</span>
+                                    <span class="badge rounded-pill bg-success px-3 py-2 fw-bold">COMPLETED</span>
                                 {% else %}
-                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-2"><i class="fa-solid fa-xmark me-1"></i> Cancelled</span>
+                                    <span class="badge rounded-pill bg-light text-muted px-3 py-2 fw-bold small">FINISHED</span>
                                 {% endif %}
                             </div>
 
-                            {% if booking.status == 'confirmed' %}
-                                <a href="{% url 'initiate_payment' booking.id %}" class="btn btn-vibrant rounded-pill px-4 shadow-sm w-100">
-                                    <i class="fa-solid fa-wallet me-2"></i> Pay Now to Confirm
-                                </a>
-                            {% elif booking.status == 'completed' %}
-                                <button class="btn btn-outline-secondary rounded-pill px-4 w-100" data-bs-toggle="modal" data-bs-target="#reviewModal-{{ booking.id }}">
-                                    <i class="fa-solid fa-star me-2 text-warning"></i> Leave Review
-                                </button>
-                            {% endif %}
+                            <div class="d-grid gap-2">
+                                {% if booking.status == 'completed' %}
+                                    <a href="{% url 'submit_review' booking.id %}" class="btn btn-brand btn-sm rounded-pill fw-bold">Give Feedback</a>
+                                {% endif %}
+                                {% if booking.status == 'completed' or booking.status == 'confirmed' %}
+                                    <a href="{% url 'view_receipt' booking.id %}" class="btn btn-outline-dark btn-sm rounded-pill fw-bold">View Receipt</a>
+                                {% endif %}
+                            </div>
+                            <div class="mt-3 fw-black text-brand" style="font-size:1.2rem;">₹{{ booking.total_price }}</div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Review Modal -->
-                <div class="modal fade" id="reviewModal-{{ booking.id }}" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content border-0 rounded-4 shadow-lg">
-                            <div class="modal-header border-0 pb-0">
-                                <h5 class="fw-bold">Rate {{ booking.worker.user.username|title }}</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <p class="text-muted">How was your experience?</p>
-                                <!-- Review form implementation can go here -->
-                                <textarea class="form-control mb-3" rows="3" placeholder="Write your feedback..."></textarea>
-                                <button class="btn btn-vibrant w-100 rounded-pill">Submit Review</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            {% empty %}
-                <div class="text-center py-5 bg-white rounded-4 border p-4 shadow-sm">
-                    <div class="display-3 text-muted mb-3 opacity-25"><i class="fa-solid fa-calendar-xmark"></i></div>
-                    <h4 class="fw-bold text-muted">No Bookings Yet</h4>
-                    <p class="text-muted mb-4">You haven't booked any services yet.</p>
-                    <a href="{% url 'worker_list' %}" class="btn btn-vibrant rounded-pill px-4">Find a Helper</a>
-                </div>
-            {% endfor %}
+            </div>
         </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="empty-state-wrap opacity-75">
+                <i class="fa-solid fa-calendar-xmark display-1 mb-4" style="color:var(--brand);"></i>
+                <h4 class="fw-black">No Bookings Found</h4>
+                <p class="text-muted">You haven't booked any expert help yet. Let's find someone today!</p>
+                <a href="/workers/" class="btn btn-brand rounded-pill px-5 py-3 mt-3 fw-black">Browse Verified Workers</a>
+            </div>
+        </div>
+        {% endfor %}
     </div>
+
 </div>
+
+<style>
+    .booking-premium-card {
+        background: #fff;
+        border-radius: 1.5rem;
+        overflow: hidden;
+        transition: var(--t-fast);
+    }
+    .booking-premium-card:hover { transform: translateY(-3px); box-shadow: 0 10px 40px rgba(0,0,0,0.06); }
+
+    .worker-avatar-lg {
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        background-size: cover;
+        background-position: center;
+        border: 4px solid var(--bg-alt);
+    }
+    .label-sm { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+</style>
 {% endblock %}

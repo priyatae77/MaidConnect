@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Verify Your Identity — MaidConnect{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="verification-card p-5 shadow-lg animate-fade-in text-center" style="background:#fff; border-radius:2rem;">
+                <!-- Icon -->
+                <div class="mb-4">
+                    <div class="otp-icon mx-auto">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                </div>
+
+                <h2 class="fw-black mb-1">OTP Verification</h2>
+                <p class="text-muted small mb-5">We've sent a 6-digit code to your registered mobile and email. Please verify to continue.</p>
+
+                <!-- OTP Input Grid -->
+                <div class="d-flex justify-content-center gap-2 mb-4">
+                    <input type="text" maxlength="1" class="otp-input" onkeyup="nextInput(this)">
+                    <input type="text" maxlength="1" class="otp-input" onkeyup="nextInput(this)">
+                    <input type="text" maxlength="1" class="otp-input" onkeyup="nextInput(this)">
+                    <div class="mx-1 d-flex align-items-center text-muted opacity-50">-</div>
+                    <input type="text" maxlength="1" class="otp-input" onkeyup="nextInput(this)">
+                    <input type="text" maxlength="1" class="otp-input" onkeyup="nextInput(this)">
+                    <input type="text" maxlength="1" class="otp-input" onkeyup="nextInput(this)">
+                </div>
+
+                <div class="mb-5">
+                    <button class="btn btn-brand w-100 rounded-pill py-3 fw-black" id="verifyBtn">Verify & Proceed</button>
+                    <div class="mt-3 small">
+                        <span class="text-muted">Didn't receive code?</span>
+                        <a href="#" class="text-brand fw-bold text-decoration-none ms-1">Resend in 0:45</a>
+                    </div>
+                </div>
+
+                <!-- Simulation Info (for user) -->
+                <div class="alert alert-info py-2 x-small border-0 rounded-4 fw-bold">
+                    <i class="fa-solid fa-circle-info me-1"></i> SIMULATION CODE: 123456
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .otp-icon {
+        width: 80px; height: 80px;
+        background: var(--brand-light);
+        color: var(--brand);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2rem;
+    }
+    .otp-input {
+        width: 45px; height: 55px;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+        border-radius: 12px;
+        border: 2px solid var(--bg-alt);
+        background: var(--bg-alt);
+        outline: none;
+        transition: all 0.2s;
+    }
+    .otp-input:focus { border-color: var(--brand); background: #fff; box-shadow: 0 0 0 4px var(--brand-light); }
+</style>
+
+<script>
+    function nextInput(el) {
+        if (el.value.length >= 1) {
+            let next = el.nextElementSibling;
+            if (next && next.tagName === 'INPUT') next.focus();
+        }
+    }
+
+    document.getElementById('verifyBtn').addEventListener('click', function() {
+        let otp = "";
+        document.querySelectorAll('.otp-input').forEach(i => otp += i.value);
+        
+        if (otp === "123456") {
+            fetch('/verify-otp/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: 'otp=123456'
+            }).then(() => {
+                location.href = '/';
+            });
+        } else {
+            alert('Invalid OTP for simulation. Use 123456');
+        }
+    });
+</script>
+{% endblock %}

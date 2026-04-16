@@ -4,81 +4,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}MaidConnect - Professional Maid & Care Services{% endblock %}</title>
+    <meta name="description" content="MaidConnect — Book verified maids, cooks, babysitters & care workers near you. Fast, reliable, and affordable.">
+    <title>{% block title %}MaidConnect — Book Verified Home Services{% endblock %}</title>
 
-    <!-- Google Fonts for Modern Typography -->
+    <!-- Preconnect for Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <!-- Custom Stylings (Clean White + Vibrant) -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- MaidConnect Design System (v2.1) -->
+    <link rel="stylesheet" href="{% static 'css/index.css' %}?v=2.1">
 
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
 
-    <!-- 🔥 LUXURY LOADING ANIMATION -->
-    <div id="loader" class="loader-container">
-        <div class="loader-content">
-            <div class="spinner-grow vibrant-blue" role="status">
-                <span class="visually-hidden">Loading...</span>
+    <!-- ░░ LOADER ░░ -->
+    <div id="mc-loader" class="loader-container">
+        <div class="rolling-wrap">
+            <div class="rolling-heart">
+                <i class="fa-solid fa-heart"></i>
             </div>
-            <div class="spinner-grow vibrant-teal mx-2" role="status" style="animation-delay: 0.2s;"></div>
-            <div class="spinner-grow vibrant-purple" role="status" style="animation-delay: 0.4s;"></div>
-            <h4 class="mt-4 loader-text">MaidConnect</h4>
-            <p class="text-muted">Preparing elegant services...</p>
+            <div class="rolling-shadow"></div>
         </div>
+        <div class="loader-logo mt-3">MaidConnect</div>
+        <div class="loader-tag">Trust • Care • Help</div>
     </div>
 
-    <!-- MAIN CONTENT (Hidden until loaded) -->
-    <div id="main-content" style="opacity: 0; transition: opacity 0.8s ease-in-out;">
-        
-        <!-- Premium Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-light glass-nav fixed-top">
+    <!-- ░░ MAIN APP ░░ -->
+    <div id="mc-app" style="opacity:0; transition: opacity 0.5s ease;">
+
+        <!-- ══════════ NAVBAR ══════════ -->
+        <nav class="navbar navbar-expand-lg sticky-top" id="mc-navbar">
             <div class="container">
-                <a class="navbar-brand fw-bold vibrant-text" href="/">
-                    <i class="fa-solid fa-hands-holding-child me-2"></i>MaidConnect
+
+                <!-- Brand -->
+                <a class="navbar-brand" href="/">
+                    <i class="fa-solid fa-house-chimney-crack me-1" style="font-size:1.3rem;"></i>
+                    Maid<span style="color:var(--brand-deep);">Connect</span><span class="brand-dot ms-1"></span>
                 </a>
-                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-toggle="navbarNav">
+
+                <!-- Toggle -->
+                <button class="navbar-toggler border-0 shadow-none" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#mcNav"
+                        aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto align-items-center">
-                        <li class="nav-item"><a class="nav-link px-3" href="/">Home</a></li>
-                        <li class="nav-item"><a class="nav-link px-3" href="/workers/">Find Workers</a></li>
-                        
+
+                <!-- Nav Links -->
+                <div class="collapse navbar-collapse" id="mcNav">
+                    <ul class="navbar-nav ms-auto align-items-center gap-1">
+                        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/workers/">Browse Workers</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
+
                         {% if user.is_authenticated %}
-                            <li class="nav-item ms-3">
-                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                                    <div class="avatar-circle rounded-circle bg-vibrant text-white d-flex align-items-center justify-content-center me-2">
-                                        {{ user.username|make_list|first|upper }}
-                                    </div>
-                                    <span class="fw-medium">{{ user.username }}</span>
+                            <li class="nav-item dropdown ms-lg-2">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                                   href="#" role="button" data-bs-toggle="dropdown">
+                                    <span class="nav-avatar">{{ user.username|make_list|first|upper }}</span>
+                                    <span class="fw-semibold" style="font-size:0.9rem;">{{ user.username }}</span>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-4 mt-2 p-2">
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-2"
+                                    style="border-radius:1rem; min-width:200px; animation: slideInDown 0.2s ease;">
                                     {% if user.role == "admin" %}
-                                    <li><a class="dropdown-item rounded-3" href="/admin/"><i class="fa-solid fa-gauge me-2"></i> Dashboard</a></li>
+                                    <li>
+                                        <a class="dropdown-item rounded-2 py-2 fw-semibold" href="/admin-dashboard/">
+                                            <i class="fa-solid fa-chart-pie me-2 text-brand"></i> Admin Dashboard
+                                        </a>
+                                    </li>
                                     {% elif user.role == "worker" %}
-                                    <li><a class="dropdown-item rounded-3" href="/worker-dashboard/"><i class="fa-solid fa-briefcase me-2"></i> My Jobs</a></li>
+                                    <li>
+                                        <a class="dropdown-item rounded-2 py-2 fw-semibold" href="/worker-dashboard/">
+                                            <i class="fa-solid fa-briefcase me-2 text-brand"></i> My Dashboard
+                                        </a>
+                                    </li>
                                     {% else %}
-                                    <li><a class="dropdown-item rounded-3" href="/my-bookings/"><i class="fa-solid fa-calendar-check me-2"></i> My Bookings</a></li>
+                                    <li>
+                                        <a class="dropdown-item rounded-2 py-2 fw-semibold" href="/my-bookings/">
+                                            <i class="fa-solid fa-bag-shopping me-2 text-brand"></i> My Bookings
+                                        </a>
+                                    </li>
                                     {% endif %}
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item rounded-3 text-danger" href="/logout/"><i class="fa-solid fa-sign-out-alt me-2"></i> Logout</a></li>
+                                    <li><hr class="dropdown-divider opacity-25 my-1"></li>
+                                    <li>
+                                        <a class="dropdown-item rounded-2 py-2 fw-semibold text-danger" href="/logout/">
+                                            <i class="fa-solid fa-right-from-bracket me-2"></i> Sign Out
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                         {% else %}
-                            <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
-                                <a class="btn btn-outline-vibrant px-4 me-2 rounded-pill fw-medium" href="/login/">Sign In</a>
+                            <li class="nav-item ms-lg-1">
+                                <a class="nav-link fw-semibold" href="/login/">Sign In</a>
                             </li>
-                            <li class="nav-item mt-2 mt-lg-0">
-                                <a class="btn btn-vibrant px-4 rounded-pill fw-medium shadow-sm" href="/user/register/">Get Started</a>
+                            <li class="nav-item ms-lg-1">
+                                <a class="btn-nav-cta" href="{% url 'register_choice' %}">Get Started</a>
                             </li>
                         {% endif %}
                     </ul>
@@ -86,67 +116,121 @@
             </div>
         </nav>
 
-        <div class="content-wrapper" style="margin-top: 80px; min-height: 80vh;">
-            {% if messages %}
-                <div class="container mt-4">
-                    {% for message in messages %}
-                        <div class="toast align-items-center text-bg-{{ message.tags }} border-0 show shadow-lg w-100 mb-3 rounded-4" role="alert" aria-live="assertive" aria-atomic="true">
-                            <div class="d-flex">
-                                <div class="toast-body fw-medium">
-                                    <i class="fa-solid fa-circle-info me-2"></i> {{ message }}
-                                </div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            {% block content %}
-            {% endblock %}
+        <!-- ══ FLASH MESSAGES ══ -->
+        {% if messages %}
+        <div class="container mt-3" style="max-width:700px;">
+            {% for message in messages %}
+            <div class="alert alert-dismissible fade show border-0 shadow-sm d-flex align-items-center gap-3 rounded-3 px-4 py-3"
+                 style="background:#fff; border-left: 4px solid var(--brand) !important;">
+                <i class="fa-solid fa-circle-check text-brand fs-5"></i>
+                <span class="fw-semibold small">{{ message }}</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
         </div>
+        {% endif %}
 
-        <!-- Premium Footer -->
-        <footer class="bg-light py-5 mt-5">
-            <div class="container text-center text-md-start">
-                <div class="row align-items-center">
-                    <div class="col-md-4 mb-3 mb-md-0">
-                        <h4 class="fw-bold vibrant-text mb-2"><i class="fa-solid fa-hands-holding-child me-2"></i>MaidConnect</h4>
-                        <p class="text-muted small mb-0">Professional care, trusted hands.<br>Connecting families with verified helpers.</p>
+        <!-- ══ CONTENT ══ -->
+        <main style="min-height: 75vh;">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- ══════════ FOOTER ══════════ -->
+        <footer class="site-footer">
+            <div class="container">
+                <div class="row g-5">
+                    <!-- Brand Column -->
+                    <div class="col-lg-4">
+                        <div class="footer-brand">MaidConnect</div>
+                        <p class="footer-tagline mt-2 pe-lg-4">
+                            India's trusted marketplace for verified home care workers.
+                            Safe, fast, and reliable — every booking guaranteed.
+                        </p>
+                        <div class="footer-social mt-3">
+                            <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                            <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                            <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+                            <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                        </div>
                     </div>
-                    <div class="col-md-4 mb-3 mb-md-0 text-center">
-                        <a href="#" class="text-muted mx-2 fs-5"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="#" class="text-muted mx-2 fs-5"><i class="fa-brands fa-facebook"></i></a>
-                        <a href="#" class="text-muted mx-2 fs-5"><i class="fa-brands fa-twitter"></i></a>
+
+                    <!-- Services -->
+                    <div class="col-6 col-lg-2">
+                        <div class="footer-heading">Services</div>
+                        <ul class="footer-links">
+                            <li><a href="/workers/">Browse Workers</a></li>
+                            <li><a href="/workers/?search=cooking">Cooking</a></li>
+                            <li><a href="/workers/?search=cleaning">Cleaning</a></li>
+                            <li><a href="/workers/?search=baby+care">Baby Care</a></li>
+                            <li><a href="/workers/?search=elder+care">Elder Care</a></li>
+                        </ul>
                     </div>
-                    <div class="col-md-4 text-center text-md-end">
-                        <p class="text-muted small mb-0">&copy; 2026 MaidConnect. All rights reserved.</p>
+
+                    <!-- Company -->
+                    <div class="col-6 col-lg-2">
+                        <div class="footer-heading">Company</div>
+                        <ul class="footer-links">
+                            <li><a href="{% url 'about' %}">Our Story</a></li>
+                            <li><a href="{% url 'register_choice' %}">Join as Partner</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                            <li><a href="#">Terms of Service</a></li>
+                        </ul>
                     </div>
+
+                    <!-- Contact -->
+                    <div class="col-lg-4">
+                        <div class="footer-heading">Get the App</div>
+                        <p class="footer-tagline mb-3">Coming soon to iOS &amp; Android</p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="#" class="d-flex align-items-center gap-2 px-3 py-2 rounded-3"
+                               style="background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.7); font-size:0.82rem; text-decoration:none;">
+                                <i class="fa-brands fa-apple fs-5"></i> App Store
+                            </a>
+                            <a href="#" class="d-flex align-items-center gap-2 px-3 py-2 rounded-3"
+                               style="background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.7); font-size:0.82rem; text-decoration:none;">
+                                <i class="fa-brands fa-google-play fs-5"></i> Play Store
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <span>&copy; 2026 MaidConnect Technologies Pvt. Ltd. All rights reserved.</span>
+                    <span><i class="fa-solid fa-shield-check me-1" style="color:var(--brand);"></i> Safe & Verified Platform</span>
                 </div>
             </div>
         </footer>
 
-    </div>
+    </div><!-- /mc-app -->
 
-    <!-- Bootstrap & JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Loading Screen Animation logic
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                const loader = document.getElementById('loader');
-                const mainContent = document.getElementById('main-content');
-                
+        // ── Loader Logic ──
+        window.addEventListener('load', function () {
+            const loader = document.getElementById('mc-loader');
+            const app    = document.getElementById('mc-app');
+            setTimeout(function () {
                 loader.style.opacity = '0';
-                setTimeout(() => {
+                loader.style.transition = 'opacity 0.4s ease';
+                setTimeout(function () {
                     loader.style.display = 'none';
-                    mainContent.style.display = 'block';
-                    mainContent.style.opacity = '1';
-                }, 500); // Wait for fade out
-            }, 800); // Initial artificial delay for premium feel
+                    app.style.opacity = '1';
+                }, 420);
+            }, 700);
         });
 
-        // CSRF helper (VERY IMPORTANT in Django)
+        // ── Navbar scroll shadow ──
+        window.addEventListener('scroll', function () {
+            const nav = document.getElementById('mc-navbar');
+            if (window.scrollY > 10) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // ── CSRF Helper ──
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -162,5 +246,6 @@
             return cookieValue;
         }
     </script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

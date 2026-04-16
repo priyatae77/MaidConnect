@@ -1,40 +1,95 @@
 {% extends "base.html" %}
-{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Sign In — MaidConnect Marketplace{% endblock %}
 
 {% block content %}
 <div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="hover-card p-5 mt-5">
-                <div class="text-center mb-4">
-                    <div class="display-4 vibrant-teal mb-3"><i class="fa-solid fa-right-to-bracket"></i></div>
-                    <h2 class="fw-bold">Welcome Back</h2>
-                    <p class="text-muted">Please sign in to your MaidConnect account</p>
+    <div class="row min-vh-75 align-items-center">
+        
+        <!-- Left Side: Branding/Engagement -->
+        <div class="col-lg-6 d-none d-lg-block animate-fade-in">
+            <div class="p-5">
+                <h1 class="display-3 fw-black mb-1" style="letter-spacing:-2.5px; line-height:1;">
+                    Join Our <span style="color:var(--brand-deep);">Team</span>
+                </h1>
+                <p class="h5 mt-4 text-muted fw-medium lh-base">
+                    Discover experts for cleaning, cooking, and care.<br> 
+                    Join 10k+ happy families in Tamil Nadu.
+                </p>
+                
+                <div class="mt-5 d-flex gap-5">
+                    <div>
+                        <div class="h3 fw-black mb-0">500+</div>
+                        <div class="x-small fw-bold text-muted">PARTNERS</div>
+                    </div>
+                    <div>
+                        <div class="h3 fw-black mb-0">15k+</div>
+                        <div class="x-small fw-bold text-muted">SUCCESSFUL JOBS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Login Form -->
+        <div class="col-lg-5 offset-lg-1">
+            <div class="dash-card p-5 animate-scale shadow-lg" style="background:#fff; border-radius:2.5rem;">
+                <div class="text-center mb-5">
+                    <div class="mb-3 d-inline-block p-3 rounded-4" style="background:var(--brand-light);">
+                        <i class="fa-solid fa-user-lock text-brand h4 mb-0"></i>
+                    </div>
+                    <h2 class="fw-black mb-1">Maid<span style="color:var(--brand-deep);">Connect</span> Login</h2>
+                    <p class="text-muted small">Access your personalized atmosphere.</p>
                 </div>
 
-                <form method="POST" action="{% url 'login' %}">
+                <form method="POST">
                     {% csrf_token %}
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-medium">Username</label>
-                        <input type="text" name="username" class="form-control form-control-lg rounded-3 bg-light border-0" required placeholder="Enter username">
-                    </div>
-                    
                     <div class="mb-4">
-                        <label class="form-label fw-medium">Password</label>
-                        <input type="password" name="password" class="form-control form-control-lg rounded-3 bg-light border-0" required placeholder="Enter password">
+                        <label class="label-sm mb-2 d-block">USERNAME / EMAIL</label>
+                        <input type="text" name="username" class="form-control-premium" placeholder="e.g., ravi_tn" required>
+                    </div>
+                    <div class="mb-5">
+                        <div class="d-flex justify-content-between">
+                            <label class="label-sm mb-2">PASSWORD</label>
+                            <a href="#" class="x-small fw-bold text-brand text-decoration-none">Forgot?</a>
+                        </div>
+                        <input type="password" name="password" class="form-control-premium" placeholder="••••••••" required>
                     </div>
 
-                    <button type="submit" class="btn btn-vibrant btn-lg w-100 rounded-pill shadow-sm mb-3">Sign In</button>
+                    <button type="submit" class="btn btn-brand w-100 rounded-pill py-3 fw-black shadow-brand mb-4">
+                        Sign In Now <i class="fa-solid fa-arrow-right ms-2"></i>
+                    </button>
                     
-                    <div class="text-center mt-3">
-                        <span class="text-muted">Don't have an account?</span><br>
-                        <a href="{% url 'user_register' %}" class="vibrant-text fw-bold text-decoration-none me-3">Register as User</a> | 
-                        <a href="{% url 'worker_register' %}" class="vibrant-text fw-bold text-decoration-none ms-3">Register as Worker</a>
+                    <div class="text-center">
+                        <p class="text-muted small mb-0">New to the platform?</p>
+                        <div class="d-flex justify-content-center gap-3 mt-2">
+                            <a href="/user/register/" class="fw-bold text-brand text-decoration-none small">Join as User</a>
+                            <span class="text-muted opacity-25">|</span>
+                            <a href="/worker/register/" class="fw-bold text-brand text-decoration-none small">Become a Partner</a>
+                        </div>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .form-control-premium {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        background: var(--bg-alt);
+        border: 2px solid transparent;
+        border-radius: 1rem;
+        font-weight: 600;
+        outline: none;
+        transition: all 0.2s;
+    }
+    .form-control-premium:focus {
+        border-color: var(--brand);
+        background: #fff;
+        box-shadow: 0 0 0 4px var(--brand-light);
+    }
+    .shadow-brand { box-shadow: 0 10px 30px rgba(255, 75, 145, 0.2); }
+</style>
 {% endblock %}

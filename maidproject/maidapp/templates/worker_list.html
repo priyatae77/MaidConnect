@@ -1,173 +1,186 @@
 {% extends "base.html" %}
 {% load static %}
+{% load mc_tags %}
+
+{% block title %}Browse Workers — MaidConnect{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    
-    <!-- PAGE HEADER -->
-    <div class="text-center mb-5 mt-4">
-        <span class="badge bg-vibrant rounded-pill px-3 py-2 mb-3 fw-medium">Hire Professionals</span>
-        <h2 class="fw-bold display-6">Available <span class="vibrant-text">Workers</span></h2>
-        <p class="text-muted">Find trusted helpers verified by MaidConnect</p>
-    </div>
+<div class="animate-fade-in">
 
-    <!-- SEARCH FILTER BAR -->
-    <div class="row justify-content-center mb-5">
-        <div class="col-lg-10">
-            <div class="glass-nav rounded-4 shadow-sm p-4 border">
-                <form method="GET" class="row g-3 align-items-end">
-                    
-                    <div class="col-md-4">
-                        <label class="form-label text-muted small fw-bold">Search Skills</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-search text-muted"></i></span>
-                            <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="e.g. Cooking, Baby Care, Cleaning..." value="{{ request.GET.search }}">
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-3">
-                        <label class="form-label text-muted small fw-bold">Location</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-location-dot text-muted"></i></span>
-                            <input type="text" name="location" class="form-control border-start-0 ps-0" placeholder="City or Area" value="{{ request.GET.location }}">
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-3">
-                        <label class="form-label text-muted small fw-bold">Max Price (₹)</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-indian-rupee-sign text-muted"></i></span>
-                            <input type="number" name="price" class="form-control border-start-0 ps-0" placeholder="Max budget" value="{{ request.GET.price }}">
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-vibrant w-100 py-2 rounded-3 shadow-sm fw-medium">
-                            Apply Filter
-                        </button>
-                    </div>
-
-                </form>
-            </div>
+    <!-- ── Page Header ── -->
+    <div style="background: var(--bg-alt); border-bottom: 1px solid var(--border); padding: 2rem 0 1.5rem;">
+        <div class="container">
+            <nav aria-label="breadcrumb" class="mb-2">
+                <ol class="breadcrumb mb-0" style="font-size:0.82rem;">
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none" style="color:var(--brand);">Home</a></li>
+                    <li class="breadcrumb-item active text-muted">Browse Workers</li>
+                </ol>
+            </nav>
+            <h1 class="mb-0" style="font-size:1.8rem; font-weight:800;">Find the Best Help for Your Home</h1>
+            <p class="text-muted small mt-1 mb-0">
+                {{ workers|length }} verified worker{{ workers|length|pluralize }} available
+            </p>
         </div>
     </div>
 
-    <!-- WORKER GRID -->
-    <div class="row g-4">
-        {% for worker in workers %}
-        <div class="col-md-6 col-lg-4 col-xl-3">
-            <div class="hover-card h-100 d-flex flex-column position-relative">
-                
-                <!-- Availability Badge -->
-                <div class="position-absolute top-0 end-0 m-3 z-3">
-                    {% if worker.availability == 'available' %}
-                        <span class="badge bg-success rounded-pill px-3 shadow-sm"><i class="fa-solid fa-circle-check me-1"></i> Available</span>
-                    {% else %}
-                        <span class="badge bg-secondary rounded-pill px-3 shadow-sm"><i class="fa-solid fa-clock me-1"></i> Busy</span>
-                    {% endif %}
+    <div class="container py-4">
+
+        <!-- ── Filter Bar ── -->
+        <form method="GET" id="filter-form">
+            <div class="filter-bar mb-4">
+                <!-- Search -->
+                <div class="filter-field" style="flex: 2; min-width: 200px;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" name="search" placeholder="Cooking, Cleaning, Baby Care…"
+                           value="{{ request.GET.search }}" autocomplete="off">
                 </div>
 
-                <!-- Verified Badge -->
-                {% if worker.verified %}
-                <div class="position-absolute top-0 start-0 m-2 z-3" data-bs-toggle="tooltip" title="Admin Verified Worker">
-                    <div class="bg-white rounded-circle p-1 shadow-sm d-inline-flex align-items-center justify-content-center" style="width:35px; height:35px;">
-                        <i class="fa-solid fa-shield-check text-primary fs-5"></i>
-                    </div>
+                <!-- Location -->
+                <div class="filter-field" style="flex: 1.5; min-width: 150px;">
+                    <i class="fa-solid fa-location-dot" style="color:var(--brand);"></i>
+                    <input type="text" name="location" placeholder="City or area"
+                           value="{{ request.GET.location }}" autocomplete="off">
                 </div>
+
+                <!-- Max Budget -->
+                <div class="filter-field" style="flex: 1; min-width: 130px;">
+                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                    <input type="number" name="price" placeholder="Max budget/day"
+                           value="{{ request.GET.price }}" min="0">
+                </div>
+
+                <!-- Category -->
+                <div class="filter-field" style="flex: 1.2; min-width: 150px;">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <select name="category" style="background:transparent;border:none;outline:none;font-size:0.88rem;font-family:'Poppins',sans-serif;color:var(--text);width:100%;">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if request.GET.category == cat.id|slugify %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn-brand" style="white-space:nowrap; flex-shrink:0;">
+                    <i class="fa-solid fa-sliders me-1"></i> Apply
+                </button>
+
+                {% if request.GET.search or request.GET.location or request.GET.price or request.GET.category %}
+                <a href="{% url 'worker_list' %}" class="btn-outline-brand" style="white-space:nowrap; flex-shrink:0;">
+                    <i class="fa-solid fa-xmark me-1"></i> Clear
+                </a>
                 {% endif %}
+            </div>
+        </form>
 
-                <!-- Worker Image -->
-                <div class="position-relative">
-                    {% if worker.photo %}
-                        <img src="{{ worker.photo.url }}" class="card-img-top object-fit-cover rounded-top-4" alt="{{ worker.user.username }}" style="height: 250px;">
-                    {% else %}
-                        <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=800&auto=format&fit=crop" class="card-img-top object-fit-cover rounded-top-4" alt="Default Worker Image" style="height: 250px;">
-                    {% endif %}
-                    
-                    <!-- Gradient overlay for text visibility -->
-                    <div class="position-absolute bottom-0 w-100 p-3 bg-gradient" style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
-                        <h4 class="text-white mb-0 fw-bold">{{ worker.user.username|title }}</h4>
-                        {% if worker.gender and worker.age %}
-                            <small class="text-light">{{ worker.gender|title }}, {{ worker.age }} yrs</small>
+        <!-- ── Sort pills ── -->
+        <div class="d-flex gap-2 flex-wrap mb-4">
+            <span class="fw-semibold small text-muted me-1 align-self-center">Sort:</span>
+            <a href="?{{ request.GET.urlencode }}&sort=rating"
+               class="quick-sort-pill {% if request.GET.sort == 'rating' %}active{% endif %}">
+                ⭐ Highest Rated
+            </a>
+            <a href="?{{ request.GET.urlencode }}&sort=price_asc"
+               class="quick-sort-pill {% if request.GET.sort == 'price_asc' %}active{% endif %}">
+                💰 Price: Low
+            </a>
+            <a href="?{{ request.GET.urlencode }}&sort=price_desc"
+               class="quick-sort-pill {% if request.GET.sort == 'price_desc' %}active{% endif %}">
+                💎 Price: High
+            </a>
+            <a href="?{{ request.GET.urlencode }}&sort=exp"
+               class="quick-sort-pill {% if request.GET.sort == 'exp' %}active{% endif %}">
+                🏆 Most Experienced
+            </a>
+        </div>
+
+        <!-- ── Worker Grid ── -->
+        <div class="row g-3">
+            {% for worker in workers %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="{% url 'worker_detail' worker.id %}" class="sc-card">
+                    <div class="sc-card-img">
+                        {% if worker.photo %}
+                            <img src="{{ worker.photo.url }}" alt="{{ worker.user.username }}" loading="lazy">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=400&auto=format&fit=crop"
+                                 alt="Worker" loading="lazy">
+                        {% endif %}
+
+                        <!-- Rating -->
+                        <div class="sc-card-rating">
+                            <i class="fa-solid fa-star" style="font-size:0.65rem;"></i>
+                            {{ worker.rating_avg|default:"New" }}
+                        </div>
+
+                        <!-- Verified -->
+                        {% if worker.verified %}
+                        <div class="sc-card-badge-verified">
+                            <i class="fa-solid fa-circle-check"></i> Verified
+                        </div>
                         {% endif %}
                     </div>
-                </div>
-
-                <!-- Worker Details -->
-                <div class="p-4 flex-grow-1 bg-white">
-                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                        <span class="fw-bold fs-5 text-success">
-                            ₹{{ worker.price_per_day }}<span class="text-muted fs-6 fw-normal">/day</span>
-                        </span>
-                        <div class="text-warning fw-bold bg-warning bg-opacity-10 px-2 py-1 rounded-2 small border border-warning border-opacity-25">
-                            <i class="fa-solid fa-star"></i> {{ worker.rating_avg|default:"New" }}
+                    <div class="sc-card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <div class="sc-card-name">{{ worker.user.username|title }}</div>
+                            {% if worker.availability == 'available' %}
+                            <span class="availability-available">Open</span>
+                            {% else %}
+                            <span class="availability-busy">Busy</span>
+                            {% endif %}
+                        </div>
+                        <div class="sc-card-meta">
+                            {% with skills=worker.skills|split:" " %}
+                                {{ skills.0 }}{% if skills.1 %}, {{ skills.1 }}{% endif %}
+                            {% endwith %}
+                        </div>
+                        <div class="sc-card-footer">
+                            <div class="sc-card-price">₹{{ worker.price_per_day }}<span>/day</span></div>
+                            <div class="sc-card-loc">
+                                <i class="fa-solid fa-location-dot" style="color:var(--brand);"></i>
+                                {{ worker.location|truncatechars:12 }}
+                            </div>
                         </div>
                     </div>
-
-                    <p class="small text-muted mb-2"><i class="fa-solid fa-briefcase me-2 vibrant-teal"></i><strong>Skills:</strong> {{ worker.skills }}</p>
-                    <p class="small text-muted mb-2"><i class="fa-solid fa-location-dot me-2 vibrant-blue"></i><strong>Location:</strong> {{ worker.location }}</p>
-                    
-                    {% if worker.languages %}
-                        <p class="small text-muted mb-2"><i class="fa-solid fa-language me-2 vibrant-purple"></i><strong>Speaks:</strong> {{ worker.languages }}</p>
-                    {% endif %}
-                    {% if worker.work_timings %}
-                        <p class="small text-muted mb-3"><i class="fa-solid fa-business-time me-2 text-danger"></i><strong>Timings:</strong> {{ worker.work_timings }}</p>
-                    {% endif %}
-
-                </div>
-                
-                <!-- Action Buttons -->
-                <div class="p-3 pt-0 bg-white rounded-bottom-4 mt-auto">
-                    <!-- bookWorker function is from base.html -->
-                    <button class="btn btn-vibrant w-100 rounded-pill py-2 shadow-sm fw-medium" onclick="bookWorker('{{ worker.id }}')">
-                        <i class="fa-solid fa-calendar-check me-2"></i> Book Worker
-                    </button>
-                    <a href="#" class="btn btn-outline-secondary w-100 rounded-pill py-2 mt-2 fw-medium border-0 bg-light">
-                        View Full Profile
-                    </a>
-                </div>
+                </a>
             </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <div style="font-size:4rem; margin-bottom:1rem;">🔍</div>
+                <h4 class="fw-bold text-muted">Sorry, we couldn't find anyone.</h4>
+                <p class="text-muted small">Try adjusting your search filters or browse all available workers.</p>
+                <a href="{% url 'worker_list' %}" class="btn-brand mt-3">
+                    <i class="fa-solid fa-redo me-1"></i> Reset Filters
+                </a>
+            </div>
+            {% endfor %}
         </div>
-        {% empty %}
-        <div class="col-12 text-center py-5">
-            <div class="display-1 text-muted mb-3 opacity-25"><i class="fa-solid fa-search"></i></div>
-            <h3 class="text-muted fw-bold">No workers found.</h3>
-            <p class="text-muted">Try adjusting your search criteria to see more helpers.</p>
-            <a href="{% url 'worker_list' %}" class="btn btn-outline-vibrant rounded-pill px-4 mt-3">Clear Filters</a>
-        </div>
-        {% endfor %}
-    </div>
 
+    </div>
 </div>
 
-<!-- Initialize tooltips -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
-    });
-
-    function bookWorker(workerId) {
-        if (!confirm("Do you want to send a booking request to this worker?")) return;
-
-        fetch(`/book/${workerId}/`, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": getCookie("csrftoken"),
-                "Content-Type": "application/json"
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === "success" || data.message) {
-                alert("Booking request sent successfully! You can track it in 'My Bookings'.");
-            } else {
-                alert("Error sending booking request. Please try again.");
-            }
-        })
-        .catch(err => console.error(err));
-    }
-</script>
+<style>
+.quick-sort-pill {
+    display: inline-flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid var(--border);
+    color: var(--text-sub);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.3rem 0.9rem;
+    border-radius: var(--r-pill);
+    text-decoration: none;
+    transition: var(--t-fast);
+    cursor: pointer;
+}
+.quick-sort-pill:hover,
+.quick-sort-pill.active {
+    background: var(--brand-light);
+    border-color: var(--brand);
+    color: var(--brand);
+}
+</style>
 {% endblock %}

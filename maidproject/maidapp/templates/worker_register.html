@@ -1,46 +1,152 @@
 {% extends "base.html" %}
-{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Become a Service Partner — MaidConnect Marketplace{% endblock %}
 
 {% block content %}
 <div class="container py-5">
-    <div class="row justify-content-center">
+    <div class="row align-items-center mb-5 animate-up">
+        <div class="col-lg-6">
+            <h1 class="display-3 fw-black mb-1" style="letter-spacing:-2.5px; line-height:1;">
+                Join Our <span style="color:var(--brand-deep);">Team</span>.
+            </h1>
+            <p class="h5 text-muted fw-medium lh-base">Apply now to become a trusted help in our marketplace.</p>
+        </div>
+        <div class="col-lg-6 text-lg-end">
+            <span class="badge rounded-pill bg-dark px-4 py-2" style="font-size:0.8rem; letter-spacing:0.1em;">PHASE: VERIFICATION</span>
+        </div>
+    </div>
+
+    <div class="row g-5">
+        <!-- Application Form -->
         <div class="col-lg-8">
-            <div class="hover-card p-5">
+            <form method="POST" enctype="multipart/form-data" class="dash-card p-5 shadow-lg border-0" style="background:#fff; border-radius:3rem;">
+                {% csrf_token %}
                 
-                <div class="text-center mb-5">
-                    <span class="badge bg-vibrant rounded-pill px-3 py-2 mb-3 fw-medium">Join Our Platform</span>
-                    <h2 class="fw-bold display-6">Worker <span class="vibrant-text">Registration</span></h2>
-                    <p class="text-muted">Join our network of verified professionals and get booked instantly.</p>
+                <!-- SECTION 1: Identity -->
+                <div class="mb-5">
+                    <h5 class="fw-black mb-4"><i class="fa-solid fa-user-check text-brand me-2"></i> 1. Your Details</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="label-sm mb-2 d-block">CHOOSE USERNAME</label>
+                            <input type="text" name="username" class="form-control-premium" placeholder="e.g., kumar_cook" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="label-sm mb-2 d-block">EMAIL ADDRESS</label>
+                            <input type="email" name="email" class="form-control-premium" placeholder="kumar@example.com" required>
+                        </div>
+                    </div>
                 </div>
 
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="fa-solid fa-user me-2 vibrant-blue"></i>Account Details</h5>
-                            {{ user_form|crispy }}
+                <!-- SECTION 2: Region & Contact -->
+                <div class="mb-5">
+                    <h5 class="fw-black mb-4"><i class="fa-solid fa-map-location-dot text-brand me-2"></i> 2. Where You Work</h5>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="label-sm mb-2 d-block">SERVICE DISTRICT</label>
+                            <select name="district" class="form-control-premium" required>
+                                <option value="">Select District</option>
+                                <option>Coimbatore</option>
+                                <option>Tirupur</option>
+                                <option>Chennai</option>
+                                <option>Trichy</option>
+                                <option>Salem</option>
+                                <option>Karur</option>
+                                <option>Tuticorin</option>
+                                <option>Pondicherry</option>
+                            </select>
                         </div>
-                        
-                        <div class="col-md-6 mb-4 border-start px-md-4">
-                            <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="fa-solid fa-briefcase me-2 vibrant-teal"></i>Professional Info</h5>
-                            {{ worker_form|crispy }}
+                        <div class="col-md-6">
+                            <label class="label-sm mb-2 d-block">PINCODE</label>
+                            <input type="text" name="pincode" class="form-control-premium" placeholder="641XXX" required>
                         </div>
                     </div>
-
-                    <hr class="my-4">
-                    
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-vibrant btn-lg px-5 rounded-pill shadow-sm mt-2">
-                            Submit Application <i class="fa-solid fa-check ms-2"></i>
-                        </button>
-                        <p class="text-muted small mt-3">By registering, you agree to our verification protocols.</p>
+                    <div class="mb-3">
+                        <label class="label-sm mb-2 d-block">FULL BASE ADDRESS</label>
+                        <textarea name="address" class="form-control-premium" rows="2" placeholder="Exact location for background verification..." required></textarea>
                     </div>
+                </div>
 
-                </form>
+                <!-- SECTION 3: Documents (Original Upload) -->
+                <div class="mb-5">
+                    <h5 class="fw-black mb-4"><i class="fa-solid fa-id-card text-brand me-2"></i> 3. Original Document Verification</h5>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="p-4 rounded-4" style="background:var(--bg-alt);">
+                                <label class="label-sm mb-3 d-block">AADHAR CARD PHOTO</label>
+                                <input type="file" name="aadhar_photo" class="form-control form-control-sm border-0" required>
+                                <div class="x-small text-muted mt-2">Maximum file size: 5MB (JPG/PNG)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-4 rounded-4" style="background:var(--bg-alt);">
+                                <label class="label-sm mb-3 d-block">PAN CARD PHOTO</label>
+                                <input type="file" name="pan_photo" class="form-control form-control-sm border-0" required>
+                                <div class="x-small text-muted mt-2">Must match the original document.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- SECTION 4: Professional Specs -->
+                <div class="mb-5">
+                    <h5 class="fw-black mb-4"><i class="fa-solid fa-briefcase text-brand me-2"></i> 4. Service Specifics</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="label-sm mb-2 d-block">BASE PRICE (Per Day)</label>
+                            <input type="number" name="price_per_day" class="form-control-premium" placeholder="₹ 600" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="label-sm mb-2 d-block">EXPERIENCE (Years)</label>
+                            <input type="number" name="experience" class="form-control-premium" placeholder="5" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="label-sm mb-2 d-block">PASSWORD</label>
+                            <input type="password" name="password" class="form-control-premium" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-brand w-100 rounded-pill py-3 fw-black shadow-brand">
+                    Submit Application & Verify OTP <i class="fa-solid fa-arrow-right ms-2"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Sidebar Requirements -->
+        <div class="col-lg-4">
+            <div class="p-4 rounded-4 mb-4" style="background:#000; color:#fff;">
+                <h6 class="fw-black mb-4 text-brand">Application Checklist</h6>
+                <ul class="list-unstyled small fw-bold" style="line-height:2.2;">
+                    <li><i class="fa-solid fa-check-circle text-brand me-2"></i> Valid Mobile Number</li>
+                    <li><i class="fa-solid fa-check-circle text-brand me-2"></i> Active Email Access</li>
+                    <li><i class="fa-solid fa-check-circle text-brand me-2"></i> Original Aadhar Card</li>
+                    <li><i class="fa-solid fa-check-circle text-brand me-2"></i> Clear Background Photo</li>
+                    <li><i class="fa-solid fa-check-circle text-brand me-2"></i> 2+ Years Experience</li>
+                </ul>
+            </div>
+            
+            <div class="p-4 rounded-4" style="background:var(--brand-light); color:var(--brand);">
+                <h6 class="fw-black mb-2">Notice for TN Region</h6>
+                <p class="x-small mb-0 fw-bold">We are currently prioritizing partners in Tirupur and Coimbatore districts for instant activation.</p>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .form-control-premium {
+        width: 100%;
+        padding: 0.85rem 1.25rem;
+        background: var(--bg-alt);
+        border: 2px solid transparent;
+        border-radius: 1rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        outline: none;
+        transition: all 0.2s;
+    }
+    .form-control-premium:focus { border-color: var(--brand); background: #fff; }
+    .shadow-brand { box-shadow: 0 10px 30px rgba(255, 75, 145, 0.2); }
+</style>
 {% endblock %}

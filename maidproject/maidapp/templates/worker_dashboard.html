@@ -1,127 +1,299 @@
-{% extends "base.html" %}
+{% extends "dashboard_base.html" %}
 {% load static %}
 
-{% block content %}
-<div class="container py-5">
+{% block title %}Partner Workstation — MaidConnect{% endblock %}
+
+{% block extra_head %}
+<style>
+    :root {
+        --dash-accent: #22c55e; /* Success focus for workers */
+        --card-bg: #ffffff;
+    }
+    .status-card {
+        padding: 1.5rem;
+        border-radius: 1.25rem;
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
+    .count-lg { font-size: 2.2rem; font-weight: 800; color: var(--text); }
+    .label-sm { font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
     
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="fw-bold mb-1">Welcome back, <span class="vibrant-text">{{ worker.user.username }}</span></h2>
-            <p class="text-muted">Manage your bookings and availability</p>
+    .job-row {
+        background: #fff;
+        border-radius: 1rem;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid rgba(0,0,0,0.03);
+        transition: transform 0.2s ease;
+    }
+    .job-row:hover { transform: translateX(5px); border-color: var(--brand); }
+
+    .btn-action-sm {
+        padding: 0.4rem 1rem;
+        border-radius: 100px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: none;
+        transition: all 0.2s;
+    }
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="container py-5 animate-fade-in">
+
+    <!-- ── Atmospheric Header ── -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-5 gap-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge rounded-pill px-3 py-1 bg-success text-white" style="font-size:0.65rem; font-weight:800;">VERIFIED PARTNER</span>
+                <span class="text-muted small fw-bold">ID: #MC-W-{{ worker.id }}</span>
+            </div>
+            <h1 class="fw-black mb-1" style="font-size:2.5rem; letter-spacing:-1.2px;">
+                Hello, <span style="color:var(--brand);">{{ user.first_name }}</span>
+            </h1>
+            <p class="text-muted">Here is your daily service pulse and upcoming commitments.</p>
+        </div>
+        <div class="dash-card px-4 py-3 d-flex align-items-center gap-3">
+            <div class="text-end">
+                <div class="label-sm">Partner Status</div>
+                <div class="fw-black" style="color:var(--dash-accent);">
+                    <i class="fa-solid fa-circle-check me-1"></i> Active & Live
+                </div>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="availabilityToggle" {% if worker.availability == 'available' %}checked{% endif %}>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Sidebar Stats -->
-        <div class="col-lg-4 mb-4">
-            <div class="hover-card p-4 text-center">
-                <div class="position-relative d-inline-block mb-3">
-                    {% if worker.photo %}
-                        <img src="{{ worker.photo.url }}" class="rounded-circle shadow" style="width: 120px; height: 120px; object-fit: cover;">
-                    {% else %}
-                        <div class="rounded-circle bg-vibrant text-white d-flex align-items-center justify-content-center shadow" style="width: 120px; height: 120px; font-size: 3rem;">
-                            {{ worker.user.username|make_list|first|upper }}
-                        </div>
-                    {% endif %}
-                    
-                    {% if worker.verified %}
-                        <span class="position-absolute bottom-0 end-0 p-2 bg-white border border-light rounded-circle" data-bs-toggle="tooltip" title="Verified Worker">
-                            <i class="fa-solid fa-shield-check text-primary fs-5"></i>
-                        </span>
-                    {% endif %}
-                </div>
-
-                <h4 class="fw-bold">{{ worker.user.username }}</h4>
-                <p class="text-muted small mb-3">{{ worker.skills }}</p>
-
-                <div class="d-flex justify-content-center gap-2 mb-4">
-                    <span class="badge bg-light text-dark border px-3 py-2">₹{{ worker.price_per_day }}/day</span>
-                    <span class="badge bg-light text-warning border px-3 py-2"><i class="fa-solid fa-star me-1"></i> {{ worker.rating_avg|default:"New" }}</span>
-                </div>
-
-                <hr class="mb-4">
-
-                <div class="text-start">
-                    <h6 class="fw-bold mb-3 text-muted">Availability Status</h6>
-                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-3 border">
-                        <div class="fw-medium">
-                            {% if worker.availability == 'available' %}
-                                <i class="fa-solid fa-circle text-success me-2"></i> Available
-                            {% else %}
-                                <i class="fa-solid fa-circle text-danger me-2"></i> Busy
-                            {% endif %}
-                        </div>
-                        <button class="btn btn-sm btn-outline-secondary rounded-pill">Change</button>
+    <!-- ── WORK STATS (Done, Ongoing, Requested) ── -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="status-card h-100">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="p-2 rounded-3" style="background:rgba(59, 130, 246, 0.1); color:#3b82f6;">
+                        <i class="fa-solid fa-envelope-open-text"></i>
                     </div>
+                    <span class="badge rounded-pill bg-primary x-small">New Requests</span>
                 </div>
-
+                <div class="count-lg">{{ requested_count|default:"0" }}</div>
+                <div class="label-sm">Incoming Work</div>
             </div>
         </div>
-
-        <!-- Bookings Area -->
-        <div class="col-lg-8">
-            <div class="mb-4 d-flex justify-content-between align-items-center">
-                <h4 class="fw-bold mb-0">Booking Requests</h4>
-                <span class="badge bg-vibrant rounded-pill px-3 py-2">{{ bookings|length }} Total</span>
+        <div class="col-md-4">
+            <div class="status-card h-100">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="p-2 rounded-3" style="background:rgba(255, 75, 145, 0.1); color:var(--brand);">
+                        <i class="fa-solid fa-person-digging"></i>
+                    </div>
+                    <span class="badge rounded-pill bg-light text-brand x-small">Working Now</span>
+                </div>
+                <div class="count-lg">{{ ongoing_count|default:"0" }}</div>
+                <div class="label-sm">Active Enagements</div>
             </div>
+        </div>
+        <div class="col-md-4">
+            <div class="status-card h-100">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="p-2 rounded-3" style="background:rgba(34, 197, 94, 0.1); color:#22c55e;">
+                        <i class="fa-solid fa-square-check"></i>
+                    </div>
+                    <span class="badge rounded-pill bg-success x-small">Lifetime Success</span>
+                </div>
+                <div class="count-lg">{{ done_count|default:"0" }}</div>
+                <div class="label-sm">Jobs Completed</div>
+            </div>
+        </div>
+    </div>
 
+    <!-- ── WORK LIST ── -->
+    <div class="row">
+        <!-- Main Feed -->
+        <div class="col-lg-8">
+            <h5 class="fw-black mb-4">Current Workload</h5>
             {% for booking in bookings %}
-                <div class="hover-card p-4 mb-3 border-start border-4 {% if booking.status == 'pending' %}border-warning{% elif booking.status == 'confirmed' %}border-success{% else %}border-danger{% endif %}" id="booking-card-{{ booking.id }}">
-                    <div class="row align-items-center">
-                        <div class="col-md-7 mb-3 mb-md-0">
-                            <div class="d-flex align-items-center mb-2">
-                                <h5 class="fw-bold mb-0 me-3">{{ booking.user.username|title }}</h5>
-                                {% if booking.status == 'pending' %}
-                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-3">Pending Response</span>
-                                {% elif booking.status == 'confirmed' %}
-                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3">Accepted</span>
-                                {% else %}
-                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3">Cancelled</span>
-                                {% endif %}
-                            </div>
-                            <p class="text-muted small mb-0"><i class="fa-regular fa-clock me-2"></i>Requested on: {{ booking.booking_date|date:"M d, Y" }}</p>
-                        </div>
-                        
-                        <div class="col-md-5 text-md-end">
-                            {% if booking.status == 'pending' %}
-                                <button onclick="updateBooking('{{ booking.id }}', 'accept')" class="btn btn-success rounded-pill px-4 me-2 shadow-sm"><i class="fa-solid fa-check me-1"></i> Accept</button>
-                                <button onclick="updateBooking('{{ booking.id }}', 'reject')" class="btn btn-outline-danger rounded-pill px-4"><i class="fa-solid fa-xmark me-1"></i> Reject</button>
-                            {% elif booking.status == 'confirmed' %}
-                                <button class="btn btn-primary rounded-pill px-4 shadow-sm"><i class="fa-regular fa-comments me-2"></i> Message Client</button>
-                            {% endif %}
-                        </div>
+            <div class="job-row d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-4">
+                    <div class="text-center" style="min-width:60px;">
+                        <div class="fw-black" style="font-size:1.2rem;">{{ booking.booking_date|date:"d" }}</div>
+                        <div class="label-sm" style="font-size:0.6rem;">{{ booking.booking_date|date:"M" }}</div>
+                    </div>
+                    <div style="width:1px; height:40px; background:rgba(0,0,0,0.05);"></div>
+                    <div>
+                        <div class="fw-black">{{ booking.user.first_name }} {{ booking.user.last_name }}</div>
+                        <div class="small text-muted">{{ booking.service_address|truncatechars:35 }}</div>
                     </div>
                 </div>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-end d-none d-sm-block">
+                        <div class="label-sm">Expected Pay</div>
+                        <div class="fw-black text-brand">₹{{ booking.total_price }}</div>
+                    </div>
+                    {% if booking.status == 'pending' %}
+                        <div class="d-flex gap-2">
+                            <button class="btn-action-sm bg-success text-white action-btn" data-id="{{ booking.id }}" data-status="accept">Accept</button>
+                            <button class="btn-action-sm bg-light text-muted action-btn" data-id="{{ booking.id }}" data-status="reject">Decline</button>
+                        </div>
+                    {% elif booking.status == 'confirmed' %}
+                        <div class="d-flex gap-2 align-items-center">
+                            <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold small">IN PROGRESS</span>
+                            <button class="btn-action-sm bg-primary text-white action-btn" data-id="{{ booking.id }}" data-status="complete">Mark Done</button>
+                        </div>
+                    {% else %}
+                        <span class="badge rounded-pill bg-light text-muted px-3 py-2 fw-bold small">COMPLETED</span>
+                    {% endif %}
+                </div>
+            </div>
             {% empty %}
-                <div class="text-center py-5 bg-light rounded-4 border border-dashed">
-                    <div class="display-4 text-muted mb-3 opacity-25"><i class="fa-regular fa-calendar-xmark"></i></div>
-                    <h5 class="fw-bold text-muted">No bookings yet</h5>
-                    <p class="text-muted small">When users book your services, they will appear here.</p>
+                <div class="text-center py-5">
+                    <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-state-2130362-1800926.png" style="width:200px; opacity:0.6;" alt="empty">
+                    <p class="text-muted fw-bold mt-4">No active work found. Ensure your status is "Available" to get requests!</p>
                 </div>
             {% endfor %}
-            
+        </div>
+
+        <!-- Sidebar Info -->
+        <div class="col-lg-4">
+            <div class="dash-card p-4 mb-4" style="background:var(--bg-alt);">
+                <h6 class="fw-black mb-3">Earnings Insight</h6>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small">Total Wallet Balance</span>
+                    <span class="fw-black text-dark">₹{{ total_earnings|default:"0" }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="text-muted small">Pending Payout</span>
+                    <span class="fw-bold text-brand">₹{{ pending_earnings|default:"0" }}</span>
+                </div>
+                <button class="btn btn-outline-dark btn-sm w-100 rounded-pill fw-bold">Withdraw to Bank</button>
+            </div>
+
+            <div class="dash-card p-4">
+                <h6 class="fw-black mb-3">Verification Cloud</h6>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="small fw-bold">OTP Mobile</div>
+                    <i class="fa-solid fa-circle-check text-success"></i>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="small fw-bold">Aadhar / PAN</div>
+                    <i class="fa-solid fa-circle-check text-success"></i>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="small fw-bold text-muted">Criminal Record</div>
+                    <span class="badge bg-light text-muted x-small pt-1">WAITING...</span>
+                </div>
+                {{ status_labels|safe|json_script:"status-labels" }}
+    {{ status_values|safe|json_script:"status-values" }}
+</div>
+
+            <div class="dash-card p-4 mt-4">
+                <h6 class="fw-black mb-3">Work Analysis</h6>
+                <div style="height: 200px; position: relative;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
         </div>
     </div>
+
 </div>
 
 <script>
-    function updateBooking(bookingId, action) {
-        if(!confirm(`Are you sure you want to ${action} this booking?`)) return;
+    // Status Actions
+    document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const bookingId = this.dataset.id;
+            const action = this.dataset.status;
+            updateStatus(bookingId, action);
+        });
+    });
+
+    function updateStatus(bookingId, action) {
+        if (!confirm(`Are you sure you want to ${action} this booking?`)) return;
 
         fetch(`/booking/${bookingId}/${action}/`, {
-            method: "POST",
+            method: 'POST',
             headers: {
-                "X-CSRFToken": getCookie("csrftoken"),
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
             }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.status === "success") {
-                location.reload(); // Reload to see fresh UI states
+        }).then(res => res.json()).then(data => {
+            if (data.status === 'success') {
+                location.reload();
             } else {
-                alert("Error: " + data.message);
+                alert('Error: ' + data.message);
             }
         });
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Availability Toggle
+        document.getElementById('availabilityToggle').addEventListener('change', function() {
+            fetch('/worker/update-availability/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ availability: this.checked ? 'available' : 'busy' })
+            }).then(res => res.json()).then(data => {
+                console.log('Status updated');
+            });
+        });
+
+        // Status Chart
+        const labels = JSON.parse(document.getElementById('status-labels').textContent);
+        const values = JSON.parse(document.getElementById('status-values').textContent);
+
+        const ctx = document.getElementById('statusChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: ['#3b82f6', '#f59e0b', '#22c55e', '#ef4444'],
+                    borderWidth: 0,
+                    cutout: '70%'
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } }
+                }
+            }
+        });
+    });
+    // ── AJAX POLLING FOR NEW JOBS ──
+    let lastJobCount = Number("{{ requested_count|default:0 }}");
+    
+    function checkNewJobs() {
+        console.log("Polling for new jobs...");
+        fetch("{% url 'check_new_jobs' %}")
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                if (data.new_jobs_count > lastJobCount) {
+                    showRealtimeAlert(`You have ${data.new_jobs_count} pending job requests!`);
+                    // Update count in UI if needed
+                }
+                lastJobCount = data.new_jobs_count;
+            }
+        }).catch(err => console.error("Polling error:", err));
+    }
+
+    function showRealtimeAlert(msg) {
+        const toast = document.createElement('div');
+        toast.className = 'animate-fade-in p-4 mb-4 text-white bg-dark rounded-pill shadow-lg d-flex align-items-center gap-3';
+        toast.style.position = 'fixed';
+        toast.style.bottom = '30px';
+        toast.style.right = '30px';
+        toast.style.zIndex = '9999';
+        toast.innerHTML = `<i class="fa-solid fa-bell text-warning"></i> <span>${msg}</span>`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 5000);
+    }
+
+    // Start polling every 15 seconds
+    setInterval(checkNewJobs, 15000);
 </script>
 {% endblock %}

@@ -1,0 +1,82 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Verify Service Partners — MaidConnect{% endblock %}
+
+{% block dashboard_content %}
+<div class="container animate-fade-in">
+    <div class="mb-5">
+        <h2 class="fw-black mb-1">Verify Service Partners</h2>
+        <p class="text-muted">Review credentials and activate or suspend worker profiles.</p>
+    </div>
+
+    <div class="dash-card p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Worker Profile</th>
+                        <th>Categories</th>
+                        <th>Documents</th>
+                        <th>Status</th>
+                        <th class="pe-4 text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for worker in workers %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-sm bg-brand-light text-brand rounded-circle d-flex align-items-center justify-content-center fw-bold">
+                                    {{ worker.user.username|make_list|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ worker.user.get_full_name }}</div>
+                                    <div class="text-muted small">{{ worker.user.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% for cat in worker.categories.all %}
+                                <span class="badge bg-light text-dark x-small">{{ cat.name }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <div class="small fw-bold text-success"><i class="fa-solid fa-id-card me-1"></i> Aadhar Linked</div>
+                        </td>
+                        <td>
+                            {% if worker.verified %}
+                                <span class="badge rounded-pill bg-success px-3 py-1">VERIFIED</span>
+                            {% else %}
+                                <span class="badge rounded-pill bg-warning text-dark px-3 py-1">PENDING</span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 text-end">
+                            <button class="btn btn-sm rounded-pill verify-btn {% if worker.verified %}btn-outline-danger{% else %}btn-brand{% endif %}"
+                                    data-id="{{ worker.id }}">
+                                {% if worker.verified %}Suspend{% else %}Verify Now{% endif %}
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.verify-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const workerId = this.dataset.id;
+            fetch(`/admin-dashboard/workers/verify/${workerId}/`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    location.reload();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

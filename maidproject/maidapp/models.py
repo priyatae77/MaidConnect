@@ -11,6 +11,9 @@ class CustomUser(AbstractUser):
     )
 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
+    is_otp_verified = models.BooleanField(default=False)
+    is_doc_verified = models.BooleanField(default=False)
+    otp_code = models.CharField(max_length=6, blank=True, null=True)
 
 # =========================
 # USER PROFILE
@@ -18,9 +21,26 @@ class CustomUser(AbstractUser):
 class UserProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     phone = models.CharField(max_length=15)
+    district = models.CharField(max_length=100, blank=True, null=True)
+    pincode = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
         return self.user.username
+
+
+# =========================
+# CATEGORY
+# =========================
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='categories/', blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "Categories"
+
+    def __str__(self):
+        return self.name
 
 
 # =========================
@@ -34,9 +54,13 @@ class WorkerProfile(models.Model):
     )
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     photo = models.ImageField(upload_to='workers/')
+    mobile = models.CharField(max_length=15, blank=True, null=True)
     address = models.TextField()
+    district = models.CharField(max_length=100, blank=True, null=True)
+    pincode = models.CharField(max_length=10, blank=True, null=True)
     location = models.CharField(max_length=100)
-    skills = models.CharField(max_length=150)
+    categories = models.ManyToManyField(Category, related_name='workers')
+    skills = models.CharField(max_length=150, help_text="Specific skills beyond categories")
     languages = models.CharField(max_length=150, blank=True, null=True)
     work_timings = models.CharField(max_length=100, blank=True, null=True, help_text="e.g., Full-day, Part-time, specific slots")
     age = models.IntegerField(blank=True, null=True)
@@ -51,6 +75,10 @@ class WorkerProfile(models.Model):
     )
 
     verified = models.BooleanField(default=False)
+    aadhar_no = models.CharField(max_length=20, blank=True, null=True)
+    pan_no = models.CharField(max_length=20, blank=True, null=True)
+    aadhar_photo = models.ImageField(upload_to='docs/', blank=True, null=True)
+    pan_photo = models.ImageField(upload_to='docs/', blank=True, null=True)
     rating_avg = models.FloatField(default=0)
 
     def __str__(self):
@@ -92,7 +120,44 @@ class Booking(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     worker = models.ForeignKey(WorkerProfile, on_delete=models.CASCADE)
     booking_date = models.DateTimeField(auto_now_add=True)
+    
+    # New detail fields
+    service_address = models.TextField(blank=True, null=True)
+    start_time = models.DateTimeField(blank=True, null=True)
+    end_time = models.DateTimeField(blank=True, null=True)
+    special_instructions = models.TextField(blank=True, null=True)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+
+    # Business-Grade Custom IDs (MC-C1, MC-K1, etc.)
+    booking_id_str = models.CharField(max_length=20, unique=True, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+
+    def save(self, *args, **kwargs):
+        if not self.booking_id_str:
+            # 1. Determine Prefix
+            try:
+                # Get the first category of the worker
+                category = self.worker.categories.first()
+                prefix_map = {
+                    'Baby Care': 'B',
+                    'Master Chef': 'K',
+                    'Cooking': 'K',
+                    'Deep Cleaning': 'C',
+                    'Cleaning': 'C',
+                    'Elder Care': 'E',
+                    'Guardians': 'G',
+                }
+                char = prefix_map.get(category.name, 'O') if category else 'O'
+            except Exception:
+                char = 'O'
+
+            prefix = f"MC-{char}"
+            
+            # 2. Count existing for this prefix
+            count = Booking.objects.filter(booking_id_str__startswith=prefix).count()
+            self.booking_id_str = f"{prefix}{count + 1}"
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.user.username} → {self.worker.user.username}"

@@ -1,31 +1,139 @@
 {% extends "base.html" %}
-{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Join the MaidConnect Market — User Registration{% endblock %}
 
 {% block content %}
 <div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="hover-card p-5 mt-4">
-                <div class="text-center mb-4">
-                    <div class="display-5 vibrant-blue mb-3"><i class="fa-solid fa-user-plus"></i></div>
-                    <h2 class="fw-bold">Create Account</h2>
-                    <p class="text-muted">Register to find the perfect helper for your family.</p>
+    <div class="row min-vh-75 align-items-center">
+        
+        <!-- Left Side: Trust & Steps -->
+        <div class="col-lg-5 d-none d-lg-block animate-fade-in pe-lg-5">
+            <h1 class="display-3 fw-black mb-4" style="letter-spacing:-2.5px; line-height:1;">
+                Join the <span style="color:var(--brand-deep);">Premium</span> Community.
+            </h1>
+            <p class="h5 text-muted mb-5 fw-medium">3 Simple steps to get started</p>
+            
+            <div class="reg-steps">
+                <div class="reg-step active">
+                    <div class="step-num">1</div>
+                    <div class="step-label">Account Details</div>
+                </div>
+                <div class="reg-step">
+                    <div class="step-num">2</div>
+                    <div class="step-label">Service Verification (OTP)</div>
+                </div>
+                <div class="reg-step">
+                    <div class="step-num">3</div>
+                    <div class="step-label">Ready to Book!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Registration Form -->
+        <div class="col-lg-7">
+            <div class="dash-card p-5 animate-scale shadow-lg" style="background:#fff; border-radius:3rem;">
+                <div class="mb-5">
+                    <h2 class="fw-black mb-1">Create Your Maid<span style="color:var(--brand-deep);">Connect</span> Account</h2>
+                    <p class="text-muted small">Just a few details to get started with our services.</p>
                 </div>
 
-                <form method="POST" action="{% url 'user_register' %}">
+                <form method="POST">
                     {% csrf_token %}
                     
-                    {{ form|crispy }}
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="label-sm mb-2 d-block">FIRST NAME</label>
+                            <input type="text" name="first_name" class="form-control-premium" placeholder="e.g., Arjun" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="label-sm mb-2 d-block">LAST NAME</label>
+                            <input type="text" name="last_name" class="form-control-premium" placeholder="e.g., Reddy" required>
+                        </div>
+                    </div>
 
-                    <button type="submit" class="btn btn-vibrant btn-lg w-100 rounded-pill shadow-sm mt-3 mb-3">Create Account</button>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="label-sm mb-2 d-block">USERNAME</label>
+                            <input type="text" name="username" class="form-control-premium" placeholder="arjun_tn" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="label-sm mb-2 d-block">EMAIL ID</label>
+                            <input type="email" name="email" class="form-control-premium" placeholder="arjun@email.com" required>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="label-sm mb-2 d-block">DISTRICT</label>
+                            <select name="district" class="form-control-premium" required>
+                                <option value="">Select District</option>
+                                <option>Coimbatore</option>
+                                <option>Tirupur</option>
+                                <option>Chennai</option>
+                                <option>Trichy</option>
+                                <option>Salem</option>
+                                <option>Karur</option>
+                                <option>Tuticorin</option>
+                                <option>Pondicherry</option>
+                            </select>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="label-sm mb-2 d-block">HOUSE ADDRESS</label>
+                            <input type="text" name="address" class="form-control-premium" placeholder="Door No, Street Name..." required>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="label-sm mb-2 d-block">SECURE PASSWORD</label>
+                        <input type="password" name="password" class="form-control-premium" placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-brand w-100 rounded-pill py-3 fw-black shadow-brand">
+                        Get Started with OTP <i class="fa-solid fa-arrow-right ms-2"></i>
+                    </button>
                     
-                    <div class="text-center mt-3">
-                        <span class="text-muted">Already have an account?</span> 
-                        <a href="{% url 'login' %}" class="vibrant-text fw-bold text-decoration-none">Sign In Here</a>
+                    <div class="text-center mt-4">
+                        <a href="/login/" class="fw-bold text-brand text-decoration-none small">Already have an account? Sign In</a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .form-control-premium {
+        width: 100%;
+        padding: 0.85rem 1.25rem;
+        background: var(--bg-alt);
+        border: 2px solid transparent;
+        border-radius: 1rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        outline: none;
+        transition: all 0.2s;
+    }
+    .form-control-premium:focus {
+        border-color: var(--brand);
+        background: #fff;
+    }
+    .reg-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .reg-step { display: flex; align-items: center; gap: 1rem; opacity: 0.4; transition: var(--t-fast); }
+    .reg-step.active { opacity: 1; }
+    .step-num {
+        width: 40px; height: 40px;
+        background: #000; color: #fff;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 900;
+    }
+    .reg-step.active .step-num { background: var(--brand); }
+    .step-label { font-weight: 700; font-size: 0.95rem; }
+    .shadow-brand { box-shadow: 0 10px 30px rgba(255, 75, 145, 0.2); }
+</style>
 {% endblock %}

@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="dash-wrapper">
+    <!-- ── Sidebar ── -->
+    <aside class="dash-sidebar shadow-sm">
+        <div class="p-4 border-bottom mb-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="avatar-sm bg-brand text-white rounded-circle d-flex align-items-center justify-content-center fw-bold">
+                    {{ user.username|make_list|first|upper }}
+                </div>
+                <div>
+                    <div class="fw-black small text-uppercase opacity-50">{{ user.role }} PANEL</div>
+                    <div class="fw-bold text-truncate" style="max-width: 120px;">{{ user.username }}</div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="p-2">
+            <ul class="nav flex-column gap-2">
+                {% if user.role == 'admin' %}
+                    <li class="nav-item">
+                        <a href="{% url 'admin_dashboard' %}" class="nav-link dash-link {% if request.path == '/admin-dashboard/' %}active{% endif %}">
+                            <i class="fa-solid fa-chart-line"></i> Analytics Overview
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'manage_users' %}" class="nav-link dash-link {% if 'users' in request.path %}active{% endif %}">
+                            <i class="fa-solid fa-users-gear"></i> Manage Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'manage_workers' %}" class="nav-link dash-link {% if 'workers' in request.path %}active{% endif %}">
+                            <i class="fa-solid fa-shield-cat"></i> Verify Workers
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'admin_complaints' %}" class="nav-link dash-link {% if 'complaints' in request.path %}active{% endif %}">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Resolve Issues
+                        </a>
+                    </li>
+                {% elif user.role == 'worker' %}
+                    <li class="nav-item">
+                        <a href="{% url 'worker_dashboard' %}" class="nav-link dash-link {% if request.path == '/worker-dashboard/' %}active{% endif %}">
+                            <i class="fa-solid fa-briefcase"></i> My Active Jobs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link dash-link">
+                            <i class="fa-solid fa-wallet"></i> Earnings & Payouts
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a href="{% url 'my_bookings' %}" class="nav-link dash-link {% if request.path == '/my-bookings/' %}active{% endif %}">
+                            <i class="fa-solid fa-receipt"></i> Service History
+                        </a>
+                    </li>
+                {% endif %}
+                
+                <li class="nav-item">
+                    <a href="#" class="nav-link dash-link">
+                        <i class="fa-solid fa-headset"></i> Support & Help
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="mt-auto p-4 border-top">
+            <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm w-100 rounded-pill">
+                <i class="fa-solid fa-power-off me-1"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- ── Main Content Area ── -->
+    <main class="dash-main p-4 p-lg-5">
+        {% block dashboard_content %}{% endblock %}
+    </main>
+</div>
+
+<style>
+    .dash-wrapper {
+        display: flex;
+        min-height: calc(100vh - 72px);
+        background: var(--bg);
+    }
+
+    /* Sidebar Styling */
+    .dash-sidebar {
+        width: 280px;
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        z-index: 100;
+        position: sticky;
+        top: 72px;
+        height: calc(100vh - 72px);
+    }
+
+    .dash-link {
+        color: var(--text-sub);
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: var(--t-fast);
+    }
+
+    .dash-link i {
+        width: 20px;
+        text-align: center;
+        opacity: 0.6;
+    }
+
+    .dash-link:hover {
+        background: var(--brand-light);
+        color: var(--brand-deep);
+    }
+
+    .dash-link.active {
+        background: var(--brand);
+        color: #fff;
+        box-shadow: var(--shadow-brand);
+    }
+
+    .dash-link.active i { opacity: 1; }
+
+    /* Main Area Styling */
+    .dash-main {
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+
+    .avatar-sm { width: 40px; height: 40px; }
+
+    @media (max-width: 991px) {
+        .dash-sidebar { display: none; }
+    }
+</style>
+{% endblock %}
