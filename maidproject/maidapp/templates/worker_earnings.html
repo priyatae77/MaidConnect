@@ -1,0 +1,107 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Earnings — MaidConnect{% endblock %}
+
+{% block dashboard_content %}
+<div class="container py-5 animate-fade-in dashboard-premium-bg">
+    
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="display-5 fw-black text-dark mb-1">Your <span style="color: var(--v-blue);">Earnings.</span></h2>
+            <p class="h6 text-muted fw-bold">Track your financial performance and payout history.</p>
+        </div>
+    </div>
+
+    <!-- ░░ WALLET CARDS ░░ -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="dynamic-card p-4 bg-white border-vibrant shadow-sm" style="border-color: var(--v-blue);">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <h5 class="fw-black text-dark m-0">Total Earned</h5>
+                    <div class="icon-circle bg-light text-success m-0" style="width: 45px; height: 45px; font-size: 1.2rem;">
+                        <i class="fa-solid fa-indian-rupee-sign"></i>
+                    </div>
+                </div>
+                <h1 class="display-3 fw-black text-success mb-0">₹{{ total_earnings }}</h1>
+                <p class="small text-muted mt-2 mb-0 border-top pt-3">
+                    <span>From all completed and paid jobs</span>
+                </p>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="dynamic-card p-4 bg-white border-vibrant shadow-sm">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <h5 class="fw-black text-dark m-0">Pending Payout</h5>
+                    <div class="icon-circle bg-light text-warning m-0" style="width: 45px; height: 45px; font-size: 1.2rem;">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                </div>
+                <h1 class="display-3 fw-black text-warning mb-0">₹{{ pending_earnings }}</h1>
+                <p class="small text-muted mt-2 mb-0 border-top pt-3 d-flex justify-content-between align-items-center">
+                    <span>Awaiting customer payment</span>
+                    <button class="btn btn-sm btn-outline-warning rounded-pill fw-bold" onclick="alert('Payouts are processed weekly directly to your registered bank account.')">WITHDRAWAL INFO</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ░░ PAID BOOKINGS HISTORY ░░ -->
+    <h4 class="fw-black mb-4"><i class="fa-solid fa-money-bill-wave text-success me-2"></i> Payment History</h4>
+    
+    <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="py-3 px-4 text-uppercase small fw-bold text-muted">Date</th>
+                        <th class="py-3 text-uppercase small fw-bold text-muted">Customer</th>
+                        <th class="py-3 text-uppercase small fw-bold text-muted">Service</th>
+                        <th class="py-3 text-uppercase small fw-bold text-muted">Amount</th>
+                        <th class="py-3 px-4 text-end text-uppercase small fw-bold text-muted">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    {% for booking in paid_bookings %}
+                    <tr>
+                        <td class="py-3 px-4">
+                            <div class="fw-bold text-dark">{{ booking.completed_at|date:"M d, Y" }}</div>
+                            <div class="small text-muted">{{ booking.completed_at|time:"h:i A" }}</div>
+                        </td>
+                        <td class="py-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 35px; height: 35px; font-size: 0.8rem;">
+                                    {{ booking.user.first_name|make_list|first|upper }}
+                                </div>
+                                <span class="fw-bold text-dark">{{ booking.user.first_name }} {{ booking.user.last_name }}</span>
+                            </div>
+                        </td>
+                        <td class="py-3">
+                            <span class="badge bg-light text-dark border rounded-pill px-3 py-2 text-capitalize">
+                                <i class="fa-solid fa-broom me-1 text-muted"></i> {{ booking.service_type }}
+                            </span>
+                        </td>
+                        <td class="py-3">
+                            <span class="fw-black text-success fs-5">₹{{ booking.total_price }}</span>
+                        </td>
+                        <td class="py-3 px-4 text-end">
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-black border border-success">
+                                <i class="fa-solid fa-check-circle me-1"></i> PAID
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="display-4 text-muted opacity-25 mb-3"><i class="fa-solid fa-wallet"></i></div>
+                            <h5 class="fw-bold text-muted">No completed payments yet.</h5>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

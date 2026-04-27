@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Our Specialized Services — MaidConnect{% endblock %}
+
+{% block content %}
+<div class="services-vibrant py-5 overflow-hidden">
+    <!-- Background Branding -->
+    <div class="hero-bg-text" style="top: 15%; color: rgba(255, 92, 141, 0.03);">SERVICES</div>
+
+    <div class="container position-relative py-5" style="z-index: 2;">
+        
+        <!-- ░░ HIGH-ENERGY HEADER ░░ -->
+        <div class="text-center mb-5 pb-5 animate-fade-in">
+            <div class="badge bg-vibrant rounded-pill px-4 py-2 fw-black shadow-sm mb-3" style="background: var(--v-blue);">
+                ✨ ELITE CARE SOLUTIONS
+            </div>
+            <h1 class="display-3 fw-black mb-1">Our <span style="color:var(--v-blue);">Specializations.</span></h1>
+            <p class="h4 text-muted fw-medium">We bridge the gap between premium expertise and your home's needs.</p>
+        </div>
+
+        <!-- ░░ VIBRANT SERVICES GRID ░░ -->
+        <div class="row g-5">
+            {% for category in categories %}
+            <div class="col-lg-4 col-md-6">
+                <div class="dynamic-card text-center p-5 bg-white border-vibrant hover-lift shadow-vibrant">
+                    <div class="icon-circle mx-auto mb-4" style="background: var(--v-blue); color: white;">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <h2 class="fw-black mb-3">{{ category.name }}</h2>
+                    <p class="h6 text-muted fw-bold mb-5 opacity-75">Professional, verified, and high-energy support for your {{ category.name|lower }} requirements.</p>
+                    
+                    <a href="{% url 'worker_list' %}?search={{ category.name }}" class="btn-vibrant w-100 py-3 fs-6">BROWSE EXPERTS</a>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Mock Fallback if no categories -->
+            <div class="col-lg-4 col-md-6">
+                <div class="dynamic-card text-center p-5 bg-white border-vibrant hover-lift shadow-vibrant">
+                    <div class="icon-circle mx-auto mb-4" style="background: var(--v-blue); color: white;"><i class="fa-solid fa-broom"></i></div>
+                    <h2 class="fw-black mb-3">Cleaning</h2>
+                    <p class="h6 text-muted fw-bold mb-5 opacity-75">Elite sanitization and organization for modern homes.</p>
+                    <a href="{% url 'worker_list' %}" class="btn-vibrant w-100 py-3 fs-6">BROWSE EXPERTS</a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="dynamic-card text-center p-5 bg-white border-vibrant hover-lift shadow-vibrant">
+                    <div class="icon-circle mx-auto mb-4" style="background: var(--v-yellow); color: var(--text-dark);"><i class="fa-solid fa-utensils"></i></div>
+                    <h2 class="fw-black mb-3">Cooking</h2>
+                    <p class="h6 text-muted fw-bold mb-5 opacity-75">Nutritious, high-energy culinary support for busy families.</p>
+                    <a href="{% url 'worker_list' %}" class="btn-vibrant w-100 py-3 fs-6">BROWSE EXPERTS</a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="dynamic-card text-center p-5 bg-white border-vibrant hover-lift shadow-vibrant">
+                    <div class="icon-circle mx-auto mb-4" style="background: var(--v-pink); color: white;"><i class="fa-solid fa-baby"></i></div>
+                    <h2 class="fw-black mb-3">Baby Care</h2>
+                    <p class="h6 text-muted fw-bold mb-5 opacity-75">Compassionate, verified care for your most precious ones.</p>
+                    <a href="{% url 'worker_list' %}" class="btn-vibrant w-100 py-3 fs-6">BROWSE EXPERTS</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <!-- ░░ TRUST SECTION ░░ -->
+    <section class="py-5 mt-5 bg-white border-top border-light">
+        <div class="container py-5">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <h2 class="display-4 fw-black mb-4">Built on <span style="color:var(--v-blue);">Trust.</span></h2>
+                    <p class="h5 text-muted fw-medium mb-5">Every specialist on our platform undergoes a rigorous 5-step verification protocol to ensure safety, expertise, and a high-energy attitude.</p>
+                    <div class="row g-4">
+                        <div class="col-6">
+                            <h4 class="fw-black mb-1">100% Verified</h4>
+                            <p class="small text-muted fw-bold">ID & Address checks</p>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="fw-black mb-1">Insured</h4>
+                            <p class="small text-muted fw-bold">Peace of mind guaranteed</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="dynamic-card p-5 bg-light border-0 shadow-sm" style="border-radius: 4rem;">
+                        <div class="display-3 mb-4 opacity-25"><i class="fa-solid fa-shield-halved"></i></div>
+                        <h3 class="fw-black mb-3">Safety Protocols</h3>
+                        <p class="h6 text-muted fw-medium">We maintain a real-time monitoring system for all active engagements to ensure the highest standards of hospitality.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+.services-vibrant { background: #FAFAFA; }
+.hover-lift { transition: var(--t-base); }
+.hover-lift:hover { transform: translateY(-15px) scale(1.02); }
+</style>
+{% endblock %}

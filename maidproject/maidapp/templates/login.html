@@ -1,95 +1,194 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Sign In — MaidConnect Marketplace{% endblock %}
+{% block title %}Sign In — MaidConnect{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row min-vh-75 align-items-center">
-        
-        <!-- Left Side: Branding/Engagement -->
-        <div class="col-lg-6 d-none d-lg-block animate-fade-in">
-            <div class="p-5">
-                <h1 class="display-3 fw-black mb-1" style="letter-spacing:-2.5px; line-height:1;">
-                    Join Our <span style="color:var(--brand-deep);">Team</span>
-                </h1>
-                <p class="h5 mt-4 text-muted fw-medium lh-base">
-                    Discover experts for cleaning, cooking, and care.<br> 
-                    Join 10k+ happy families in Tamil Nadu.
-                </p>
+
+<!-- ░░ HIGH-ENERGY LOGIN OVERHAUL ░░ -->
+<!-- ░░ EXACT REFERENCE RECONSTRUCTION ░░ -->
+<div class="login-wrapper-ref premium-mesh-bg">
+    <div class="login-card-ref animate-fade-in shadow-ultra">
+        <div class="row g-0 h-100">
+            
+            <!-- LEFT PANEL: Brand Illustration -->
+            <div class="col-lg-6 d-none d-lg-block p-0 position-relative">
+                <div class="ref-illustration-container">
+                    <img src="{% static 'images/login_team_pro.png' %}" class="ref-bg-img" alt="MaidConnect Life">
+                    <div class="ref-overlay"></div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: Integrated Form -->
+            <div class="col-lg-6 d-flex flex-column bg-white">
                 
-                <div class="mt-5 d-flex gap-5">
-                    <div>
-                        <div class="h3 fw-black mb-0">500+</div>
-                        <div class="x-small fw-bold text-muted">PARTNERS</div>
-                    </div>
-                    <div>
-                        <div class="h3 fw-black mb-0">15k+</div>
-                        <div class="x-small fw-bold text-muted">SUCCESSFUL JOBS</div>
+                <!-- Form Content -->
+                <div class="flex-grow-1 d-flex align-items-center justify-content-center p-5">
+                    <div class="w-100" style="max-width: 380px;">
+                        <h1 class="ref-title mb-1">LOGIN</h1>
+                        <p class="text-muted small mb-4">Welcome back! Login to begin.</p>
+
+                        {% if messages %}
+                            {% for msg in messages %}
+                                <div class="alert alert-danger x-small py-2 rounded-3 border-0 mb-3">
+                                    <i class="fa-solid fa-circle-exclamation me-1"></i> {{ msg }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="POST" action="{% url 'login' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <div class="input-group-ref">
+                                    <i class="fa-regular fa-envelope"></i>
+                                    <input type="text" name="email" placeholder="Email" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="input-group-ref">
+                                    <i class="fa-solid fa-lock"></i>
+                                    <input type="password" name="password" id="loginPassword" placeholder="Password" required>
+                                    <i class="fa-regular fa-eye-slash ms-auto clickable" onclick="togglePwd('loginPassword', this)"></i>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rememberMe">
+                                    <label class="form-check-label x-small text-muted" for="rememberMe">Remember me</label>
+                                </div>
+                                <a href="{% url 'forgot_password' %}" class="x-small fw-bold text-decoration-none" style="color:#4169E1;">Forgot Password?</a>
+                            </div>
+
+                            <button type="submit" class="btn-ref-login w-100 mb-4">LOG IN</button>
+
+                            <p class="text-center x-small text-muted mb-0">
+                                Don't have account? <a href="{% url 'register_choice' %}" class="fw-bold text-decoration-none" style="color:#4169E1;">Create an account</a>
+                            </p>
+                        </form>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Right Side: Login Form -->
-        <div class="col-lg-5 offset-lg-1">
-            <div class="dash-card p-5 animate-scale shadow-lg" style="background:#fff; border-radius:2.5rem;">
-                <div class="text-center mb-5">
-                    <div class="mb-3 d-inline-block p-3 rounded-4" style="background:var(--brand-light);">
-                        <i class="fa-solid fa-user-lock text-brand h4 mb-0"></i>
-                    </div>
-                    <h2 class="fw-black mb-1">Maid<span style="color:var(--brand-deep);">Connect</span> Login</h2>
-                    <p class="text-muted small">Access your personalized atmosphere.</p>
-                </div>
-
-                <form method="POST">
-                    {% csrf_token %}
-                    <div class="mb-4">
-                        <label class="label-sm mb-2 d-block">USERNAME / EMAIL</label>
-                        <input type="text" name="username" class="form-control-premium" placeholder="e.g., ravi_tn" required>
-                    </div>
-                    <div class="mb-5">
-                        <div class="d-flex justify-content-between">
-                            <label class="label-sm mb-2">PASSWORD</label>
-                            <a href="#" class="x-small fw-bold text-brand text-decoration-none">Forgot?</a>
-                        </div>
-                        <input type="password" name="password" class="form-control-premium" placeholder="••••••••" required>
-                    </div>
-
-                    <button type="submit" class="btn btn-brand w-100 rounded-pill py-3 fw-black shadow-brand mb-4">
-                        Sign In Now <i class="fa-solid fa-arrow-right ms-2"></i>
-                    </button>
-                    
-                    <div class="text-center">
-                        <p class="text-muted small mb-0">New to the platform?</p>
-                        <div class="d-flex justify-content-center gap-3 mt-2">
-                            <a href="/user/register/" class="fw-bold text-brand text-decoration-none small">Join as User</a>
-                            <span class="text-muted opacity-25">|</span>
-                            <a href="/worker/register/" class="fw-bold text-brand text-decoration-none small">Become a Partner</a>
-                        </div>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
 </div>
 
 <style>
-    .form-control-premium {
-        width: 100%;
-        padding: 1rem 1.5rem;
-        background: var(--bg-alt);
-        border: 2px solid transparent;
-        border-radius: 1rem;
-        font-weight: 600;
-        outline: none;
-        transition: all 0.2s;
-    }
-    .form-control-premium:focus {
-        border-color: var(--brand);
-        background: #fff;
-        box-shadow: 0 0 0 4px var(--brand-light);
-    }
-    .shadow-brand { box-shadow: 0 10px 30px rgba(255, 75, 145, 0.2); }
+.login-wrapper-ref {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ✨ Attractive Mesh Background Behind the Card */
+.premium-mesh-bg {
+    background: #0f172a;
+    background: 
+        radial-gradient(at 0% 0%, hsla(225, 73%, 57%, 0.3) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 0.3) 0, transparent 50%),
+        radial-gradient(at 100% 100%, hsla(210, 100%, 23%, 0.3) 0, transparent 50%),
+        radial-gradient(at 0% 100%, hsla(263, 67%, 51%, 0.3) 0, transparent 50%);
+}
+
+.login-card-ref {
+    width: 1050px;
+    height: 680px;
+    background: white;
+    border-radius: 3rem;
+    box-shadow: 0 50px 100px rgba(0,0,0,0.2);
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+}
+
+.shadow-ultra {
+    box-shadow: 0 40px 120px rgba(0,0,0,0.3) !important;
+}
+
+/* 🎨 Illustration Panel */
+.ref-illustration-container {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.ref-bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ref-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(65, 105, 225, 0.2);
+}
+
+/* 🖋️ Form Styles */
+.ref-title {
+    color: #2b3a8b;
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+}
+
+.input-group-ref {
+    display: flex;
+    align-items: center;
+    background: #F1F4F9;
+    border: 1px solid #E2E8F0;
+    border-radius: 0.8rem;
+    padding: 0.8rem 1.2rem;
+    gap: 1rem;
+    transition: 0.3s;
+}
+.input-group-ref:focus-within {
+    border-color: #4169E1;
+    background: white;
+    box-shadow: 0 10px 20px rgba(65, 105, 225, 0.05);
+}
+.input-group-ref i { color: #A0AEC0; font-size: 1.1rem; }
+.input-group-ref input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2D3748;
+}
+.input-group-ref input:focus { outline: none; }
+
+.btn-ref-login {
+    background: #A0B3F2; /* Muted Blue like Ref */
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    transition: 0.3s;
+}
+.btn-ref-login:hover {
+    background: #4169E1;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(65, 105, 225, 0.2);
+}
+
+.form-check-input:checked { background-color: #4169E1; border-color: #4169E1; }
 </style>
+
+<script>
+function togglePwd(id, btn) {
+    const inp = document.getElementById(id);
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    btn.querySelector('i').className = inp.type === 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+}
+</script>
+
 {% endblock %}

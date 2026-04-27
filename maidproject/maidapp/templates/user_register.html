@@ -1,139 +1,654 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Join the MaidConnect Market — User Registration{% endblock %}
+{% block title %}Create Your Account — MaidConnect{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row min-vh-75 align-items-center">
-        
-        <!-- Left Side: Trust & Steps -->
-        <div class="col-lg-5 d-none d-lg-block animate-fade-in pe-lg-5">
-            <h1 class="display-3 fw-black mb-4" style="letter-spacing:-2.5px; line-height:1;">
-                Join the <span style="color:var(--brand-deep);">Premium</span> Community.
-            </h1>
-            <p class="h5 text-muted mb-5 fw-medium">3 Simple steps to get started</p>
-            
-            <div class="reg-steps">
-                <div class="reg-step active">
-                    <div class="step-num">1</div>
-                    <div class="step-label">Account Details</div>
-                </div>
-                <div class="reg-step">
-                    <div class="step-num">2</div>
-                    <div class="step-label">Service Verification (OTP)</div>
-                </div>
-                <div class="reg-step">
-                    <div class="step-num">3</div>
-                    <div class="step-label">Ready to Book!</div>
+<!-- ░░ TOAST CONTAINER ░░ -->
+<div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ░░ TWO-STEP VERIFIED REGISTRATION ░░ -->
+<section class="registration-vibrant py-5 overflow-hidden">
+    <div class="hero-bg-text" style="top: 15%; color: rgba(63, 79, 207, 0.03);">REGISTER</div>
+
+    <div class="container position-relative py-5" style="z-index: 2;">
+        <div class="row g-5">
+
+            <!-- Left: Step Indicators -->
+            <div class="col-lg-5 animate-fade-in">
+                <div class="reg-steps-vibrant sticky-top" style="top: 120px;">
+                    <div class="step-item-vibrant active" id="step1Indicator">
+                        <div class="step-icon" id="step1Icon">1</div>
+                        <div>
+                            <h4 class="fw-black mb-1">Verify Contact</h4>
+                            <p class="text-muted small mb-0">Secure OTP verification via Email.</p>
+                        </div>
+                    </div>
+                    <div class="step-item-vibrant" id="step2Indicator">
+                        <div class="step-icon" style="background: var(--v-pink);">2</div>
+                        <div>
+                            <h4 class="fw-black mb-1">Personal Details</h4>
+                            <p class="text-muted small mb-0">Tell us a bit about yourself.</p>
+                        </div>
+                    </div>
+                    <div class="step-item-vibrant" id="step3Indicator">
+                        <div class="step-icon" style="background: var(--v-yellow); color: var(--text-dark);">3</div>
+                        <div>
+                            <h4 class="fw-black mb-1">Ready to Go!</h4>
+                            <p class="text-muted small mb-0">Access your personalized dashboard.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Right Side: Registration Form -->
-        <div class="col-lg-7">
-            <div class="dash-card p-5 animate-scale shadow-lg" style="background:#fff; border-radius:3rem;">
-                <div class="mb-5">
-                    <h2 class="fw-black mb-1">Create Your Maid<span style="color:var(--brand-deep);">Connect</span> Account</h2>
-                    <p class="text-muted small">Just a few details to get started with our services.</p>
+            <!-- Right: Card -->
+            <div class="col-lg-7 animate-fade-in" style="animation-delay: 0.2s;">
+                <div class="dynamic-card bg-white p-5 border-vibrant shadow-vibrant">
+
+                    <!-- STEP 1: Email Input -->
+                    <div id="step1EmailContainer">
+                        <div class="mb-5">
+                            <h2 class="fw-black mb-3">Let's <span style="color:var(--v-pink);">Verify</span> You.</h2>
+                            <p class="text-muted">Enter your email to receive a secure 6-digit code.</p>
+                        </div>
+                        <div class="mb-4">
+                            <label class="fw-black text-uppercase small opacity-50 mb-2">Email Address</label>
+                            <input type="email" id="id_email_verify" class="vibrant-input" placeholder="yourname@example.com" autocomplete="email">
+                        </div>
+                        <button type="button" id="btnSendOTP" class="btn-vibrant w-100 py-3 mb-3">
+                            <span id="sendOTPText">GET VERIFICATION CODE</span>
+                            <span id="sendOTPSpinner" style="display:none;">
+                                <span class="spinner-border spinner-border-sm me-2"></span>Sending...
+                            </span>
+                        </button>
+                        <p class="text-center text-muted small">Already have an account? <a href="{% url 'login' %}" class="fw-black text-vibrant">Login</a></p>
+                    </div>
+
+                    <!-- STEP 1b: OTP Box Inputs -->
+                    <div id="step1OTPContainer" style="display:none;">
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center gap-3 mb-4">
+                                <button type="button" id="btnChangeEmail" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                    <i class="fa-solid fa-arrow-left me-1"></i> Change
+                                </button>
+                                <div>
+                                    <p class="fw-black mb-0 small">OTP sent to</p>
+                                    <p class="text-vibrant fw-black mb-0" id="emailSentDisplay"></p>
+                                </div>
+                            </div>
+
+                            <label class="fw-black text-uppercase small opacity-50 mb-3 d-block">Enter 6-Digit OTP</label>
+
+                            <!-- 6 OTP Boxes -->
+                            <div class="reg-otp-boxes-wrap" id="regOtpBoxesWrap">
+                                <input class="reg-otp-box" id="regOtp0" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+                                <input class="reg-otp-box" id="regOtp1" type="text" inputmode="numeric" maxlength="1">
+                                <input class="reg-otp-box" id="regOtp2" type="text" inputmode="numeric" maxlength="1">
+                                <input class="reg-otp-box" id="regOtp3" type="text" inputmode="numeric" maxlength="1">
+                                <input class="reg-otp-box" id="regOtp4" type="text" inputmode="numeric" maxlength="1">
+                                <input class="reg-otp-box" id="regOtp5" type="text" inputmode="numeric" maxlength="1">
+                            </div>
+
+                            <!-- OTP Timer -->
+                            <div class="reg-otp-timer mt-3">
+                                <i class="fa-regular fa-clock me-1"></i>
+                                OTP expires in <span id="regCountdown" class="reg-countdown">05:00</span>
+                            </div>
+                        </div>
+
+                        <!-- Verify Button -->
+                        <button type="button" id="btnVerifyOTP" class="btn-vibrant w-100 py-3 mb-3" style="background: var(--v-blue);">
+                            <span id="verifyOTPText">VERIFY &amp; PROCEED</span>
+                            <span id="verifyOTPSpinner" style="display:none;">
+                                <span class="spinner-border spinner-border-sm me-2"></span>Verifying...
+                            </span>
+                        </button>
+
+                        <!-- Resend -->
+                        <div class="text-center">
+                            <span class="text-muted small">Didn't receive code?</span>
+                            <button type="button" id="btnResendOTP" class="reg-resend-btn" disabled>
+                                Resend OTP <span id="resendTimer" class="reg-resend-cd">(60s)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: FULL REGISTRATION FORM -->
+                    <form method="POST" id="mainRegForm" style="display: none;">
+                        {% csrf_token %}
+                        <input type="hidden" name="email" id="id_email_final">
+
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="verified-badge-wrap">
+                                    <i class="fa-solid fa-circle-check text-success fa-2x"></i>
+                                </div>
+                                <div>
+                                    <h2 class="fw-black mb-0 text-success">Email Verified!</h2>
+                                    <p class="text-muted mb-0 small">Now finish creating your account below.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">First Name</label>
+                                <input type="text" name="first_name" class="vibrant-input" required placeholder="Arjun">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">Last Name</label>
+                                <input type="text" name="last_name" class="vibrant-input" required placeholder="Kumar">
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">Username</label>
+                                <input type="text" name="username" class="vibrant-input" required placeholder="arjun_kumar">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">Phone Number</label>
+                                <input type="tel" name="phone" class="vibrant-input" required placeholder="+91 98765 43210">
+                            </div>
+                        </div>
+
+                        <!-- Address Details Section -->
+                        <div class="mt-5 mb-4">
+                            <h5 class="fw-black text-vibrant mb-3"><i class="fa-solid fa-map-location-dot me-2"></i> ADDRESS DETAILS</h5>
+                            <div class="row g-4 mb-4">
+                                <div class="col-12">
+                                    <label class="fw-black text-uppercase small opacity-50 mb-2">Address Line 1</label>
+                                    {{ form.address_line1 }}
+                                    {% if form.address_line1.errors %}<div class="text-danger small">{{ form.address_line1.errors }}</div>{% endif %}
+                                </div>
+                                <div class="col-12">
+                                    <label class="fw-black text-uppercase small opacity-50 mb-2">Address Line 2 (Optional)</label>
+                                    {{ form.address_line2 }}
+                                </div>
+                            </div>
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <label class="fw-black text-uppercase small opacity-50 mb-2">City</label>
+                                    {{ form.city }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="fw-black text-uppercase small opacity-50 mb-2">State</label>
+                                    {{ form.state }}
+                                </div>
+                            </div>
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <label class="fw-black text-uppercase small opacity-50 mb-2">Pincode</label>
+                                    {{ form.pincode }}
+                                    <div id="pincodeError" class="text-danger small" style="display:none;">Pincode must be 6 digits.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">Password</label>
+                                <div class="position-relative">
+                                    <input type="password" name="password" id="regPassword" class="vibrant-input" required placeholder="Minimum 8 characters">
+                                    <button type="button" class="pwd-toggle-btn" onclick="togglePwd('regPassword', this)">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">Confirm Password</label>
+                                <div class="position-relative">
+                                    <input type="password" name="confirm_password" id="confirmPassword" class="vibrant-input" required placeholder="Repeat password">
+                                    <button type="button" class="pwd-toggle-btn" onclick="togglePwd('confirmPassword', this)">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-vibrant w-100 py-3 mb-3">CREATE ACCOUNT</button>
+                        <p class="text-center text-muted small">Already have an account? <a href="{% url 'login' %}" class="fw-black text-vibrant">Login</a></p>
+                    </form>
+
                 </div>
-
-                <form method="POST">
-                    {% csrf_token %}
-                    
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <label class="label-sm mb-2 d-block">FIRST NAME</label>
-                            <input type="text" name="first_name" class="form-control-premium" placeholder="e.g., Arjun" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="label-sm mb-2 d-block">LAST NAME</label>
-                            <input type="text" name="last_name" class="form-control-premium" placeholder="e.g., Reddy" required>
-                        </div>
-                    </div>
-
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <label class="label-sm mb-2 d-block">USERNAME</label>
-                            <input type="text" name="username" class="form-control-premium" placeholder="arjun_tn" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="label-sm mb-2 d-block">EMAIL ID</label>
-                            <input type="email" name="email" class="form-control-premium" placeholder="arjun@email.com" required>
-                        </div>
-                    </div>
-
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-4">
-                            <label class="label-sm mb-2 d-block">DISTRICT</label>
-                            <select name="district" class="form-control-premium" required>
-                                <option value="">Select District</option>
-                                <option>Coimbatore</option>
-                                <option>Tirupur</option>
-                                <option>Chennai</option>
-                                <option>Trichy</option>
-                                <option>Salem</option>
-                                <option>Karur</option>
-                                <option>Tuticorin</option>
-                                <option>Pondicherry</option>
-                            </select>
-                        </div>
-                        <div class="col-md-8">
-                            <label class="label-sm mb-2 d-block">HOUSE ADDRESS</label>
-                            <input type="text" name="address" class="form-control-premium" placeholder="Door No, Street Name..." required>
-                        </div>
-                    </div>
-
-                    <div class="mb-5">
-                        <label class="label-sm mb-2 d-block">SECURE PASSWORD</label>
-                        <input type="password" name="password" class="form-control-premium" placeholder="••••••••" required>
-                    </div>
-
-                    <button type="submit" class="btn btn-brand w-100 rounded-pill py-3 fw-black shadow-brand">
-                        Get Started with OTP <i class="fa-solid fa-arrow-right ms-2"></i>
-                    </button>
-                    
-                    <div class="text-center mt-4">
-                        <a href="/login/" class="fw-bold text-brand text-decoration-none small">Already have an account? Sign In</a>
-                    </div>
-                </form>
             </div>
+
         </div>
     </div>
-</div>
+</section>
 
 <style>
-    .form-control-premium {
-        width: 100%;
-        padding: 0.85rem 1.25rem;
-        background: var(--bg-alt);
-        border: 2px solid transparent;
-        border-radius: 1rem;
-        font-weight: 600;
-        font-size: 0.9rem;
-        outline: none;
-        transition: all 0.2s;
-    }
-    .form-control-premium:focus {
-        border-color: var(--brand);
-        background: #fff;
-    }
-    .reg-steps {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-    .reg-step { display: flex; align-items: center; gap: 1rem; opacity: 0.4; transition: var(--t-fast); }
-    .reg-step.active { opacity: 1; }
-    .step-num {
-        width: 40px; height: 40px;
-        background: #000; color: #fff;
-        border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-weight: 900;
-    }
-    .reg-step.active .step-num { background: var(--brand); }
-    .step-label { font-weight: 700; font-size: 0.95rem; }
-    .shadow-brand { box-shadow: 0 10px 30px rgba(255, 75, 145, 0.2); }
+/* ─── Registration Page ─── */
+.registration-vibrant { background: #FAFAFA; min-height: 100vh; }
+.reg-steps-vibrant { display: flex; flex-direction: column; gap: 2.5rem; }
+.step-item-vibrant { display: flex; align-items: center; gap: 1.5rem; opacity: 0.3; transition: 0.4s; }
+.step-item-vibrant.active { opacity: 1; transform: scale(1.05); }
+.step-icon {
+    width: 50px; height: 50px;
+    background: var(--v-blue);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 900;
+    box-shadow: 0 10px 20px rgba(63, 79, 207, 0.2);
+}
+
+/* ─── 6-Box OTP ─── */
+.reg-otp-boxes-wrap {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+}
+.reg-otp-box {
+    width: 52px; height: 58px;
+    border: 2.5px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1.5rem;
+    font-weight: 900;
+    text-align: center;
+    color: #1a1a2e;
+    background: #f9fafb;
+    transition: all 0.2s ease;
+    outline: none;
+    font-family: 'Courier New', monospace;
+    caret-color: transparent;
+}
+.reg-otp-box:focus {
+    border-color: #3F4FCF;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(63,79,207,0.12);
+    transform: translateY(-2px);
+}
+.reg-otp-box.filled { border-color: #7c6fff; background: #f0f4ff; color: #3F4FCF; }
+.reg-otp-box.error-box { border-color: #ef4444 !important; background: #fff5f5 !important; }
+.reg-otp-box.success-box { border-color: #22c55e !important; background: #f0fdf4 !important; color: #16a34a !important; }
+@media (max-width: 480px) {
+    .reg-otp-box { width: 42px; height: 50px; font-size: 1.2rem; border-radius: 10px; gap: 6px; }
+}
+
+/* Timer */
+.reg-otp-timer { font-size: 0.82rem; color: #9ca3af; }
+.reg-countdown { font-weight: 800; color: #3F4FCF; }
+.reg-countdown.warning { color: #f59e0b; }
+.reg-countdown.danger { color: #ef4444; }
+
+/* Resend */
+.reg-resend-btn {
+    background: none; border: none;
+    color: #3F4FCF; font-weight: 700; font-size: 0.88rem;
+    cursor: pointer; padding: 4px 8px;
+    border-radius: 8px; transition: all 0.2s;
+    margin-left: 4px;
+}
+.reg-resend-btn:disabled { color: #9ca3af; cursor: not-allowed; }
+.reg-resend-btn:not(:disabled):hover { background: #f0f4ff; }
+.reg-resend-cd { font-size: 0.8em; opacity: 0.7; }
+
+/* Shake */
+@keyframes regShake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+}
+.reg-shake { animation: regShake 0.45s ease; }
+
+/* Password toggle */
+.pwd-toggle-btn {
+    position: absolute; right: 14px; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none;
+    color: #9ca3af; cursor: pointer; font-size: 0.95rem;
+}
+.pwd-toggle-btn:hover { color: #3F4FCF; }
+
+/* ─── TOAST ─── */
+#toastContainer {
+    position: fixed; top: 24px; right: 24px;
+    z-index: 9999; display: flex;
+    flex-direction: column; gap: 10px; max-width: 340px;
+}
+.mc-toast {
+    background: white; border-radius: 14px;
+    padding: 14px 20px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    border-left: 4px solid #3F4FCF;
+    animation: toastIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+    font-size: 0.875rem; font-weight: 600;
+}
+.mc-toast.toast-error  { border-color: #ef4444; }
+.mc-toast.toast-success{ border-color: #22c55e; }
+.mc-toast.toast-warning{ border-color: #f59e0b; }
+.mc-toast-icon { font-size: 1.1rem; flex-shrink: 0; }
+.mc-toast.toast-error   .mc-toast-icon { color: #ef4444; }
+.mc-toast.toast-success .mc-toast-icon { color: #22c55e; }
+.mc-toast.toast-warning .mc-toast-icon { color: #f59e0b; }
+.mc-toast-out { animation: toastOut 0.3s ease forwards; }
+@keyframes toastIn  { from { opacity:0; transform:translateX(60px) scale(0.9); } to { opacity:1; transform:translateX(0) scale(1); } }
+@keyframes toastOut { to   { opacity:0; transform:translateX(60px) scale(0.85); } }
 </style>
+
+<script>
+(function() {
+    /* ── URLs ── */
+    const SEND_URL   = "{% url 'send_otp' %}";
+    const VERIFY_URL = "{% url 'verify_otp_api' %}";
+    const RESEND_URL = "{% url 'resend_otp_api' %}";
+
+    /* ── Elements ── */
+    const emailInput       = document.getElementById('id_email_verify');
+    const btnSend          = document.getElementById('btnSendOTP');
+    const sendText         = document.getElementById('sendOTPText');
+    const sendSpinner      = document.getElementById('sendOTPSpinner');
+    const step1Email       = document.getElementById('step1EmailContainer');
+    const step1OTP         = document.getElementById('step1OTPContainer');
+    const step2Form        = document.getElementById('mainRegForm');
+    const emailSentDisplay = document.getElementById('emailSentDisplay');
+    const regBoxes         = Array.from(document.querySelectorAll('.reg-otp-box'));
+    const btnVerify        = document.getElementById('btnVerifyOTP');
+    const verifyText       = document.getElementById('verifyOTPText');
+    const verifySpinner    = document.getElementById('verifyOTPSpinner');
+    const btnResend        = document.getElementById('btnResendOTP');
+    const resendTimerEl    = document.getElementById('resendTimer');
+    const countdownEl      = document.getElementById('regCountdown');
+    const btnChangeEmail   = document.getElementById('btnChangeEmail');
+    const step1Ind         = document.getElementById('step1Indicator');
+    const step2Ind         = document.getElementById('step2Indicator');
+    const emailFinal       = document.getElementById('id_email_final');
+
+    let currentEmail = '';
+    let otpTimer = null;
+    let resendTimer = null;
+
+    /* ── Toast ── */
+    function showToast(msg, type='error') {
+        const icons = { error:'fa-circle-xmark', success:'fa-circle-check', warning:'fa-triangle-exclamation' };
+        const t = document.createElement('div');
+        t.className = `mc-toast toast-${type}`;
+        t.innerHTML = `<i class="fa-solid ${icons[type]} mc-toast-icon"></i><span>${msg}</span>`;
+        document.getElementById('toastContainer').appendChild(t);
+        setTimeout(() => { t.classList.add('mc-toast-out'); setTimeout(() => t.remove(), 350); }, 4000);
+    }
+
+    /* ── CSRF ── */
+    function getCsrf() {
+        let val = null;
+        document.cookie.split(';').forEach(c => {
+            const [k,v] = c.trim().split('=');
+            if(k === 'csrftoken') val = decodeURIComponent(v);
+        });
+        return val;
+    }
+
+    /* ── OTP Box Behavior ── */
+    regBoxes.forEach((box, idx) => {
+        box.addEventListener('input', e => {
+            const val = e.target.value.replace(/\D/g, '');
+            e.target.value = val ? val[val.length-1] : '';
+            if (val) {
+                box.classList.add('filled');
+                box.classList.remove('error-box');
+                if (idx < 5) regBoxes[idx+1].focus();
+            } else {
+                box.classList.remove('filled');
+            }
+        });
+
+        box.addEventListener('keydown', e => {
+            if (e.key === 'Backspace') {
+                if (!box.value && idx > 0) {
+                    regBoxes[idx-1].value = '';
+                    regBoxes[idx-1].classList.remove('filled');
+                    regBoxes[idx-1].focus();
+                }
+                box.classList.remove('filled');
+            }
+            if (e.key === 'ArrowLeft'  && idx > 0) regBoxes[idx-1].focus();
+            if (e.key === 'ArrowRight' && idx < 5) regBoxes[idx+1].focus();
+            if (e.key === 'Enter') btnVerify.click();
+        });
+
+        box.addEventListener('paste', e => {
+            e.preventDefault();
+            const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0,6);
+            pasted.split('').forEach((ch, i) => {
+                if (regBoxes[i]) { regBoxes[i].value = ch; regBoxes[i].classList.add('filled'); }
+            });
+            regBoxes[Math.min(pasted.length, 5)].focus();
+        });
+
+        box.addEventListener('focus', () => box.select());
+    });
+
+    function getOtpValue() { return regBoxes.map(b => b.value).join(''); }
+
+    function shakeBoxes() {
+        const wrap = document.getElementById('regOtpBoxesWrap');
+        wrap.classList.remove('reg-shake');
+        void wrap.offsetWidth;
+        wrap.classList.add('reg-shake');
+        regBoxes.forEach(b => b.classList.add('error-box'));
+        setTimeout(() => wrap.classList.remove('reg-shake'), 500);
+    }
+
+    function disableBoxes(v) { regBoxes.forEach(b => b.disabled = v); }
+
+    /* ── Countdown ── */
+    function startOtpCountdown() {
+        clearInterval(otpTimer);
+        let secs = 300;
+        function tick() {
+            secs--;
+            const m = String(Math.floor(secs/60)).padStart(2,'0');
+            const s = String(secs%60).padStart(2,'0');
+            countdownEl.textContent = `${m}:${s}`;
+            countdownEl.className = 'reg-countdown' + (secs <= 60 ? ' danger' : secs <= 120 ? ' warning' : '');
+            if (secs <= 0) {
+                clearInterval(otpTimer);
+                countdownEl.textContent = 'EXPIRED';
+                showToast('OTP expired. Please resend.', 'warning');
+                disableBoxes(true);
+                btnVerify.disabled = true;
+            }
+        }
+        otpTimer = setInterval(tick, 1000);
+    }
+
+    function startResendCooldown(seconds) {
+        clearInterval(resendTimer);
+        btnResend.disabled = true;
+        let secs = seconds;
+        resendTimerEl.textContent = `(${secs}s)`;
+        resendTimer = setInterval(() => {
+            secs--;
+            resendTimerEl.textContent = secs > 0 ? `(${secs}s)` : '';
+            if (secs <= 0) {
+                clearInterval(resendTimer);
+                btnResend.disabled = false;
+                resendTimerEl.textContent = '';
+            }
+        }, 1000);
+    }
+
+    /* ── SEND OTP ── */
+    btnSend.addEventListener('click', async () => {
+        const email = emailInput.value.trim();
+        if (!email || !email.includes('@')) {
+            showToast('Please enter a valid email address.', 'error');
+            emailInput.focus();
+            return;
+        }
+        btnSend.disabled = true;
+        sendText.style.display = 'none';
+        sendSpinner.style.display = 'inline';
+
+        try {
+            const res = await fetch(SEND_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+                body: JSON.stringify({ email: email })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                currentEmail = email;
+                emailSentDisplay.textContent = email;
+                step1Email.style.display = 'none';
+                step1OTP.style.display = 'block';
+                startOtpCountdown();
+                startResendCooldown(60);
+                setTimeout(() => regBoxes[0].focus(), 100);
+                showToast('OTP sent! Check your inbox.', 'success');
+            } else {
+                showToast(data.error || 'Failed to send OTP. Try again.', 'error');
+                btnSend.disabled = false;
+                sendText.style.display = 'inline';
+                sendSpinner.style.display = 'none';
+            }
+        } catch (e) {
+            showToast('Network error. Please try again.', 'error');
+            btnSend.disabled = false;
+            sendText.style.display = 'inline';
+            sendSpinner.style.display = 'none';
+        }
+    });
+
+    /* ── CHANGE EMAIL ── */
+    btnChangeEmail.addEventListener('click', () => {
+        step1OTP.style.display = 'none';
+        step1Email.style.display = 'block';
+        btnSend.disabled = false;
+        sendText.style.display = 'inline';
+        sendSpinner.style.display = 'none';
+        clearInterval(otpTimer);
+        clearInterval(resendTimer);
+        regBoxes.forEach(b => { b.value=''; b.classList.remove('filled','error-box'); });
+    });
+
+    /* ── VERIFY OTP ── */
+    btnVerify.addEventListener('click', async () => {
+        const otp = getOtpValue();
+        if (otp.length !== 6) {
+            showToast('Please fill in all 6 digits.', 'error');
+            regBoxes[otp.length > 0 ? otp.length : 0].focus();
+            return;
+        }
+
+        btnVerify.disabled = true;
+        verifyText.style.display = 'none';
+        verifySpinner.style.display = 'inline';
+        disableBoxes(true);
+
+        try {
+            const res = await fetch(VERIFY_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+                body: JSON.stringify({ email: currentEmail, otp: otp })
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                // Mark boxes success
+                regBoxes.forEach(b => { b.classList.remove('error-box'); b.classList.add('success-box'); });
+                clearInterval(otpTimer);
+                clearInterval(resendTimer);
+                showToast('Email verified!', 'success');
+
+                // Transition to step 2
+                setTimeout(() => {
+                    step1OTP.style.display = 'none';
+                    emailFinal.value = currentEmail;
+                    step2Form.style.display = 'block';
+                    step2Ind.classList.add('active');
+                    step1Ind.style.opacity = '0.5';
+                    // Scroll to form
+                    step2Form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 600);
+            } else {
+                btnVerify.disabled = false;
+                verifyText.style.display = 'inline';
+                verifySpinner.style.display = 'none';
+                disableBoxes(false);
+                shakeBoxes();
+                showToast(data.error || 'Invalid OTP. Try again.', 'error');
+                if (data.expired) {
+                    disableBoxes(true);
+                    btnVerify.disabled = true;
+                }
+            }
+        } catch(e) {
+            btnVerify.disabled = false;
+            verifyText.style.display = 'inline';
+            verifySpinner.style.display = 'none';
+            disableBoxes(false);
+            showToast('Network error. Please try again.', 'error');
+        }
+    });
+
+    /* ── RESEND OTP ── */
+    btnResend.addEventListener('click', async () => {
+        btnResend.disabled = true;
+        showToast('Sending new OTP...', 'warning');
+
+        try {
+            const res = await fetch(RESEND_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+                body: JSON.stringify({ email: currentEmail })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                showToast('New OTP sent! Check your inbox.', 'success');
+                // Reset boxes
+                regBoxes.forEach(b => { b.value=''; b.classList.remove('filled','error-box','success-box'); });
+                disableBoxes(false);
+                btnVerify.disabled = false;
+                verifyText.style.display = 'inline';
+                verifySpinner.style.display = 'none';
+                startOtpCountdown();
+                startResendCooldown(60);
+                regBoxes[0].focus();
+            } else {
+                showToast(data.error || 'Failed to resend. Try again.', 'error');
+                const wait = data.wait_seconds || 60;
+                startResendCooldown(wait);
+            }
+        } catch(e) {
+            showToast('Network error. Try again.', 'error');
+            btnResend.disabled = false;
+            resendTimerEl.textContent = '';
+        }
+    });
+
+    /* ── Pincode Validation ── */
+    const pincodeInp = document.getElementById('id_pincode');
+    const pincodeErr = document.getElementById('pincodeError');
+    if(pincodeInp) {
+        pincodeInp.addEventListener('input', e => {
+            const val = e.target.value.replace(/\D/g, '').slice(0,6);
+            e.target.value = val;
+            if(val.length > 0 && val.length < 6) {
+                pincodeErr.style.display = 'block';
+                pincodeInp.classList.add('is-invalid');
+            } else {
+                pincodeErr.style.display = 'none';
+                pincodeInp.classList.remove('is-invalid');
+            }
+        });
+    }
+
+    /* ── Password Toggle ── */
+    window.togglePwd = function(id, btn) {
+        const inp = document.getElementById(id);
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+        btn.querySelector('i').className = inp.type === 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+    };
+})();
+</script>
+
 {% endblock %}

@@ -1,13 +1,16 @@
 from django.contrib import admin
-from .models import *
+from maidapp.models import CustomUser, UserProfile, Category, Payment, WorkerProfile, Document, Booking, Review, Complaint
 
 # USER ADMIN
-class UserAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email', 'role', 'is_active')
-    list_filter = ('role', 'is_active')
-    search_fields = ('name', 'email')
+class CustomUserAdmin(admin.ModelAdmin):
+    list_display = ('username', 'email', 'role', 'is_active', 'is_staff')
+    list_filter = ('role', 'is_active', 'is_staff')
+    search_fields = ('username', 'email', 'first_name', 'last_name')
 
-# admin.site.register(User, UserAdmin)
+admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(UserProfile)
+admin.site.register(Category)
+admin.site.register(Payment)
 
 
 # WORKER ADMIN

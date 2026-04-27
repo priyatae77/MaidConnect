@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Booking #{{ booking.booking_id_str }} — MaidConnect{% endblock %}
+
+{% block content %}
+<section class="booking-journey py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <div class="text-center mb-5">
+                    <div class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-black shadow-sm mb-3">
+                        <i class="fa-solid fa-pen-to-square me-1"></i> EDIT BOOKING
+                    </div>
+                    <h1 class="display-5 fw-black">Modify Booking <span style="color:var(--v-blue);">#{{ booking.booking_id_str }}</span></h1>
+                    <p class="text-muted fw-bold">Update your booking details below.</p>
+                </div>
+
+                <!-- Worker Info (read-only) -->
+                <div class="card border-0 shadow-vibrant rounded-5 p-4 mb-4">
+                    <div class="d-flex align-items-center gap-3">
+                        {% if booking.worker.photo %}
+                        <img src="{{ booking.worker.photo.url }}" class="rounded-circle" style="width:60px;height:60px;object-fit:cover;">
+                        {% else %}
+                        <div class="icon-circle m-0" style="background:var(--v-blue);color:white;width:60px;height:60px;font-size:1.5rem;">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <div class="fw-black h5 mb-0">{{ booking.worker.user.get_full_name }}</div>
+                            <div class="text-muted small">{{ booking.worker.categories.first.name|default:"General" }} · ₹{{ booking.worker.price_per_day }}/day</div>
+                        </div>
+                        <span class="ms-auto badge bg-light text-dark rounded-pill px-3 py-2 fw-black">{{ booking.status|upper }}</span>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-vibrant rounded-5 p-4 p-md-5">
+                    <form method="POST" action="{% url 'edit_booking' booking.id %}">
+                        {% csrf_token %}
+                        <div class="row g-4">
+
+                            <!-- Service Type -->
+                            <div class="col-12">
+                                <label class="form-label fw-black small text-uppercase" style="color:#3F4FCF;">Service Required</label>
+                                <select name="service_type" class="form-select border-0 bg-light rounded-4 p-3 fw-bold" required>
+                                    <option value="cleaning" {% if booking.service_type == 'cleaning' %}selected{% endif %}>Cleaning Service</option>
+                                    <option value="cooking" {% if booking.service_type == 'cooking' %}selected{% endif %}>Cooking Service</option>
+                                    <option value="babycare" {% if booking.service_type == 'babycare' %}selected{% endif %}>Babysitting / Babycare</option>
+                                    <option value="eldercare" {% if booking.service_type == 'eldercare' %}selected{% endif %}>Elderly Care</option>
+                                    <option value="housekeeping" {% if booking.service_type == 'housekeeping' %}selected{% endif %}>Housekeeping</option>
+                                    <option value="driver" {% if booking.service_type == 'driver' %}selected{% endif %}>Driver Service</option>
+                                    <option value="patientcare" {% if booking.service_type == 'patientcare' %}selected{% endif %}>Patient Care</option>
+                                    <option value="laundry" {% if booking.service_type == 'laundry' %}selected{% endif %}>Laundry Service</option>
+                                </select>
+                            </div>
+
+                            <!-- Date & Time -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-black small text-uppercase" style="color:#3F4FCF;">Booking Date</label>
+                                <input type="date" name="date" value="{{ booking.booking_date|date:'Y-m-d' }}"
+                                    class="form-control border-0 bg-light rounded-4 p-3 fw-bold" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-black small text-uppercase" style="color:#3F4FCF;">Start Time</label>
+                                <input type="time" name="time" value="{{ booking.start_time|time:'H:i' }}"
+                                    class="form-control border-0 bg-light rounded-4 p-3 fw-bold" required>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="col-12">
+                                <label class="form-label fw-black small text-uppercase" style="color:#3F4FCF;">Service Address</label>
+                                <textarea name="address" class="form-control border-0 bg-light rounded-4 p-3 fw-bold" rows="3" required>{{ booking.service_address }}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 d-flex gap-3">
+                            <button type="submit" class="btn btn-primary flex-grow-1 py-3 rounded-pill fw-black fs-5" style="background:#3F4FCF;border:none;">
+                                <i class="fa-solid fa-check me-2"></i>SAVE CHANGES
+                            </button>
+                            <a href="{% url 'user_dashboard' %}" class="btn btn-light flex-grow-1 py-3 rounded-pill fw-black fs-5">
+                                CANCEL
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.booking-journey { background:#f8f9fa; min-height: calc(100vh - 100px); }
+.form-select, .form-control { box-shadow:none !important; }
+.form-select:focus, .form-control:focus { background:#fff !important; box-shadow: 0 0 0 4px rgba(63,79,207,0.1) !important; }
+.shadow-vibrant { box-shadow: 0 20px 40px rgba(63,79,207,0.08); }
+</style>
+{% endblock %}

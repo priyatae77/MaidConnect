@@ -4,76 +4,85 @@
 {% block title %}Receipt #{{ booking.booking_id_str }} — MaidConnect{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="receipt-paper shadow-lg mx-auto p-5" style="max-width: 800px; background: #fff; border-radius: 20px;">
-        <div class="d-flex justify-content-between align-items-start mb-5 pb-4 border-bottom">
-            <div>
-                <h2 class="fw-black mb-0">Maid<span class="text-brand">Connect</span></h2>
-                <p class="text-muted small">Premium Hospitality & Care Receipt</p>
-                <div class="mt-4">
-                    <div class="fw-bold">Billed To:</div>
-                    <div class="text-dark">{{ booking.user.get_full_name|default:booking.user.username }}</div>
-                    <div class="text-muted small">{{ booking.service_address }}</div>
+<div class="receipt-vibrant py-5 animate-fade-in">
+    <!-- Background Branding -->
+    <div class="hero-bg-text" style="top: 15%; color: rgba(63, 79, 207, 0.03);">RECEIPT</div>
+
+    <div class="container position-relative py-5" style="z-index: 2;">
+        <div class="dynamic-card receipt-paper mx-auto p-5 bg-white border-vibrant shadow-vibrant" style="max-width: 900px;">
+            
+            <div class="d-flex justify-content-between align-items-start mb-5 pb-5 border-bottom border-light">
+                <div>
+                    <h1 class="display-4 fw-black mb-0">Maid<span style="color:var(--v-blue);">Connect.</span></h1>
+                    <p class="h6 text-muted fw-bold">Premium Home Care Services</p>
+                    <div class="mt-5">
+                        <div class="fw-black text-uppercase small opacity-50 mb-1">Billed To</div>
+                        <h4 class="fw-black mb-1">{{ booking.user.get_full_name|default:booking.user.username }}</h4>
+                        <p class="h6 text-muted fw-medium mb-0">{{ booking.service_address }}</p>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <h2 class="fw-black text-uppercase opacity-10 mb-2">RECEIPT</h2>
+                    <div class="h4 fw-black mb-1 text-vibrant">#{{ booking.booking_id_str }}</div>
+                    <div class="fw-black text-muted">{{ booking.booking_date|date:"F d, Y" }}</div>
+                    
+                    <div class="mt-5">
+                        <div class="fw-black text-uppercase small opacity-50 mb-1">Service Partner</div>
+                        <h4 class="fw-black mb-0 text-vibrant">{{ booking.worker.user.get_full_name }}</h4>
+                    </div>
                 </div>
             </div>
-            <div class="text-end">
-                <h4 class="fw-black text-uppercase opacity-25">Receipt</h4>
-                <div class="fw-bold mb-1">#{{ booking.booking_id_str }}</div>
-                <div class="text-muted small">{{ booking.booking_date|date:"F d, Y" }}</div>
-                
-                <div class="mt-4">
-                    <div class="fw-bold">Professional:</div>
-                    <div class="text-brand fw-black">{{ booking.worker.user.get_full_name }}</div>
+
+            <div class="table-responsive mb-5">
+                <table class="table table-borderless">
+                    <thead>
+                        <tr class="border-bottom border-light">
+                            <th class="py-4 fw-black text-uppercase small opacity-50">Service Description</th>
+                            <th class="py-4 text-end fw-black text-uppercase small opacity-50">Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="py-5">
+                                <h4 class="fw-black mb-1">{{ booking.worker.categories.first.name }} Professional</h4>
+                                <p class="h6 text-muted fw-medium mb-0">High-quality execution in {{ booking.worker.location }}.</p>
+                            </td>
+                            <td class="py-5 text-end h3 fw-black">₹{{ booking.total_price }}</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="border-top border-dark border-3">
+                            <td class="py-4 h2 fw-black">Total Valuation</td>
+                            <td class="py-4 text-end h2 fw-black text-vibrant">₹{{ booking.total_price }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="p-5 rounded-5 text-center bg-light border-vibrant">
+                <div class="d-flex justify-content-center gap-3 align-items-center mb-2">
+                    <i class="fa-solid fa-circle-check text-success fs-3"></i>
+                    <h3 class="fw-black mb-0 text-uppercase" style="letter-spacing: 2px;">Payment Successful</h3>
                 </div>
+                <p class="h6 text-muted fw-bold mb-0 opacity-50">TRANSACTION ID: {{ booking.payment.razorpay_payment_id|default:"TXN_VIBRANT_9987" }}</p>
             </div>
-        </div>
 
-        <div class="table-responsive mb-5">
-            <table class="table table-borderless">
-                <thead>
-                    <tr class="border-bottom">
-                        <th class="py-3 fw-black text-uppercase small">Service Details</th>
-                        <th class="py-3 text-end fw-black text-uppercase small">Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="py-4">
-                            <div class="fw-bold text-dark">{{ booking.worker.categories.first.name }} Services</div>
-                            <div class="text-muted small">Standard Daily Charge - {{ booking.worker.location }} execution.</div>
-                        </td>
-                        <td class="py-4 text-end fw-black">₹{{ booking.total_price }}</td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr class="border-top" style="border-width: 2px !important;">
-                        <td class="py-4 fw-black h4">Total Amount</td>
-                        <td class="py-4 text-end fw-black h4 text-brand">₹{{ booking.total_price }}</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-
-        <div class="p-4 bg-light rounded-4 text-center">
-            <div class="d-flex justify-content-center gap-2 align-items-center mb-2">
-                <i class="fa-solid fa-circle-check text-success"></i>
-                <span class="fw-black text-uppercase small" style="letter-spacing: 2px;">Payment Successful</span>
+            <div class="mt-5 text-center d-print-none">
+                <button onclick="window.print()" class="btn-vibrant px-5 py-3 fs-5">
+                    <i class="fa-solid fa-print me-2"></i> PRINT RECEIPT
+                </button>
             </div>
-            <p class="text-muted x-small mb-0">Transaction ID: {{ booking.payment.razorpay_payment_id|default:"MOCK_TXN_0987" }}</p>
-        </div>
-
-        <div class="mt-5 text-center d-print-none">
-            <button onclick="window.print()" class="btn btn-dark rounded-pill px-5 py-3 fw-bold">
-                <i class="fa-solid fa-print me-2"></i> Print Receipt
-            </button>
         </div>
     </div>
 </div>
 
 <style>
-    @media print {
-        header, footer, .d-print-none { display: none !important; }
-        .receipt-paper { box-shadow: none !important; margin: 0 !important; max-width: 100% !important; border: 1px solid #eee !important; }
-    }
+.receipt-vibrant { background: #FAFAFA; }
+.text-vibrant { color: var(--v-blue); }
+@media print {
+    .navbar, footer, .d-print-none { display: none !important; }
+    .receipt-vibrant { background: white !important; padding: 0 !important; }
+    .receipt-paper { border: none !important; box-shadow: none !important; margin: 0 !important; max-width: 100% !important; }
+}
 </style>
 {% endblock %}

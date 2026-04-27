@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Profile Settings — MaidConnect{% endblock %}
+
+{% block content %}
+<div class="profile-vibrant py-5 animate-fade-in">
+    <!-- Background Branding -->
+    <div class="hero-bg-text" style="top: 15%; color: rgba(63, 79, 207, 0.03);">SETTINGS</div>
+
+    <div class="container position-relative py-5" style="z-index: 2;">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="dynamic-card p-5 border-vibrant bg-white shadow-vibrant text-center">
+                    
+                    <div class="mb-5">
+                        <div class="display-1 mb-4">⚙️</div>
+                        <h1 class="display-4 fw-black mb-1">Profile <span style="color:var(--v-blue);">Settings.</span></h1>
+                        <p class="h5 text-muted fw-medium">Keep your account information accurate and up to date.</p>
+                    </div>
+
+                    <form method="POST" enctype="multipart/form-data" class="vibrant-form text-start">
+                        {% csrf_token %}
+                        
+                        <div class="mb-5">
+                            {{ form|crispy }}
+                        </div>
+
+                        <button type="submit" class="btn-vibrant w-100 py-3 mb-4 fs-5">SAVE CHANGES</button>
+                        
+                        <div class="text-center">
+                            {% if role == 'worker' %}
+                                <a href="{% url 'worker_dashboard' %}" class="fw-black text-muted text-decoration-none">CANCEL</a>
+                            {% else %}
+                                <a href="{% url 'user_dashboard' %}" class="fw-black text-muted text-decoration-none">CANCEL</a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-vibrant { background: #FAFAFA; min-height: 80vh; display: flex; align-items: center; }
+.text-vibrant { color: var(--v-blue); }
+/* Customizing Crispy Forms for High Energy */
+.vibrant-form input, .vibrant-form select, .vibrant-form textarea {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: #F1F5F9;
+    border: 3px solid #E2E8F0;
+    border-radius: 1.2rem;
+    font-weight: 600;
+    transition: var(--t-base);
+}
+.vibrant-form input:focus, .vibrant-form select:focus, .vibrant-form textarea:focus {
+    outline: none;
+    border-color: var(--v-blue);
+    background: white;
+    box-shadow: 0 10px 30px rgba(63, 79, 207, 0.1);
+}
+.vibrant-form .form-label {
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    opacity: 0.7;
+}
+</style>
+{% endblock %}

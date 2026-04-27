@@ -1,0 +1,130 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Active Jobs — MaidConnect{% endblock %}
+
+{% block dashboard_content %}
+<div class="container py-4 animate-fade-in dashboard-premium-bg">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h1 class="display-5 fw-black mb-1">Active <span style="color:var(--v-blue);">Jobs</span></h1>
+            <p class="text-muted fw-bold mb-0">Manage all your assigned bookings and client details.</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="dynamic-card bg-white p-4 mb-4 border-vibrant shadow-sm">
+        <form method="GET" action="{% url 'worker_jobs' %}" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label fw-bold small text-muted text-uppercase mb-1">Client Name</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-user text-muted"></i></span>
+                    <input type="text" name="client_name" class="form-control bg-light border-start-0" placeholder="Search client..." value="{{ client_name|default:'' }}">
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label fw-bold small text-muted text-uppercase mb-1">Date</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-calendar text-muted"></i></span>
+                    <input type="date" name="date" class="form-control bg-light border-start-0" value="{{ date_filter|default:'' }}">
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label fw-bold small text-muted text-uppercase mb-1">Status</label>
+                <select name="status" class="form-select bg-light">
+                    <option value="">All Statuses</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="accepted" {% if status_filter == 'accepted' %}selected{% endif %}>Accepted</option>
+                    <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>In Progress</option>
+                    <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="paid" {% if status_filter == 'paid' %}selected{% endif %}>Paid</option>
+                    <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-vibrant flex-grow-1 fw-bold"><i class="fa-solid fa-filter me-2"></i>Apply</button>
+                    <a href="{% url 'worker_jobs' %}" class="btn btn-light fw-bold text-muted"><i class="fa-solid fa-rotate-left"></i></a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Jobs Table -->
+    <div class="dynamic-card bg-white p-0 overflow-hidden border-vibrant shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="py-3 px-4 fw-black text-muted small text-uppercase">Booking ID</th>
+                        <th class="py-3 px-4 fw-black text-muted small text-uppercase">Client</th>
+                        <th class="py-3 px-4 fw-black text-muted small text-uppercase">Service & Location</th>
+                        <th class="py-3 px-4 fw-black text-muted small text-uppercase">Date & Time</th>
+                        <th class="py-3 px-4 fw-black text-muted small text-uppercase">Status</th>
+                        <th class="py-3 px-4 fw-black text-muted small text-uppercase text-end">Earnings</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr>
+                        <td class="py-3 px-4 fw-bold">#{{ booking.booking_id_str }}</td>
+                        <td class="py-3 px-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="icon-circle m-0" style="width: 35px; height: 35px; background: var(--v-pink); color: white; font-size: 0.9rem;">
+                                    {{ booking.user.first_name|make_list|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">{{ booking.user.first_name }} {{ booking.user.last_name }}</div>
+                                    <div class="small text-muted"><i class="fa-solid fa-phone text-success me-1"></i> {{ booking.user.userprofile.phone|default:"N/A" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="fw-bold">{{ booking.service_type }}</div>
+                            <div class="small text-muted text-truncate" style="max-width: 200px;" title="{{ booking.service_address }}"><i class="fa-solid fa-location-dot text-danger me-1"></i> {{ booking.service_address }}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="fw-bold"><i class="fa-regular fa-calendar text-vibrant me-1"></i> {{ booking.booking_date|date:"M d, Y" }}</div>
+                            <div class="small text-muted"><i class="fa-regular fa-clock me-1"></i> {{ booking.start_time|time:"h:i A" }}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            {% if booking.status == 'pending' %}
+                            <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-clock me-1"></i> Pending</span>
+                            {% elif booking.status == 'accepted' %}
+                            <span class="badge bg-info text-white fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-thumbs-up me-1"></i> Accepted</span>
+                            {% elif booking.status == 'in_progress' %}
+                            <span class="badge text-white fw-bold px-3 py-2 rounded-pill" style="background: var(--v-blue);"><i class="fa-solid fa-person-digging me-1"></i> In Progress</span>
+                            {% elif booking.status == 'completed' %}
+                            <span class="badge bg-success text-white fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-check-double me-1"></i> Completed</span>
+                            {% elif booking.status == 'paid' %}
+                            <span class="badge bg-success text-white fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-coins me-1"></i> Paid</span>
+                            {% elif booking.status == 'cancelled' or booking.status == 'rejected' %}
+                            <span class="badge bg-danger text-white fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-xmark me-1"></i> {{ booking.status|title }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4 text-end fw-black text-success h6 mb-0">
+                            ₹{{ booking.total_price }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="text-muted mb-3"><i class="fa-solid fa-folder-open fa-3x opacity-25"></i></div>
+                            <h5 class="fw-bold text-dark">No jobs found</h5>
+                            <p class="text-muted small">Try adjusting your filters or check back later.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

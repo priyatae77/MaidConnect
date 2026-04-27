@@ -1,186 +1,94 @@
-{% extends "base.html" %}
+{% extends "dashboard_base.html" %}
 {% load static %}
 {% load mc_tags %}
 
-{% block title %}Browse Workers — MaidConnect{% endblock %}
+{% block title %}Verified Professionals — MaidConnect{% endblock %}
 
-{% block content %}
-<div class="animate-fade-in">
+{% block extra_head %}
+<style>
+    .marketplace-container { background: #FAFAFA; min-height: 100vh; padding: 2rem; }
+    .worker-card { 
+        background: white;
+        border-radius: 1.5rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.03);
+    }
+    .worker-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-vibrant); }
+    .worker-img { height: 220px; object-fit: cover; }
+</style>
+{% endblock %}
 
-    <!-- ── Page Header ── -->
-    <div style="background: var(--bg-alt); border-bottom: 1px solid var(--border); padding: 2rem 0 1.5rem;">
-        <div class="container">
-            <nav aria-label="breadcrumb" class="mb-2">
-                <ol class="breadcrumb mb-0" style="font-size:0.82rem;">
-                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none" style="color:var(--brand);">Home</a></li>
-                    <li class="breadcrumb-item active text-muted">Browse Workers</li>
-                </ol>
-            </nav>
-            <h1 class="mb-0" style="font-size:1.8rem; font-weight:800;">Find the Best Help for Your Home</h1>
-            <p class="text-muted small mt-1 mb-0">
-                {{ workers|length }} verified worker{{ workers|length|pluralize }} available
-            </p>
-        </div>
-    </div>
-
-    <div class="container py-4">
-
-        <!-- ── Filter Bar ── -->
-        <form method="GET" id="filter-form">
-            <div class="filter-bar mb-4">
-                <!-- Search -->
-                <div class="filter-field" style="flex: 2; min-width: 200px;">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" name="search" placeholder="Cooking, Cleaning, Baby Care…"
-                           value="{{ request.GET.search }}" autocomplete="off">
-                </div>
-
-                <!-- Location -->
-                <div class="filter-field" style="flex: 1.5; min-width: 150px;">
-                    <i class="fa-solid fa-location-dot" style="color:var(--brand);"></i>
-                    <input type="text" name="location" placeholder="City or area"
-                           value="{{ request.GET.location }}" autocomplete="off">
-                </div>
-
-                <!-- Max Budget -->
-                <div class="filter-field" style="flex: 1; min-width: 130px;">
-                    <i class="fa-solid fa-indian-rupee-sign"></i>
-                    <input type="number" name="price" placeholder="Max budget/day"
-                           value="{{ request.GET.price }}" min="0">
-                </div>
-
-                <!-- Category -->
-                <div class="filter-field" style="flex: 1.2; min-width: 150px;">
-                    <i class="fa-solid fa-layer-group"></i>
-                    <select name="category" style="background:transparent;border:none;outline:none;font-size:0.88rem;font-family:'Poppins',sans-serif;color:var(--text);width:100%;">
-                        <option value="">All Categories</option>
-                        {% for cat in categories %}
-                        <option value="{{ cat.id }}" {% if request.GET.category == cat.id|slugify %}selected{% endif %}>
-                            {{ cat.name }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- Submit -->
-                <button type="submit" class="btn-brand" style="white-space:nowrap; flex-shrink:0;">
-                    <i class="fa-solid fa-sliders me-1"></i> Apply
-                </button>
-
-                {% if request.GET.search or request.GET.location or request.GET.price or request.GET.category %}
-                <a href="{% url 'worker_list' %}" class="btn-outline-brand" style="white-space:nowrap; flex-shrink:0;">
-                    <i class="fa-solid fa-xmark me-1"></i> Clear
-                </a>
-                {% endif %}
+{% block dashboard_content %}
+<section class="marketplace-container animate-fade-in px-lg-5">
+    <div class="container-fluid">
+        
+        <!-- ── FILTER HEADER ── -->
+        <div class="row align-items-center mb-4 g-4">
+            <div class="col-lg-6">
+                <h1 class="h3 fw-black mb-1">Find Your <span style="color:var(--v-blue);">Partner.</span></h1>
+                <p class="text-muted fw-bold small mb-0">Browse top-rated professionals verified by MaidConnect.</p>
             </div>
-        </form>
-
-        <!-- ── Sort pills ── -->
-        <div class="d-flex gap-2 flex-wrap mb-4">
-            <span class="fw-semibold small text-muted me-1 align-self-center">Sort:</span>
-            <a href="?{{ request.GET.urlencode }}&sort=rating"
-               class="quick-sort-pill {% if request.GET.sort == 'rating' %}active{% endif %}">
-                ⭐ Highest Rated
-            </a>
-            <a href="?{{ request.GET.urlencode }}&sort=price_asc"
-               class="quick-sort-pill {% if request.GET.sort == 'price_asc' %}active{% endif %}">
-                💰 Price: Low
-            </a>
-            <a href="?{{ request.GET.urlencode }}&sort=price_desc"
-               class="quick-sort-pill {% if request.GET.sort == 'price_desc' %}active{% endif %}">
-                💎 Price: High
-            </a>
-            <a href="?{{ request.GET.urlencode }}&sort=exp"
-               class="quick-sort-pill {% if request.GET.sort == 'exp' %}active{% endif %}">
-                🏆 Most Experienced
-            </a>
+            <div class="col-lg-7">
+                <form method="GET" class="row g-2 justify-content-lg-end">
+                    <div class="col-md-4">
+                        <select name="category" class="form-select border-0 bg-white shadow-sm rounded-pill px-4">
+                            <option value="">All Services</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:'s' %}selected{% endif %}>{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" name="city" placeholder="Search City..." class="form-control border-0 bg-white shadow-sm rounded-pill px-4" value="{{ selected_city }}">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-vibrant w-100 rounded-pill"><i class="fa-solid fa-filter"></i></button>
+                    </div>
+                </form>
+            </div>
         </div>
 
-        <!-- ── Worker Grid ── -->
-        <div class="row g-3">
-            {% for worker in workers %}
-            <div class="col-6 col-md-4 col-lg-3">
-                <a href="{% url 'worker_detail' worker.id %}" class="sc-card">
-                    <div class="sc-card-img">
-                        {% if worker.photo %}
-                            <img src="{{ worker.photo.url }}" alt="{{ worker.user.username }}" loading="lazy">
+        <!-- ── WORKER GRID ── -->
+        <div class="row g-4">
+            {% for w in workers %}
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="worker-card h-100 shadow-sm">
+                    <div class="position-relative">
+                        {% if w.photo %}
+                        <img src="{{ w.photo.url }}" class="worker-img w-100" alt="{{ w.user.first_name }}">
                         {% else %}
-                            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=400&auto=format&fit=crop"
-                                 alt="Worker" loading="lazy">
+                        <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6958?auto=format&fit=crop&q=80&w=800" class="worker-img w-100" alt="Maid">
                         {% endif %}
-
-                        <!-- Rating -->
-                        <div class="sc-card-rating">
-                            <i class="fa-solid fa-star" style="font-size:0.65rem;"></i>
-                            {{ worker.rating_avg|default:"New" }}
-                        </div>
-
-                        <!-- Verified -->
-                        {% if worker.verified %}
-                        <div class="sc-card-badge-verified">
-                            <i class="fa-solid fa-circle-check"></i> Verified
-                        </div>
-                        {% endif %}
-                    </div>
-                    <div class="sc-card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-1">
-                            <div class="sc-card-name">{{ worker.user.username|title }}</div>
-                            {% if worker.availability == 'available' %}
-                            <span class="availability-available">Open</span>
-                            {% else %}
-                            <span class="availability-busy">Busy</span>
-                            {% endif %}
-                        </div>
-                        <div class="sc-card-meta">
-                            {% with skills=worker.skills|split:" " %}
-                                {{ skills.0 }}{% if skills.1 %}, {{ skills.1 }}{% endif %}
-                            {% endwith %}
-                        </div>
-                        <div class="sc-card-footer">
-                            <div class="sc-card-price">₹{{ worker.price_per_day }}<span>/day</span></div>
-                            <div class="sc-card-loc">
-                                <i class="fa-solid fa-location-dot" style="color:var(--brand);"></i>
-                                {{ worker.location|truncatechars:12 }}
-                            </div>
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-white text-vibrant rounded-pill px-3 py-2 fw-black shadow-sm">₹{{ w.price_per_day }}/day</span>
                         </div>
                     </div>
-                </a>
+                    <div class="p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="fw-black mb-0">{{ w.user.get_full_name }}</h5>
+                            <div class="text-warning small"><i class="fa-solid fa-star"></i> {{ w.rating_avg|default:"5.0" }}</div>
+                        </div>
+                        <div class="small fw-bold text-muted mb-3">
+                            <i class="fa-solid fa-location-dot me-1"></i> {{ w.location|default:"Tirupur" }}
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            {% for cat in w.categories.all %}
+                            <span class="badge bg-soft-primary text-primary rounded-pill px-3">{{ cat.name }}</span>
+                            {% endfor %}
+                        </div>
+                        <a href="{% url 'booking_new' %}?worker_id={{ w.id|encoded_id }}" class="btn btn-outline-primary w-100 rounded-pill fw-black py-2">
+                            HIRE NOW
+                        </a>
+                    </div>
+                </div>
             </div>
             {% empty %}
             <div class="col-12 text-center py-5">
-                <div style="font-size:4rem; margin-bottom:1rem;">🔍</div>
-                <h4 class="fw-bold text-muted">Sorry, we couldn't find anyone.</h4>
-                <p class="text-muted small">Try adjusting your search filters or browse all available workers.</p>
-                <a href="{% url 'worker_list' %}" class="btn-brand mt-3">
-                    <i class="fa-solid fa-redo me-1"></i> Reset Filters
-                </a>
+                <h3 class="fw-black text-muted">No partners found in this area.</h3>
             </div>
             {% endfor %}
         </div>
-
     </div>
-</div>
-
-<style>
-.quick-sort-pill {
-    display: inline-flex;
-    align-items: center;
-    background: #fff;
-    border: 1px solid var(--border);
-    color: var(--text-sub);
-    font-size: 0.78rem;
-    font-weight: 600;
-    padding: 0.3rem 0.9rem;
-    border-radius: var(--r-pill);
-    text-decoration: none;
-    transition: var(--t-fast);
-    cursor: pointer;
-}
-.quick-sort-pill:hover,
-.quick-sort-pill.active {
-    background: var(--brand-light);
-    border-color: var(--brand);
-    color: var(--brand);
-}
-</style>
+</section>
 {% endblock %}

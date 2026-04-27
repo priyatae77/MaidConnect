@@ -1,214 +1,159 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Book {{ worker.user.username|title }} — MaidConnect{% endblock %}
-
 {% block content %}
-<div class="animate-fade-in">
-<div class="container py-4" style="max-width: 860px;">
-
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb" style="font-size:0.82rem;">
-            <li class="breadcrumb-item"><a href="/" class="text-decoration-none" style="color:var(--brand);">Home</a></li>
-            <li class="breadcrumb-item"><a href="/workers/" class="text-decoration-none" style="color:var(--brand);">Workers</a></li>
-            <li class="breadcrumb-item">
-                <a href="{% url 'worker_detail' worker.id %}" class="text-decoration-none" style="color:var(--brand);">
-                    {{ worker.user.username|title }}
-                </a>
-            </li>
-            <li class="breadcrumb-item active text-muted">Book</li>
-        </ol>
-    </nav>
-
-    <!-- ── Step indicator ── -->
-    <div class="d-flex align-items-center gap-3 mb-4">
-        <div class="d-flex align-items-center gap-2">
-            <div class="step-dot active">1</div>
-            <span class="fw-semibold small">Booking Details</span>
-        </div>
-        <div class="step-line"></div>
-        <div class="d-flex align-items-center gap-2">
-            <div class="step-dot">2</div>
-            <span class="text-muted small">Confirmation</span>
-        </div>
-    </div>
-
-    <div class="checkout-card">
-
-        <!-- ── Worker Strip ── -->
-        <div class="checkout-worker-strip">
-            {% if worker.photo %}
-                <img src="{{ worker.photo.url }}" alt="{{ worker.user.username }}">
-            {% else %}
-                <div class="checkout-worker-avatar">{{ worker.user.username|first|upper }}</div>
-            {% endif %}
-            <div class="flex-grow-1">
-                <div class="fw-bold" style="font-size:1rem;">{{ worker.user.username|title }}</div>
-                <div class="text-muted small">
-                    <i class="fa-solid fa-location-dot me-1" style="color:var(--brand);"></i>
-                    {{ worker.location }}
-                </div>
-            </div>
-            <div class="text-end">
-                <div class="fw-black" style="font-size:1.4rem; font-family:'Outfit',sans-serif; color:var(--text);">
-                    ₹{{ worker.price_per_day }}
-                </div>
-                <div class="text-muted" style="font-size:0.78rem;">per day</div>
-            </div>
-        </div>
-
-        <!-- ── Form Body ── -->
-        <div class="checkout-body">
-            <h2 class="fw-bold mb-4" style="font-size:1.2rem;">Enter Booking Details</h2>
-
-            <form method="POST" action="{% url 'book_worker' worker.id %}">
-                {% csrf_token %}
-
-                <div class="row g-4">
-
-                    <!-- Service Address -->
-                    <div class="col-12">
-                        <label class="checkout-label" for="service_address">
-                            <i class="fa-solid fa-location-dot me-1" style="color:var(--brand);"></i>
-                            Your Home Address *
-                        </label>
-                        <textarea name="service_address" id="service_address"
-                                  class="form-control-clean"
-                                  rows="3"
-                                  placeholder="e.g., Flat 4B, Sunrise Apartments, Anna Nagar, Chennai - 600040"
-                                  required></textarea>
-                        <div class="mt-1" style="font-size:0.75rem; color:var(--text-muted);">
-                            <i class="fa-solid fa-info-circle me-1"></i>
-                            Where should the worker come? Include flat/house number, street, city.
+<section class="booking-journey py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                <!-- ░░ WORKER SPOTLIGHT (HEADER) ░░ -->
+                <div class="card border-0 shadow-vibrant rounded-5 overflow-hidden mb-4 animate__animated animate__fadeInUp">
+                    <div class="card-body p-4 d-flex align-items-center gap-4">
+                        <div class="worker-avatar-wrap">
+                            {% if worker.photo %}
+                                <img src="{{ worker.photo.url }}" alt="{{ worker.user.get_full_name }}" class="rounded-circle shadow-sm border border-3 border-white" style="width: 100px; height: 100px; object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                                    <i class="fa-solid fa-user fa-3x text-muted"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="worker-info">
+                            <h2 class="fw-black mb-1">{{ worker.user.get_full_name }}</h2>
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <span class="badge bg-primary rounded-pill px-3 py-2" style="background-color: #3F4FCF !important;">
+                                    <i class="fa-solid fa-star me-1"></i> {{ worker.rating_avg|floatformat:1 }}
+                                </span>
+                                <span class="text-muted fw-bold">
+                                    <i class="fa-solid fa-briefcase me-1"></i> {{ worker.experience }} Yrs Exp
+                                </span>
+                            </div>
+                            <p class="mb-0 text-muted">
+                                <i class="fa-solid fa-location-dot me-1"></i> {{ worker.location }}, {{ worker.district }}
+                            </p>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Start Date -->
-                    <div class="col-sm-6">
-                        <label class="checkout-label" for="start_time">
-                            <i class="fa-solid fa-calendar-day me-1" style="color:var(--brand);"></i>
-                            Start Date *
-                        </label>
-                        <input type="date" name="start_time" id="start_time"
-                               class="form-control-clean" required
-                               min="{{ today|date:'Y-m-d' }}">
-                    </div>
+                <!-- ░░ BOOKING FORM ░░ -->
+                <div class="card border-0 shadow-vibrant rounded-5 p-4 p-md-5 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+                    <h3 class="fw-black mb-4">Complete Your Booking</h3>
+                    
+                    <form id="bookingForm">
+                        <input type="hidden" name="worker_id" value="{{ worker.id }}">
+                        
+                        <div class="row g-4">
+                            <!-- Service Type -->
+                            <div class="col-md-12">
+                                <label class="form-label fw-black small text-uppercase" style="color: #3F4FCF;">Service Required</label>
+                                <select name="service_type" class="form-select border-0 bg-light rounded-4 p-3 fw-bold" required>
+                                    <option value="">Select Service</option>
+                                    <option value="cleaning" {% if prefilled_service == 'cleaning' %}selected{% endif %}>Cleaning Service</option>
+                                    <option value="cooking" {% if prefilled_service == 'cooking' %}selected{% endif %}>Cooking Service</option>
+                                    <option value="babycare" {% if prefilled_service == 'babycare' %}selected{% endif %}>Babysitting / Babycare</option>
+                                    <option value="eldercare" {% if prefilled_service == 'eldercare' %}selected{% endif %}>Elderly Care</option>
+                                    <option value="housekeeping" {% if prefilled_service == 'housekeeping' %}selected{% endif %}>Housekeeping</option>
+                                    <option value="driver" {% if prefilled_service == 'driver' %}selected{% endif %}>Driver Service</option>
+                                    <option value="patientcare" {% if prefilled_service == 'patientcare' %}selected{% endif %}>Patient Care</option>
+                                    <option value="laundry" {% if prefilled_service == 'laundry' %}selected{% endif %}>Laundry Service</option>
+                                </select>
+                            </div>
 
-                    <!-- End Date -->
-                    <div class="col-sm-6">
-                        <label class="checkout-label" for="end_time">
-                            <i class="fa-solid fa-calendar-check me-1" style="color:var(--brand);"></i>
-                            End Date <span class="text-muted fw-normal">(optional)</span>
-                        </label>
-                        <input type="date" name="end_time" id="end_time"
-                               class="form-control-clean">
-                        <div class="mt-1" style="font-size:0.75rem; color:var(--text-muted);">
-                            Leave blank for a single day booking.
+                            <!-- Date & Time -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-black small text-uppercase" style="color: #3F4FCF;">Booking Date</label>
+                                <input type="date" name="date" class="form-control border-0 bg-light rounded-4 p-3 fw-bold" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-black small text-uppercase" style="color: #3F4FCF;">Start Time</label>
+                                <input type="time" name="time" class="form-control border-0 bg-light rounded-4 p-3 fw-bold" required>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="col-md-12">
+                                <label class="form-label fw-black small text-uppercase" style="color: #3F4FCF;">Service Address</label>
+                                <textarea name="address" class="form-control border-0 bg-light rounded-4 p-3 fw-bold" rows="3" placeholder="Enter complete address..." required></textarea>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Special Instructions -->
-                    <div class="col-12">
-                        <label class="checkout-label" for="special_instructions">
-                            <i class="fa-solid fa-pen-to-square me-1" style="color:var(--brand);"></i>
-                            Special Instructions <span class="text-muted fw-normal">(optional)</span>
-                        </label>
-                        <textarea name="special_instructions" id="special_instructions"
-                                  class="form-control-clean"
-                                  rows="2"
-                                  placeholder="e.g., Prefer morning slot, allergic to strong cleaners, 2 children at home…"></textarea>
-                    </div>
+                        <div id="bookingMsg" class="mt-4"></div>
 
+                        <!-- Submit Button -->
+                        <div class="mt-5">
+                            <button type="submit" id="submitBtn" class="btn btn-primary w-100 py-3 rounded-pill fw-black shadow-glow" style="background-color: #3F4FCF; border: none;">
+                                <span class="btn-text">CONFIRM BOOKING</span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
 
-                <!-- Price Summary Box -->
-                <div class="mt-4 p-3 rounded-3 d-flex justify-content-between align-items-center"
-                     style="background:var(--brand-light); border:1px solid rgba(255, 75, 145,0.2);">
-                    <div>
-                        <div class="fw-semibold small" style="color:var(--brand-deep);">Estimated Total</div>
-                        <div style="font-size:0.75rem; color:var(--text-muted);">Final price confirmed after acceptance</div>
-                    </div>
-                    <div class="fw-black" style="font-size:1.5rem; font-family:'Outfit',sans-serif; color:var(--brand);">
-                        ₹{{ worker.price_per_day }}+
-                    </div>
+                <div class="text-center mt-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                    <p class="text-muted fw-bold small">
+                        <i class="fa-solid fa-shield-halved text-success me-1"></i> 
+                        Secure Booking • Verified Professionals • 24/7 Support
+                    </p>
                 </div>
 
-                <!-- Actions -->
-                <div class="d-flex justify-content-between align-items-center mt-4 pt-3"
-                     style="border-top: 1px solid var(--border);">
-                    <a href="{% url 'worker_detail' worker.id %}" class="text-decoration-none d-flex align-items-center gap-2"
-                       style="font-size:0.88rem; color:var(--text-muted); font-weight:600;">
-                        <i class="fa-solid fa-chevron-left"></i> Back to Profile
-                    </a>
-                    <button type="submit" class="btn-brand btn-brand-lg">
-                        <i class="fa-solid fa-paper-plane me-1"></i> Confirm Booking
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Trust icons -->
-    <div class="row g-3 mt-4 text-center">
-        <div class="col-4">
-            <div class="d-flex flex-column align-items-center gap-2 p-3">
-                <i class="fa-solid fa-lock" style="font-size:1.4rem; color:var(--brand);"></i>
-                <div class="fw-semibold" style="font-size:0.8rem;">Secure Booking</div>
-                <div class="text-muted" style="font-size:0.72rem;">End-to-end encrypted</div>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="d-flex flex-column align-items-center gap-2 p-3">
-                <i class="fa-solid fa-rotate-left" style="font-size:1.4rem; color:var(--brand);"></i>
-                <div class="fw-semibold" style="font-size:0.8rem;">Free Cancellation</div>
-                <div class="text-muted" style="font-size:0.72rem;">Up to 24 hours before</div>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="d-flex flex-column align-items-center gap-2 p-3">
-                <i class="fa-solid fa-headset" style="font-size:1.4rem; color:var(--brand);"></i>
-                <div class="fw-semibold" style="font-size:0.8rem;">24/7 Support</div>
-                <div class="text-muted" style="font-size:0.72rem;">We're always here</div>
             </div>
         </div>
     </div>
+</section>
 
-</div>
-</div>
+<script>
+document.getElementById('bookingForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const form = this;
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const spinner = submitBtn.querySelector('.spinner-border');
+    const msgDiv = document.getElementById('bookingMsg');
+    
+    // Loading State
+    submitBtn.disabled = true;
+    btnText.classList.add('d-none');
+    spinner.classList.remove('d-none');
+    msgDiv.innerHTML = '';
+
+    const formData = new FormData(form);
+
+    fetch('{% url "book_service" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            msgDiv.innerHTML = `<div class="alert alert-success border-0 rounded-4 fw-bold">✨ Booking Confirmed! ID: ${data.booking_id}. Redirecting...</div>`;
+            setTimeout(() => {
+                window.location.href = '{% url "user_dashboard" %}';
+            }, 2000);
+        } else {
+            submitBtn.disabled = false;
+            btnText.classList.remove('d-none');
+            spinner.classList.add('d-none');
+            msgDiv.innerHTML = `<div class="alert alert-danger border-0 rounded-4 fw-bold">❌ ${data.message}</div>`;
+        }
+    })
+    .catch(error => {
+        submitBtn.disabled = false;
+        btnText.classList.remove('d-none');
+        spinner.classList.add('d-none');
+        msgDiv.innerHTML = '<div class="alert alert-danger border-0 rounded-4 fw-bold">❌ Connection error. Please try again.</div>';
+    });
+});
+</script>
 
 <style>
-/* Step indicator */
-.step-dot {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: var(--bg-alt);
-    border: 2px solid var(--border);
-    color: var(--text-muted);
-    font-size: 0.82rem;
-    font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-}
-.step-dot.active {
-    background: var(--brand);
-    border-color: var(--brand);
-    color: #fff;
-}
-.step-line {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-    max-width: 60px;
-}
+.booking-journey { background: #f8f9fa; min-height: calc(100vh - 100px); }
+.form-select, .form-control { box-shadow: none !important; }
+.form-select:focus, .form-control:focus { background: #fff !important; box-shadow: 0 0 0 4px rgba(63, 79, 207, 0.1) !important; }
+.btn-primary:hover { background: #2D3BA6 !important; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(63, 79, 207, 0.3); }
+.shadow-vibrant { box-shadow: 0 20px 40px rgba(63, 79, 207, 0.05); }
 </style>
-
-{% block extra_js %}
-<script>
-    // Auto-set min end_date based on start_date
-    document.getElementById('start_time').addEventListener('change', function () {
-        document.getElementById('end_time').min = this.value;
-    });
-</script>
-{% endblock %}
 {% endblock %}

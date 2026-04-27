@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Privacy Policy — MaidConnect{% endblock %}
+
+{% block content %}
+<div class="legal-vibrant py-5 overflow-hidden">
+    <!-- Background Branding -->
+    <div class="hero-bg-text" style="top: 15%; color: rgba(255, 92, 141, 0.03);">PRIVACY</div>
+
+    <div class="container position-relative py-5" style="z-index: 2;">
+        
+        <!-- ░░ HIGH-ENERGY HEADER ░░ -->
+        <div class="text-center mb-5 pb-5 animate-fade-in">
+            <h1 class="display-2 fw-black mb-4">Privacy <span style="color:var(--v-pink);">Policy.</span></h1>
+            <p class="h4 text-muted mx-auto fw-medium" style="max-width: 800px;">
+                Your trust is our priority. We handle your data with transparency, care, and total security.
+            </p>
+        </div>
+
+        <div class="row g-5 justify-content-center">
+            
+            <div class="col-lg-10">
+                <!-- Summary Card -->
+                <div class="dynamic-card p-5 border-vibrant bg-white shadow-vibrant mb-5 animate-fade-in">
+                    <div class="d-flex align-items-center gap-4 mb-4">
+                        <div class="icon-circle m-0" style="background: var(--v-blue); color: white;"><i class="fa-solid fa-eye"></i></div>
+                        <h2 class="fw-black mb-0">At a Glance</h2>
+                    </div>
+                    <p class="h5 text-muted fw-medium mb-0" style="line-height: 1.8;">
+                        At MaidConnect, we collect only the information necessary to provide you with a safe and reliable home service experience. We never sell your data, and we use industry-standard encryption to keep it secure.
+                    </p>
+                </div>
+
+                <div class="row g-4 animate-fade-in" style="animation-delay: 0.2s;">
+                    <!-- Collection -->
+                    <div class="col-md-6">
+                        <div class="dynamic-card h-100 p-4 border-vibrant bg-white">
+                            <h4 class="fw-black mb-4 text-vibrant"><i class="fa-solid fa-database me-2"></i> Data Collection</h4>
+                            <ul class="list-unstyled h6 text-muted fw-bold" style="line-height: 2.2;">
+                                <li><i class="fa-solid fa-circle-check text-success me-2"></i> Basic Info: Name, Email, Phone</li>
+                                <li><i class="fa-solid fa-circle-check text-success me-2"></i> Service Info: Address, History</li>
+                                <li><i class="fa-solid fa-circle-check text-success me-2"></i> Profile: Role, Ratings</li>
+                                <li><i class="fa-solid fa-circle-check text-success me-2"></i> Interaction: Chat, Feedback</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Purpose -->
+                    <div class="col-md-6">
+                        <div class="dynamic-card h-100 p-4 border-vibrant bg-white">
+                            <h4 class="fw-black mb-4 text-vibrant"><i class="fa-solid fa-bullseye me-2"></i> Usage Purpose</h4>
+                            <ul class="list-unstyled h6 text-muted fw-bold" style="line-height: 2.2;">
+                                <li><i class="fa-solid fa-circle-check text-vibrant me-2"></i> Facilitating bookings & matches</li>
+                                <li><i class="fa-solid fa-circle-check text-vibrant me-2"></i> Verification & Security checks</li>
+                                <li><i class="fa-solid fa-circle-check text-vibrant me-2"></i> Important service communications</li>
+                                <li><i class="fa-solid fa-circle-check text-vibrant me-2"></i> Improving platform experience</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Sharing -->
+                    <div class="col-md-6">
+                        <div class="dynamic-card h-100 p-4 border-vibrant bg-white">
+                            <h4 class="fw-black mb-4 text-vibrant"><i class="fa-solid fa-share-nodes me-2"></i> Third-Party Sharing</h4>
+                            <p class="h6 text-muted fw-bold mb-0" style="line-height: 1.8;">
+                                We only share data with trusted partners: Razorpay (Payments), Gmail SMTP (Emails), and local authorities when legally required.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Rights -->
+                    <div class="col-md-6">
+                        <div class="dynamic-card h-100 p-4 border-vibrant bg-white">
+                            <h4 class="fw-black mb-4 text-vibrant"><i class="fa-solid fa-user-shield me-2"></i> User Rights</h4>
+                            <p class="h6 text-muted fw-bold mb-0" style="line-height: 1.8;">
+                                You have the right to access, edit, or request deletion of your data at any time through your dashboard or by contacting us directly.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5 p-5 rounded-5 text-center bg-light border-vibrant animate-fade-in" style="animation-delay: 0.4s;">
+                    <i class="fa-solid fa-lock text-success mb-3 display-4"></i>
+                    <h3 class="fw-black">Secured by Encryption</h3>
+                    <p class="h5 text-muted fw-medium mb-0">
+                        All data transmissions are secured using SSL/TLS encryption. Your sensitive information is never stored in plain text.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+.legal-vibrant { background: #FAFAFA; }
+.text-vibrant { color: var(--v-blue); }
+</style>
+{% endblock %}

@@ -4,45 +4,126 @@
 {% block title %}Complaint Center — MaidConnect{% endblock %}
 
 {% block dashboard_content %}
-<div class="container animate-fade-in">
-    <div class="mb-5">
-        <h2 class="fw-black mb-1">Service Complaints</h2>
-        <p class="text-muted">Review and resolve issues raised by customers and partners.</p>
+<div class="container py-5 animate-fade-in">
+
+    <!-- ░░ HIGH-ENERGY COMPLAINT HEADER ░░ -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-5 gap-4">
+        <div>
+            <div class="badge bg-vibrant rounded-pill px-3 py-2 fw-black shadow-sm mb-2" style="background: var(--v-blue);">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i> RESOLUTION HUB
+            </div>
+            <h1 class="h2 fw-black mb-1">Service <span style="color:var(--v-blue);">Complaints.</span></h1>
+            <p class="h5 text-muted fw-medium">Review and mediate issues raised by the community.</p>
+        </div>
+        <div>
+            <div class="dynamic-card p-4 text-center bg-white border-vibrant shadow-sm">
+                <div class="fw-black text-uppercase small opacity-50 mb-1">Open Tickets</div>
+                <div class="h2 fw-black mb-0 text-danger" id="ticket-count">{{ complaints.count }}</div>
+            </div>
+        </div>
     </div>
 
-    <div class="row g-4">
+    <!-- ░░ VIBRANT COMPLAINT GRID ░░ -->
+    <div class="row g-4" id="complaint-grid">
         {% for complaint in complaints %}
-        <div class="col-12">
-            <div class="dash-card p-4 border-start border-4 {% if complaint.status == 'resolved' %}border-success{% else %}border-danger{% endif %}">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <div class="label-sm">BOOKING ID: #{{ complaint.booking.booking_id_str|default:"N/A" }}</div>
-                        <h6 class="fw-black mb-0">Issue from @{{ complaint.user.username }}</h6>
-                    </div>
-                    {% if complaint.status == 'open' %}
-                        <span class="badge rounded-pill bg-danger px-3 py-1">OPEN ISSUE</span>
-                    {% else %}
-                        <span class="badge rounded-pill bg-success px-3 py-1">RESOLVED</span>
-                    {% endif %}
+            <div class="dynamic-card p-3 mb-3 border-vibrant animate-fade-in stagger-in" style="border-left: 5px solid {% if complaint.status == 'resolved' %}#198754{% else %}var(--v-blue){% endif %}; border-radius: 1.5rem;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-black text-uppercase x-small opacity-50" style="font-size: 0.65rem;">Booking #{{ complaint.booking.id|default:"MC-C1" }}</span>
+                    <span class="badge {% if complaint.status == 'resolved' %}bg-success{% else %}bg-warning{% endif %} rounded-pill px-3 py-1 fw-black" style="font-size: 0.7rem;">{{ complaint.status|upper }}</span>
+                </div>
+                <h4 class="fw-black mb-2" style="font-size: 1.1rem;">Issue from <span style="color: var(--v-blue);">@{{ complaint.user.username }}</span></h4>
+                
+                <div class="bg-light p-3 rounded-4 mb-3">
+                    <p class="mb-0 fw-medium text-muted italic" style="font-size: 0.9rem;">"{{ complaint.description }}"</p>
                 </div>
                 
-                <p class="text-muted small my-3" style="font-size: 0.95rem; line-height: 1.6;">"{{ complaint.message }}"</p>
-                
-                <div class="d-flex justify-content-between align-items-center mt-4">
-                    <div class="text-muted x-small">Date Filed: {{ complaint.created_at|date:"F d, Y" }}</div>
-                    {% if complaint.status == 'open' %}
-                        <button class="btn btn-sm btn-brand rounded-pill px-4">Mark Resolved</button>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="x-small text-muted fw-bold" style="font-size: 0.65rem;">FILED ON {{ complaint.created_at|date:"F d, Y" }}</span>
+                    {% if complaint.status != 'resolved' %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="complaint_id" value="{{ complaint.id }}">
+                        <button type="submit" class="btn-vibrant py-1 px-4 text-decoration-none fw-black border-0" style="font-size: 0.75rem;">MARK RESOLVED</button>
+                    </form>
                     {% endif %}
                 </div>
             </div>
-        </div>
         {% empty %}
-        <div class="col-12 text-center py-5 opacity-50">
-            <i class="fa-solid fa-heart-circle-check display-3 mb-4"></i>
-            <h4 class="fw-black">Zero Complaints!</h4>
-            <p>Everyone is happy with the MaidConnect experience today.</p>
+        <div class="col-12 text-center py-5">
+            <div class="display-1 mb-4 opacity-25">🎉</div>
+            <h2 class="fw-black">Zero Complaints!</h2>
+            <p class="text-muted h5 fw-medium">The community is operating at 100% satisfaction today.</p>
         </div>
         {% endfor %}
     </div>
+
 </div>
+
+<style>
+.border-start-5 { border-top-left-radius: 1.5rem; border-bottom-left-radius: 1.5rem; }
+</style>
+
+<script>
+function pollComplaints() {
+    fetch("{% url 'api_complaints_list' %}", {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        const countEl = document.getElementById('ticket-count');
+        const grid = document.getElementById('complaint-grid');
+        
+        // Update count
+        const openTickets = data.complaints.filter(c => c.status === 'open').length;
+        countEl.textContent = openTickets;
+
+        // Build new HTML string
+        let html = '';
+        if (data.complaints.length === 0) {
+            html = `<div class="col-12 text-center py-5">
+                <div class="display-1 mb-4 opacity-25">🎉</div>
+                <h2 class="fw-black">Zero Complaints!</h2>
+                <p class="text-muted h5 fw-medium">The community is operating at 100% satisfaction today.</p>
+            </div>`;
+        } else {
+            data.complaints.forEach(c => {
+                html += `
+                <div class="col-12">
+                    <div class="dynamic-card p-4 bg-white border-vibrant shadow-sm status-border-${c.status}">
+                        <div class="d-flex justify-content-between align-items-start mb-4">
+                            <div>
+                                <div class="badge bg-light text-dark rounded-pill px-3 py-1 fw-black small mb-2">BOOKING #${c.booking_id}</div>
+                                <h4 class="fw-black mb-0">Issue from @${c.user}</h4>
+                            </div>
+                            ${c.status === 'open' ? 
+                                `<span class="badge bg-vibrant text-white rounded-pill px-4 py-2 fw-black" style="background: var(--v-pink);">URGENT ACTION</span>` :
+                                `<span class="badge bg-success text-white rounded-pill px-4 py-2 fw-black">RESOLVED</span>`
+                            }
+                        </div>
+                        <div class="p-4 rounded-4 bg-light mb-4">
+                            <p class="h5 text-muted fw-medium mb-0" style="line-height: 1.6;">"${c.message}"</p>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="fw-black text-uppercase small opacity-50">Filed on ${c.created_at}</div>
+                            ${c.status === 'open' ? `
+                                <form method="POST" action="">
+                                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                    <input type="hidden" name="complaint_id" value="${c.id}">
+                                    <button type="submit" class="btn btn-vibrant px-4 py-2 fs-6">MARK RESOLVED</button>
+                                </form>` : ''
+                            }
+                        </div>
+                    </div>
+                </div>`;
+            });
+        }
+
+        // Only update if HTML changed to prevent flicker
+        if (grid.innerHTML.trim() !== html.trim()) {
+            grid.innerHTML = html;
+        }
+    });
+}
+setInterval(pollComplaints, 7000); // Poll every 7 seconds
+</script>
 {% endblock %}

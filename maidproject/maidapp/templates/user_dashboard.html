@@ -1,123 +1,194 @@
-{% extends "base.html" %}
+{% extends "dashboard_base.html" %}
 {% load static %}
 
 {% block title %}My Dashboard — MaidConnect{% endblock %}
 
-{% block content %}
-<div class="container py-5 animate-fade-in">
+{% block dashboard_content %}
+<div class="container py-5 animate-fade-in dashboard-premium-bg">
 
-    <!-- ── Dashboard Header ── -->
-    <div class="d-flex flex-wrap justify-content-between align-items-end mb-5 gap-4">
+    <!-- ░░ HIGH-ENERGY USER DASHBOARD HEADER ░░ -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-5 gap-4">
         <div>
-            <div class="d-flex align-items-center gap-2 mb-2">
-                <span class="badge rounded-pill px-3 py-1 bg-primary text-white" style="font-size:0.65rem; font-weight:800; letter-spacing:0.05em;">CUSTOMER ACCOUNT</span>
-                <span class="text-muted small fw-bold">ID: #MC-U-{{ user.id }}</span>
+            <div class="badge bg-vibrant rounded-pill px-3 py-2 fw-black shadow-sm mb-2"
+                style="background: var(--v-blue);">
+                <i class="fa-solid fa-house-user me-1"></i> CUSTOMER DASHBOARD
             </div>
-            <h1 class="fw-black mb-1" style="font-size:2.6rem; letter-spacing:-1.5px;">
-                Welcome Home, <span style="color:var(--brand);">{{ user.first_name|default:user.username }}</span>
-            </h1>
-            <p class="text-muted">Manage your active service bookings and history.</p>
-        </div>
-        <div class="d-flex gap-3">
-             <a href="/workers/" class="btn btn-brand rounded-pill px-4 py-3 fw-black shadow-sm">
-                <i class="fa-solid fa-plus me-2"></i> Book New Service
-             </a>
+            <h1 class="display-3 fw-black mb-1">Welcome Home, <span style="color:var(--v-blue);">{{ user.first_name|default:user.username }}.</span></h1>
+            <p class="h5 text-muted fw-medium">Your personal home care command center.</p>
         </div>
     </div>
 
-    <!-- ── Quick Insights ── -->
+    <!-- ░░ VIBRANT INSIGHTS GRID ░░ -->
     <div class="row g-4 mb-5">
         <div class="col-md-4">
-            <div class="insight-card p-4 h-100 bg-white shadow-sm border-0 rounded-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="p-3 rounded-circle" style="background:rgba(59, 130, 246, 0.1); color:#3b82f6;">
-                        <i class="fa-solid fa-clock-rotate-left fs-4"></i>
-                    </div>
-                    <span class="badge rounded-pill bg-light text-primary fw-bold">Active</span>
+            <div class="dynamic-card h-100 border-vibrant bg-white shadow-sm">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div class="icon-circle m-0" style="background: var(--v-yellow); color: var(--text-dark);"><i
+                            class="fa-solid fa-clock-rotate-left"></i></div>
+                    <span class="badge bg-light text-warning rounded-pill px-3 py-2 fw-black">ACTIVE</span>
                 </div>
-                <div class="display-6 fw-black mb-1">{{ active_count }}</div>
-                <div class="text-muted small fw-bold text-uppercase" style="letter-spacing:0.1em;">Current Services</div>
+                <h2 class="display-4 fw-black mb-1">{{ active_count }}</h2>
+                <p class="text-muted fw-bold mb-0">Current Services</p>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="insight-card p-4 h-100 bg-white shadow-sm border-0 rounded-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="p-3 rounded-circle" style="background:rgba(255, 75, 145, 0.1); color:var(--brand);">
-                        <i class="fa-solid fa-wallet fs-4"></i>
-                    </div>
-                    <span class="badge rounded-pill bg-light text-brand fw-bold">Wallet</span>
+            <div class="dynamic-card h-100 border-vibrant bg-white shadow-sm" style="border-color: var(--v-pink);">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div class="icon-circle m-0" style="background: var(--v-pink); color: white;"><i
+                            class="fa-solid fa-wallet"></i></div>
+                    <span class="badge bg-light text-danger rounded-pill px-3 py-2 fw-black">WALLET</span>
                 </div>
-                <div class="display-6 fw-black mb-1">₹{{ total_spent }}</div>
-                <div class="text-muted small fw-bold text-uppercase" style="letter-spacing:0.1em;">Lifetime Spend</div>
+                <h2 class="display-4 fw-black mb-1" style="color: var(--v-pink);">₹{{ total_spent|floatformat:0 }}</h2>
+                <p class="text-muted fw-bold mb-0">Lifetime Spend</p>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="insight-card p-4 h-100 bg-white shadow-sm border-0 rounded-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="p-3 rounded-circle" style="background:rgba(34, 197, 94, 0.1); color:#22c55e;">
-                        <i class="fa-solid fa-check-double fs-4"></i>
-                    </div>
-                    <span class="badge rounded-pill bg-light text-success fw-bold">Success</span>
+            <div class="dynamic-card h-100 border-vibrant bg-white shadow-sm" style="border-color: var(--v-purple);">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div class="icon-circle m-0" style="background: var(--v-purple); color: white;"><i
+                            class="fa-solid fa-star"></i></div>
+                    <span class="badge bg-light text-primary rounded-pill px-3 py-2 fw-black">SUCCESS</span>
                 </div>
-                <div class="display-6 fw-black mb-1">{{ completed_count }}</div>
-                <div class="text-muted small fw-bold text-uppercase" style="letter-spacing:0.1em;">Jobs Completed</div>
+                <h2 class="display-4 fw-black mb-1" style="color: var(--v-purple);">{{ completed_count }}</h2>
+                <p class="text-muted fw-bold mb-0">Jobs Completed</p>
             </div>
         </div>
     </div>
 
-    <!-- ── Booking Feed ── -->
-    <div class="row">
-        <div class="col-lg-12">
-            <h5 class="fw-black mb-4 d-flex align-items-center gap-2">
-                <i class="fa-solid fa-list-ul text-brand"></i> Recent Bookings
-            </h5>
+    <!-- ░░ DYNAMIC USER FEED ░░ -->
+    <div class="row g-5">
+        <!-- RECENT BOOKINGS (NOW ON TOP/LEFT) -->
+        <div class="col-lg-8 order-2 order-lg-1">
+            <h3 class="fw-black mb-4">Recent Bookings</h3>
             <div class="booking-list">
                 {% for booking in bookings %}
-                <div class="booking-row bg-white p-4 mb-3 rounded-4 shadow-sm d-flex justify-content-between align-items-center flex-wrap gap-4 border border-light animate-up">
-                    <div class="d-flex align-items-center gap-4">
-                        <div class="worker-img" style="background-image: url('{{ booking.worker.photo.url }}'); background-size:cover; width:60px; height:60px; border-radius:15px;"></div>
-                        <div>
-                            <div class="fw-black fs-5">{{ booking.worker.user.first_name }} {{ booking.worker.user.last_name }}</div>
-                            <div class="text-muted small fw-bold text-uppercase">{{ booking.worker.categories.first.name }}</div>
+                <div class="dynamic-card p-4 mb-3 bg-white border-vibrant hover-lift shadow-sm booking-card"
+                    data-booking-id="{{ booking.id }}">
+                    <div class="row align-items-center g-4">
+                        <div class="col-auto">
+                            {% if booking.worker.photo %}
+                            <div class="rounded-4 overflow-hidden" style="width: 80px; height: 80px;">
+                                <img src="{{ booking.worker.photo.url }}" class="w-100 h-100 object-fit-cover"
+                                    alt="Worker">
+                            </div>
+                            {% else %}
+                            <div class="icon-circle m-0" style="width: 80px; height: 80px; font-size: 1.5rem;"><i
+                                    class="fa-solid fa-user"></i></div>
+                            {% endif %}
                         </div>
-                    </div>
-                    
-                    <div class="text-center">
-                        <div class="text-muted small fw-bold">BOOKING ID</div>
-                        <div class="fw-black">#{{ booking.booking_id_str }}</div>
-                    </div>
+                        <div class="col">
+                            <h4 class="fw-black mb-1">
+                                <a href="{% url 'worker_detail' booking.worker.id %}" 
+                                   class="text-decoration-none text-dark hover-blue"
+                                   onclick="window.location.href=this.href; return true;">
+                                   {{ booking.worker.user.first_name }} {{ booking.worker.user.last_name }}
+                                </a>
+                            </h4>
+                            <div class="badge bg-light text-dark rounded-pill px-3 py-1 fw-bold small text-uppercase">{{ booking.worker.categories.first.name }}</div>
+                        </div>
 
-                    <div class="text-center">
-                        <div class="text-muted small fw-bold">SCHEDULED FOR</div>
-                        <div class="fw-bold">{{ booking.booking_date|date:"M d, Y" }}</div>
-                    </div>
 
-                    <div>
-                        {% if booking.status == 'pending' %}
-                            <span class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-bold">PENDING APPROVAL</span>
-                        {% elif booking.status == 'confirmed' %}
-                            <span class="badge bg-primary text-white rounded-pill px-3 py-2 fw-bold">CONFIRMED</span>
-                        {% elif booking.status == 'completed' %}
-                            <span class="badge bg-success text-white rounded-pill px-3 py-2 fw-bold">COMPLETED</span>
-                        {% else %}
-                            <span class="badge bg-light text-muted rounded-pill px-3 py-2 fw-bold">CANCELLED</span>
-                        {% endif %}
-                    </div>
-
-                    <div class="d-flex gap-2">
-                        {% if booking.status == 'completed' %}
-                            <a href="/review/{{ booking.id }}/" class="btn btn-sm btn-outline-brand rounded-pill px-3">Review</a>
-                        {% endif %}
-                        <a href="/receipt/{{ booking.id }}/" class="btn btn-sm btn-light rounded-pill px-3">Details</a>
+                        <div class="col-auto text-center px-4 border-start d-none d-md-block">
+                            <div class="small fw-black text-uppercase opacity-50 mb-1">Scheduled</div>
+                            <div class="fw-black">{{ booking.booking_date|date:"M d, Y" }}</div>
+                        </div>
+                        <div class="col-auto text-center px-4 border-start status-badge-container">
+                            {% if booking.status == 'pending' %}
+                            <span id="booking-status-{{ booking.id }}"
+                                class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-black status-badge">PENDING</span>
+                            {% elif booking.status == 'accepted' %}
+                            <span id="booking-status-{{ booking.id }}"
+                                class="badge bg-primary text-white rounded-pill px-3 py-2 fw-black status-badge">ACCEPTED</span>
+                            {% elif booking.status == 'in_progress' %}
+                            <span id="booking-status-{{ booking.id }}" class="badge bg-vibrant text-white rounded-pill px-3 py-2 fw-black status-badge"
+                                style="background: var(--v-blue);">IN PROGRESS</span>
+                            {% elif booking.status == 'completed' %}
+                            <span id="booking-status-{{ booking.id }}" class="badge bg-light text-primary rounded-pill px-3 py-2 fw-black status-badge border border-primary">COMPLETED ✅</span>
+                            {% elif booking.status == 'paid' %}
+                            <span id="booking-status-{{ booking.id }}" class="badge bg-success text-white rounded-pill px-3 py-2 fw-black status-badge">PAID 💳</span>
+                            {% elif booking.status == 'rejected' or booking.status == 'cancelled' %}
+                            <span id="booking-status-{{ booking.id }}" class="badge bg-light text-danger rounded-pill px-3 py-2 fw-black status-badge border border-danger">{{ booking.status|upper }} ❌</span>
+                            {% else %}
+                            <span id="booking-status-{{ booking.id }}" class="badge bg-light text-muted rounded-pill px-3 py-2 fw-black status-badge">{{ booking.status|upper }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-auto ms-auto action-buttons" id="action-buttons-{{ booking.id }}">
+                            <div class="d-flex gap-2">
+                                {% if booking.status == 'pending' or booking.status == 'accepted' %}
+                                <a href="{% url 'edit_booking' booking.id %}" class="btn btn-outline-primary rounded-pill px-3 fw-black edit-cancel-btn" title="Edit Booking"><i class="fa-solid fa-pen"></i></a>
+                                <a href="{% url 'cancel_booking' booking.id %}" class="btn btn-outline-danger rounded-pill px-3 fw-black edit-cancel-btn" title="Cancel Booking" onclick="return confirm('Are you sure you want to cancel this booking?');"><i class="fa-solid fa-xmark"></i></a>
+                                {% endif %}
+                                {% if booking.status == 'completed' %}
+                                <a href="{% url 'make_payment' booking.id %}" class="btn btn-success rounded-pill px-4 fw-black border-2 make-payment-btn">MAKE PAYMENT</a>
+                                {% endif %}
+                                {% if booking.status == 'paid' %}
+                                {% if not booking.review %}
+                                <a href="{% url 'submit_review' booking.id %}"
+                                    class="btn btn-vibrant rounded-pill px-4 fw-black border-2">GIVE REVIEW</a>
+                                {% else %}
+                                <span
+                                    class="badge bg-light text-warning border border-warning rounded-pill px-3 py-2 fw-black"><i
+                                        class="fa-solid fa-star me-1"></i> {{ booking.review.rating }} Rated</span>
+                                {% endif %}
+                                {% endif %}
+                                <a href="{% url 'view_receipt' booking.id %}"
+                                    class="btn btn-light rounded-pill px-4 fw-black">DETAILS</a>
+                                <a href="{% url 'submit_complaint' %}?booking_id={{ booking.id }}"
+                                    class="btn btn-outline-danger rounded-pill px-3 fw-black" title="Submit Complaint"><i class="fa-solid fa-triangle-exclamation"></i></a>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 {% empty %}
                 <div class="text-center py-5">
-                    <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-state-2130362-1800926.png" style="width:200px; opacity:0.6;" alt="empty">
-                    <p class="text-muted fw-bold mt-4">You haven't booked any expert services yet.</p>
-                    <a href="/workers/" class="btn btn-brand rounded-pill px-5 py-3 mt-2 fw-black">Find Reliable Help Now</a>
+                    <div class="display-1 mb-4 opacity-25">🧹</div>
+                    <h2 class="fw-black">No bookings yet.</h2>
+                    <p class="text-muted">Start by finding a verified expert for your home.</p>
+                    <a href="{% url 'worker_list' %}"
+                        class="btn-vibrant px-5 py-3 mt-4 d-inline-block text-decoration-none">FIND RELIABLE HELP</a>
                 </div>
                 {% endfor %}
+            </div>
+        </div>
+
+        <!-- MY PROFILE (NOW ON RIGHT) -->
+        <div class="col-lg-4 order-1 order-lg-2">
+            <h3 class="fw-black mb-4">My Profile</h3>
+            <div class="dynamic-card p-4 bg-white border-vibrant shadow-sm mb-4">
+                <!-- Profile Header -->
+                <div class="text-center mb-4 pb-3 border-bottom">
+                    <div class="icon-circle mx-auto mb-3 shadow-sm"
+                        style="width: 90px; height: 90px; font-size: 2.5rem; background: var(--v-blue); color: white; border: 4px solid #F8F9FA;">
+                        {{ user.username|make_list|first|upper }}
+                    </div>
+                    <h4 class="fw-black mb-1">{{ user.get_full_name|default:user.username }}</h4>
+                    <p class="text-muted small mb-0"><i class="fa-solid fa-envelope me-1"></i> {{ user.email }}</p>
+                </div>
+                
+                <!-- Profile Details -->
+                <div class="profile-details-grid">
+                    <div class="mb-4">
+                        <label class="fw-black text-uppercase small opacity-50 d-block mb-1"><i class="fa-solid fa-phone me-1"></i> Phone</label>
+                        <div class="h6 fw-bold mb-0">{{ profile.phone|default:"Not provided" }}</div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="fw-black text-uppercase small opacity-50 d-block mb-1"><i class="fa-solid fa-location-dot me-1"></i> Address</label>
+                        <div class="small fw-bold lh-base">
+                            {% if profile.address_line1 %}
+                            {{ profile.address_line1 }}<br>
+                            {% if profile.address_line2 %}{{ profile.address_line2 }}<br>{% endif %}
+                            {{ profile.city }}, {{ profile.state }} - {{ profile.pincode }}
+                            {% else %}
+                            <span class="text-muted fst-italic">Address not set</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="{% url 'user_profile_update' %}"
+                    class="btn btn-outline-dark w-100 rounded-pill fw-black btn-sm mt-2 py-2">
+                    <i class="fa-solid fa-pen-to-square me-1"></i> EDIT PROFILE
+                </a>
             </div>
         </div>
     </div>
@@ -125,11 +196,76 @@
 </div>
 
 <style>
-    .insight-card { transition: transform 0.3s ease; }
-    .insight-card:hover { transform: translateY(-5px); }
-    .booking-row { transition: all 0.2s ease; border: 1px solid rgba(0,0,0,0.02) !important; }
-    .booking-row:hover { border-color: var(--brand) !important; background: #fafafa !important; }
-    .btn-outline-brand { border: 2px solid var(--brand); color: var(--brand); font-weight: 800; }
-    .btn-outline-brand:hover { background: var(--brand); color: #fff; }
+    .text-vibrant {
+        color: var(--v-blue);
+    }
+
+    .hover-lift {
+        transition: var(--t-base);
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+    }
 </style>
+
+    <script>
+        window.addEventListener('maidConnectUpdate', function(e) {
+            const data = e.detail;
+            if (data.event === 'booking_updated') {
+                const statusBadge = document.getElementById(`booking-status-${data.booking_id}`);
+                const actionContainer = document.getElementById(`action-buttons-${data.booking_id}`);
+                
+                if (statusBadge) {
+                    if (data.status === 'completed') {
+                        statusBadge.innerText = 'COMPLETED ✅';
+                        statusBadge.className = 'badge bg-light text-primary rounded-pill px-3 py-2 fw-black status-badge border border-primary';
+                        
+                        // Dynamically inject MAKE PAYMENT button and remove Edit/Cancel buttons
+                        if (actionContainer) {
+                            const btnGroup = actionContainer.querySelector('.d-flex');
+                            
+                            // Remove edit/cancel buttons if they exist
+                            btnGroup.querySelectorAll('.edit-cancel-btn').forEach(b => b.remove());
+                            
+                            // Inject MAKE PAYMENT if it doesn't exist
+                            if (!btnGroup.querySelector('.make-payment-btn')) {
+                                const paymentUrl = `/booking/payment/${data.booking_id}/`;
+                                const paymentBtnHTML = `<a href="${paymentUrl}" class="btn btn-success rounded-pill px-4 fw-black border-2 make-payment-btn">MAKE PAYMENT</a>`;
+                                btnGroup.insertAdjacentHTML('afterbegin', paymentBtnHTML);
+                            }
+                        }
+                    } else if (data.status === 'paid') {
+                        statusBadge.innerText = 'PAID 💳';
+                        statusBadge.className = 'badge bg-success text-white rounded-pill px-3 py-2 fw-black status-badge';
+                        
+                        if (actionContainer) {
+                            const btnGroup = actionContainer.querySelector('.d-flex');
+                            btnGroup.querySelectorAll('.make-payment-btn').forEach(b => b.remove());
+                            const reviewUrl = `/booking/review/${data.booking_id}/`;
+                            if (!btnGroup.querySelector('.btn-vibrant')) {
+                                btnGroup.insertAdjacentHTML('afterbegin', `<a href="${reviewUrl}" class="btn btn-vibrant rounded-pill px-4 fw-black border-2">GIVE REVIEW</a>`);
+                            }
+                        }
+                    } else {
+                        statusBadge.innerText = data.status.toUpperCase().replace('_', ' ');
+                        const statusColors = {
+                            'pending': 'bg-warning',
+                            'accepted': 'bg-primary',
+                            'in_progress': 'bg-vibrant',
+                            'completed': 'bg-success',
+                            'rejected': 'bg-danger',
+                            'cancelled': 'bg-dark'
+                        };
+                        statusBadge.className = `badge ${statusColors[data.status] || 'bg-light'} ${data.status === 'pending' ? 'text-dark' : 'text-white'} rounded-pill px-3 py-2 fw-black status-badge`;
+                        if (data.status === 'in_progress') statusBadge.style.background = 'var(--v-blue)';
+                    }
+                    
+                    statusBadge.style.animation = 'none';
+                    setTimeout(() => statusBadge.style.animation = 'badgePulse 1.5s infinite ease-in-out', 10);
+                }
+            }
+        });
+    </script>
 {% endblock %}

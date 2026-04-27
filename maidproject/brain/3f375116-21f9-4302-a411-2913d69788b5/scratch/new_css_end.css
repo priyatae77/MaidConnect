@@ -1,0 +1,133 @@
+/* --- JOURNEY CARDS ----------------------------------------- */
+.journey-card-sm {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 1.5rem 1rem;
+    transition: var(--t-base);
+    height: 100%;
+    box-shadow: var(--shadow-xs);
+    cursor: default;
+}
+
+.journey-card-sm:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--brand-light);
+}
+
+/* --- AESTHETIC DESIGN SYSTEM (BUBBLES & BLOBS) ------------ */
+.bubble-container {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.bubble {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: floatBubble 20s infinite ease-in-out;
+    opacity: 0.6;
+}
+
+.bubble-pink { background: rgba(255, 138, 138, 0.15); border-color: rgba(255, 138, 138, 0.3); }
+.bubble-mint { background: rgba(102, 224, 194, 0.15); border-color: rgba(102, 224, 194, 0.3); }
+.bubble-peach { background: rgba(255, 218, 185, 0.15); border-color: rgba(255, 218, 185, 0.3); }
+
+@keyframes floatBubble {
+    0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); }
+    33% { transform: translateY(-150px) translateX(60px) rotate(120deg); }
+    66% { transform: translateY(-80px) translateX(-40px) rotate(240deg); }
+}
+
+.bg-blob {
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, var(--brand-light) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.4;
+    animation: floatBlob 25s infinite alternate ease-in-out;
+    z-index: -2;
+}
+
+@keyframes floatBlob {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(80px, 40px) scale(1.1); }
+}
+
+.particle {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: var(--brand);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: sparkle 5s infinite;
+}
+
+@keyframes sparkle {
+    0%, 100% { opacity: 0.2; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.5); }
+}
+
+/* --- UI COMPONENTS ---------------------------------------- */
+.wave-divider {
+    position: relative;
+    width: 100%;
+    height: 100px;
+    overflow: hidden;
+    line-height: 0;
+}
+
+.wave-divider svg {
+    position: relative;
+    display: block;
+    width: calc(100% + 1.3px);
+    height: 100px;
+}
+
+.wave-divider .shape-fill {
+    fill: var(--bg-alt);
+}
+
+.animate-up {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 1s cubic-bezier(0.2, 0.8, 0.2, 1), transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.animate-up.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.hero-premium {
+    position: relative;
+    padding: 8rem 0;
+    overflow: hidden;
+    background: radial-gradient(circle at top right, var(--brand-light), transparent 40%),
+                radial-gradient(circle at bottom left, var(--accent-light), transparent 40%);
+}
+
+.btn-main-cta {
+    display: inline-block;
+    background: var(--brand);
+    color: white !important;
+    font-weight: 800;
+    padding: 1.2rem 3.5rem;
+    border-radius: var(--r-pill);
+    text-decoration: none;
+    box-shadow: var(--shadow-brand);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: none;
+}
+
+.btn-main-cta:hover {
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 0 20px 40px rgba(255,138,138,0.4);
+}

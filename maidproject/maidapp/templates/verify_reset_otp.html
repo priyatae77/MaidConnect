@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Verify OTP — MaidConnect{% endblock %}
+
+{% block content %}
+<section class="login-page-vibrant min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5">
+                <div class="login-card-vibrant bg-white p-5 shadow-vibrant animate-fade-in" style="border-radius: 2rem;">
+                    
+                    <div class="text-center mb-5">
+                        <div class="icon-circle mx-auto mb-4" style="background: var(--v-pink); color: white; width: 80px; height: 80px; font-size: 2rem;">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h2 class="fw-black mb-2">Verify <span style="color:var(--v-pink);">OTP.</span></h2>
+                        <p class="text-muted">Enter the 6-digit code sent to <br><strong>{{ email }}</strong></p>
+                    </div>
+
+                    {% if messages %}
+                        {% for msg in messages %}
+                            <div class="alert alert-{{ msg.tags }} rounded-4 border-0 mb-4 fw-bold">
+                                <i class="fa-solid fa-circle-exclamation me-2"></i> {{ msg }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST" class="vibrant-form">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label class="form-label fw-black text-uppercase small opacity-50">6-Digit Code</label>
+                            <input type="text" name="otp" class="vibrant-input text-center fs-2 fw-black" maxlength="6" placeholder="000000" style="letter-spacing: 0.5rem;" required>
+                        </div>
+
+                        <button type="submit" class="btn-vibrant w-100 py-3 mb-4" style="background: var(--grad-vibrant); border: none;">VERIFY & CONTINUE</button>
+
+                        <div class="text-center">
+                            <p class="small text-muted">Didn't get the code? 
+                                <a href="{% url 'forgot_password' %}" class="fw-black text-vibrant text-decoration-none">Resend Email</a>
+                            </p>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.login-page-vibrant { background: #F8FAFC; }
+.vibrant-input {
+    width: 100%; padding: 1.2rem; background: #F8FAFC; border: 3px solid #F1F5F9; border-radius: 1.5rem; font-weight: 600; transition: 0.3s;
+}
+.vibrant-input:focus { outline: none; border-color: var(--v-pink); background: white; box-shadow: 0 10px 30px rgba(255, 92, 141, 0.1); }
+.text-vibrant { color: var(--v-blue); }
+.icon-circle { display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+</style>
+{% endblock %}

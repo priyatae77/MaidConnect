@@ -4,51 +4,81 @@
 {% block title %}Join MaidConnect — Choose Your Path{% endblock %}
 
 {% block content %}
-<div class="container py-5 animate-fade-in">
-    <div class="text-center mb-5">
-        <h1 class="fw-black display-5 mb-2" style="letter-spacing:-1.5px;">Welcome to <span style="color:var(--brand);">MaidConnect</span></h1>
-        <p class="text-muted fs-5">Select how you'd like to participate in our verified marketplace.</p>
-    </div>
 
-    <div class="row g-4 justify-content-center">
-        <!-- Option 1: Customer -->
-        <div class="col-md-5">
-            <div class="selection-card h-100 text-center p-5 shadow-sm animate-scale">
-                <div class="icon-circle mb-4 mx-auto" style="background:rgba(59, 130, 246, 0.1); color:#3b82f6;">
-                    <i class="fa-solid fa-house-user fs-2"></i>
-                </div>
-                <h3 class="fw-black mb-3">I want to hire help</h3>
-                <p class="text-muted mb-4">Find verified cooks, cleaners, and caretakers for your home in minutes.</p>
-                <a href="{% url 'user_register' %}" class="btn btn-outline-primary rounded-pill px-5 py-3 fw-bold w-100">Register as Customer</a>
-            </div>
+<!-- ░░ HIGH-ENERGY REGISTRATION CHOICE ░░ -->
+<div class="choice-page-vibrant overflow-hidden">
+    <!-- Massive Background Text -->
+    <div class="hero-bg-text" style="top: 20%; color: rgba(255,255,255,0.05);">JOIN US</div>
+
+    <div class="container position-relative py-5" style="z-index: 2;">
+        
+        <div class="text-center mb-5 animate-fade-in">
+            <h1 class="display-3 fw-black text-white mb-3">Choose Your <span style="color:var(--v-yellow);">Path.</span></h1>
+            <p class="h5 text-white opacity-75 mx-auto" style="max-width: 600px;">
+                Whether you're looking for help or looking to earn, you're in the right place.
+            </p>
         </div>
 
-        <!-- Option 2: Worker -->
-        <div class="col-md-5">
-            <div class="selection-card h-100 text-center p-5 shadow-sm animate-scale">
-                <div class="icon-circle mb-4 mx-auto" style="background:rgba(255, 75, 145, 0.1); color:var(--brand);">
-                    <i class="fa-solid fa-briefcase fs-2"></i>
+        <div class="row g-5 justify-content-center">
+            
+            <!-- Customer Card -->
+            <div class="col-lg-5 animate-fade-in" style="animation-delay: 0.2s;">
+                <div class="dynamic-card text-center h-100 border-vibrant bg-white" style="border-width: 4px;">
+                    <div class="icon-circle mx-auto" style="width: 100px; height: 100px; background: var(--v-blue); color: white;">
+                        <i class="fa-solid fa-house-user fs-1"></i>
+                    </div>
+                    <h2 class="display-6 fw-black mb-4">I need home help</h2>
+                    <p class="text-muted mb-5">
+                        Browse 500+ verified experts. Book instantly with Aadhar-verified professionals.
+                    </p>
+                    <ul class="list-unstyled text-start mx-auto mb-5" style="max-width: 250px;">
+                        <li class="mb-3 d-flex align-items-center gap-2"><i class="fa-solid fa-check-circle text-success"></i> Instant booking</li>
+                        <li class="mb-3 d-flex align-items-center gap-2"><i class="fa-solid fa-check-circle text-success"></i> Verified pros</li>
+                        <li class="mb-3 d-flex align-items-center gap-2"><i class="fa-solid fa-check-circle text-success"></i> Secure payments</li>
+                    </ul>
+                    <a href="{% url 'user_register' %}" class="btn-vibrant w-100 py-3 fs-5">GET STARTED</a>
                 </div>
-                <h3 class="fw-black mb-3">I want to work</h3>
-                <p class="text-muted mb-4">Join our community of professional partners and start earning today.</p>
-                <a href="{% url 'worker_register' %}" class="btn btn-brand rounded-pill px-5 py-3 fw-bold w-100">Join as Service Partner</a>
             </div>
-        </div>
-    </div>
 
-    <div class="text-center mt-5">
-        <p class="text-muted">Already have an account? <a href="{% url 'login' %}" class="text-brand fw-bold">Sign In here</a></p>
+            <!-- Partner Card -->
+            <div class="col-lg-5 animate-fade-in" style="animation-delay: 0.4s;">
+                <div class="dynamic-card text-center h-100 border-vibrant bg-white" style="border-width: 4px; border-color: var(--v-pink);">
+                    <div class="icon-circle mx-auto" style="width: 100px; height: 100px; background: var(--v-pink); color: white;">
+                        <i class="fa-solid fa-briefcase fs-1"></i>
+                    </div>
+                    <h2 class="display-6 fw-black mb-4">I want to earn</h2>
+                    <p class="text-muted mb-5">
+                        Join 300+ professionals earning steadily. We send you clients, you handle the service.
+                    </p>
+                    <ul class="list-unstyled text-start mx-auto mb-5" style="max-width: 250px;">
+                        <li class="mb-3 d-flex align-items-center gap-2"><i class="fa-solid fa-check-circle text-success"></i> Daily payments</li>
+                        <li class="mb-3 d-flex align-items-center gap-2"><i class="fa-solid fa-check-circle text-success"></i> Flexible hours</li>
+                        <li class="mb-3 d-flex align-items-center gap-2"><i class="fa-solid fa-check-circle text-success"></i> Growth support</li>
+                    </ul>
+                    <a href="{% url 'worker_register' %}" class="btn-vibrant w-100 py-3 fs-5" style="background: var(--v-pink); box-shadow: 0 20px 40px rgba(255, 92, 141, 0.3);">BECOME A PARTNER</a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="text-center mt-5 animate-fade-in" style="animation-delay: 0.6s;">
+            <p class="text-white opacity-75">Already have an account? 
+                <a href="{% url 'login' %}" class="fw-black text-warning text-decoration-underline ms-2">Sign In here</a>
+            </p>
+        </div>
+
     </div>
 </div>
 
 <style>
-    .selection-card {
-        background: #fff;
-        border-radius: 2rem;
-        border: 1px solid rgba(0,0,0,0.05);
-        transition: all 0.3s ease;
-    }
-    .selection-card:hover { border-color: var(--brand); transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.05) !important; }
-    .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.choice-page-vibrant {
+    min-height: 100vh;
+    background: var(--grad-vibrant);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6rem 0;
+}
 </style>
+
 {% endblock %}

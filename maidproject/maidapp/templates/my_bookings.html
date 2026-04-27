@@ -4,123 +4,126 @@
 {% block title %}My Bookings & Service History — MaidConnect{% endblock %}
 
 {% block content %}
-<div class="container py-5 animate-fade-in">
+<div class="bookings-vibrant py-5 animate-fade-in">
+    <!-- Background Branding -->
+    <div class="hero-bg-text" style="top: 15%; color: rgba(63, 79, 207, 0.03);">HISTORY</div>
 
-    <!-- ── Header ── -->
-    <div class="mb-5">
-        <h1 class="fw-black" style="font-size:2.4rem; letter-spacing:-1.2px;">
-            Your <span style="color:var(--brand);">Service</span> Journey
-        </h1>
-        <p class="text-muted fw-medium">Tracking your active help and past service memories.</p>
-    </div>
+    <div class="container position-relative py-4" style="z-index: 2;">
+        
+        <!-- ░░ HIGH-ENERGY HEADER ░░ -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-5 gap-4">
+            <div>
+                <div class="badge bg-vibrant rounded-pill px-3 py-2 fw-black shadow-sm mb-2" style="background: var(--v-blue);">
+                    <i class="fa-solid fa-clock-rotate-left me-1"></i> SERVICE JOURNEY
+                </div>
+                <h1 class="display-3 fw-black mb-1">Your <span style="color:var(--v-blue);">Memories.</span></h1>
+                <p class="h5 text-muted fw-medium">Tracking your active help and past service records.</p>
+            </div>
+            <div>
+                <a href="/workers/" class="btn-vibrant px-5 py-3">
+                    <i class="fa-solid fa-plus me-2"></i> BOOK NEW SERVICE
+                </a>
+            </div>
+        </div>
 
-    <!-- ── Bookings Grid ── -->
-    <div class="row g-4">
-        {% for booking in bookings %}
-        <div class="col-lg-12">
-            <div class="booking-premium-card shadow-sm border border-light">
-                <div class="row g-0">
-                    <!-- Worker Brief -->
-                    <div class="col-md-3 border-end">
-                        <div class="p-4 text-center">
-                            <div class="worker-avatar-lg mx-auto mb-3" 
-                                 style="background-image: url('{% if booking.worker.photo %}{{ booking.worker.photo.url }}{% else %}https://ui-avatars.com/api/?name={{ booking.worker.user.username }}{% endif %}');">
-                            </div>
-                            <h6 class="fw-black mb-1">{{ booking.worker.user.first_name }} {{ booking.worker.user.last_name }}</h6>
-                            <div class="badge bg-light text-dark x-small px-3 rounded-pill">{{ booking.worker.categories.first.name }}</div>
-                            <div class="mt-3">
-                                <span class="fw-bold small text-warning">4.8 <i class="fa-solid fa-star"></i></span>
-                                <span class="text-muted small ms-1">({{ booking.worker.experience }}y exp)</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Booking Details -->
-                    <div class="col-md-6 border-end">
-                        <div class="p-4 h-100 d-flex flex-column">
-                            <div class="d-flex justify-content-between align-items-start mb-4">
-                                <div>
-                                    <div class="label-sm">SERVICE DATE</div>
-                                    <div class="fw-black h5 mb-0">{{ booking.booking_date|date:"F d, Y" }}</div>
-                                </div>
-                                <div class="text-end">
-                                    <div class="label-sm">BOOKING ID</div>
-                                    <div class="fw-bold text-muted small">#MC-B{{ booking.id }}</div>
-                                </div>
-                            </div>
-                            
-                            <div class="mt-auto">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <i class="fa-solid fa-location-dot text-brand"></i>
-                                    <span class="small fw-bold">{{ booking.worker.location }}</span>
-                                </div>
-                                <p class="text-muted x-small mb-0">{{ booking.special_instructions|default:"No special instructions provided." }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Status & Actions -->
-                    <div class="col-md-3">
-                        <div class="p-4 h-100 d-flex flex-column justify-content-center text-center">
-                            <div class="mb-4">
-                                <div class="label-sm mb-2">CURRENT STATUS</div>
-                                {% if booking.status == 'confirmed' %}
-                                    <span class="badge rounded-pill bg-primary px-3 py-2 fw-bold">ONGOING</span>
-                                {% elif booking.status == 'pending' %}
-                                    <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold">PENDING</span>
-                                {% elif booking.status == 'cancelled' %}
-                                    <span class="badge rounded-pill bg-danger px-3 py-2 fw-bold">CANCELLED</span>
-                                {% elif booking.status == 'completed' %}
-                                    <span class="badge rounded-pill bg-success px-3 py-2 fw-bold">COMPLETED</span>
+        <!-- ░░ VIBRANT BOOKINGS FEED ░░ -->
+        <div class="row g-4">
+            {% for booking in bookings %}
+            <div class="col-12">
+                <div class="dynamic-card p-0 overflow-hidden bg-white border-vibrant hover-lift shadow-vibrant">
+                    <div class="row g-0">
+                        <!-- Worker Profile Brief -->
+                        <div class="col-md-3 border-end border-light bg-light-soft">
+                            <div class="p-4 text-center">
+                                {% if booking.worker.photo %}
+                                    <div class="rounded-circle mx-auto mb-3 shadow-sm border border-4 border-white overflow-hidden" style="width: 100px; height: 100px;">
+                                        <img src="{{ booking.worker.photo.url }}" class="w-100 h-100 object-fit-cover" alt="Worker">
+                                    </div>
                                 {% else %}
-                                    <span class="badge rounded-pill bg-light text-muted px-3 py-2 fw-bold small">FINISHED</span>
+                                    <div class="icon-circle mx-auto mb-3" style="width: 100px; height: 100px; background: var(--v-blue); color: white; font-size: 2rem;">
+                                        {{ booking.worker.user.username|make_list|first|upper }}
+                                    </div>
                                 {% endif %}
+                                <h4 class="fw-black mb-1">{{ booking.worker.user.first_name }} {{ booking.worker.user.last_name }}</h4>
+                                <div class="badge bg-white text-dark rounded-pill px-3 py-1 fw-black small shadow-sm border">{{ booking.worker.categories.first.name }}</div>
                             </div>
+                        </div>
 
-                            <div class="d-grid gap-2">
-                                {% if booking.status == 'completed' %}
-                                    <a href="{% url 'submit_review' booking.id %}" class="btn btn-brand btn-sm rounded-pill fw-bold">Give Feedback</a>
-                                {% endif %}
-                                {% if booking.status == 'completed' or booking.status == 'confirmed' %}
-                                    <a href="{% url 'view_receipt' booking.id %}" class="btn btn-outline-dark btn-sm rounded-pill fw-bold">View Receipt</a>
-                                {% endif %}
+                        <!-- Booking Core Details -->
+                        <div class="col-md-6 border-end border-light">
+                            <div class="p-4 h-100 d-flex flex-column">
+                                <div class="row g-4 mb-4">
+                                    <div class="col-6">
+                                        <div class="fw-black text-uppercase small opacity-50 mb-1">Service Date</div>
+                                        <div class="h4 fw-black mb-0">{{ booking.booking_date|date:"F d, Y" }}</div>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <div class="fw-black text-uppercase small opacity-50 mb-1">Booking ID</div>
+                                        <div class="h5 fw-black text-vibrant mb-0">#MC-B{{ booking.id }}</div>
+                                    </div>
+                                </div>
+                                <div class="mt-auto">
+                                    <div class="d-flex align-items-center gap-2 mb-3">
+                                        <i class="fa-solid fa-location-dot text-danger fs-5"></i>
+                                        <span class="h6 fw-black mb-0">{{ booking.worker.location }}</span>
+                                    </div>
+                                    <div class="p-3 bg-light rounded-4">
+                                        <p class="small text-muted fw-bold mb-0">
+                                            <i class="fa-solid fa-quote-left me-2 opacity-25"></i>
+                                            {{ booking.special_instructions|default:"No special instructions provided." }}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="mt-3 fw-black text-brand" style="font-size:1.2rem;">₹{{ booking.total_price }}</div>
+                        </div>
+
+                        <!-- Status & High-Impact Actions -->
+                        <div class="col-md-3 bg-light-soft">
+                            <div class="p-4 h-100 d-flex flex-column justify-content-center text-center">
+                                <div class="mb-4">
+                                    <div class="fw-black text-uppercase small opacity-50 mb-2">Current Status</div>
+                                    {% if booking.status == 'pending' %}
+                                        <span class="badge bg-warning text-dark rounded-pill px-4 py-2 fw-black shadow-sm">PENDING</span>
+                                    {% elif booking.status == 'confirmed' %}
+                                        <span class="badge bg-vibrant text-white rounded-pill px-4 py-2 fw-black shadow-sm" style="background: var(--v-blue);">ONGOING</span>
+                                    {% elif booking.status == 'completed' %}
+                                        <span class="badge bg-success text-white rounded-pill px-4 py-2 fw-black shadow-sm">COMPLETED</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-muted rounded-pill px-4 py-2 fw-black">CANCELLED</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="d-flex flex-column gap-2">
+                                    {% if booking.status == 'completed' %}
+                                        <a href="{% url 'submit_review' booking.id %}" class="btn-vibrant py-2 fs-6">GIVE FEEDBACK</a>
+                                    {% endif %}
+                                    <a href="{% url 'view_receipt' booking.id %}" class="btn btn-outline-dark rounded-pill py-2 fw-black border-2">VIEW RECEIPT</a>
+                                </div>
+
+                                <div class="mt-4 display-6 fw-black text-vibrant">₹{{ booking.total_price }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        {% empty %}
-        <div class="col-12 text-center py-5">
-            <div class="empty-state-wrap opacity-75">
-                <i class="fa-solid fa-calendar-xmark display-1 mb-4" style="color:var(--brand);"></i>
-                <h4 class="fw-black">No Bookings Found</h4>
-                <p class="text-muted">You haven't booked any expert help yet. Let's find someone today!</p>
-                <a href="/workers/" class="btn btn-brand rounded-pill px-5 py-3 mt-3 fw-black">Browse Verified Workers</a>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="display-1 mb-4 opacity-25">🗓️</div>
+                <h2 class="fw-black">No Bookings Found.</h2>
+                <p class="h5 text-muted fw-medium mb-5">You haven't booked any expert help yet. Let's find someone today!</p>
+                <a href="/workers/" class="btn-vibrant px-5 py-3 fs-5">BROWSE PARTNERS</a>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
 
+    </div>
 </div>
 
 <style>
-    .booking-premium-card {
-        background: #fff;
-        border-radius: 1.5rem;
-        overflow: hidden;
-        transition: var(--t-fast);
-    }
-    .booking-premium-card:hover { transform: translateY(-3px); box-shadow: 0 10px 40px rgba(0,0,0,0.06); }
-
-    .worker-avatar-lg {
-        width: 80px; height: 80px;
-        border-radius: 50%;
-        background-size: cover;
-        background-position: center;
-        border: 4px solid var(--bg-alt);
-    }
-    .label-sm { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.bookings-vibrant { background: #FAFAFA; }
+.text-vibrant { color: var(--v-blue); }
+.bg-light-soft { background: #F8FAFC; }
+.hover-lift { transition: var(--t-base); }
+.hover-lift:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.05); }
 </style>
 {% endblock %}

@@ -1,24 +1,57 @@
 {% extends "dashboard_base.html" %}
 {% load static %}
 
-{% block title %}User Management — MaidConnect{% endblock %}
+{% block title %}Client Registry — MaidConnect{% endblock %}
 
 {% block dashboard_content %}
-<div class="container animate-fade-in">
-    <div class="mb-5">
-        <h2 class="fw-black mb-1">Customer Management</h2>
-        <p class="text-muted">Monitor customer accounts and manage platform access.</p>
+<div class="container py-5 animate-fade-in">
+
+    <!-- ░░ HIGH-ENERGY CLIENT REGISTRY HEADER ░░ -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-5 gap-4">
+        <div>
+            <div class="badge bg-vibrant rounded-pill px-3 py-2 fw-black shadow-sm mb-2" style="background: var(--v-blue);">
+                <i class="fa-solid fa-users me-1"></i> GLOBAL NETWORK
+            </div>
+            <h1 class="h2 fw-black mb-1">Client <span style="color:var(--v-blue);">Registry.</span></h1>
+            <p class="h5 text-muted fw-medium">Monitor and manage all customer accounts.</p>
+        </div>
+        <div>
+            <div class="dynamic-card p-4 text-center bg-white border-vibrant shadow-sm">
+                <div class="fw-black text-uppercase small opacity-50 mb-1">Total Citizens</div>
+                <div class="h2 fw-black mb-0 text-vibrant">{{ users.count }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 🟣 PART 2: SEARCH + FILTER -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="search-box position-relative">
+                <i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 opacity-50"></i>
+                <input type="text" id="userSearch" class="form-control rounded-pill ps-5 py-3 border-vibrant shadow-sm" placeholder="Search Citizens (Name, Email)...">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex gap-2">
+                <select id="statusFilter" class="form-select rounded-pill py-3 border-vibrant shadow-sm fw-bold px-4">
+                    <option value="all">All Status</option>
+                    <option value="connected">Connected</option>
+                    <option value="isolated">Isolated</option>
+                </select>
+            </div>
+        </div>
     </div>
 
-    <div class="dash-card p-0 overflow-hidden">
+    <!-- ░░ VIBRANT USER TABLE ░░ -->
+    <div class="dynamic-card p-0 overflow-hidden bg-white border-vibrant">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-light">
                     <tr>
-                        <th class="ps-4">User Details</th>
-                        <th>Joined Date</th>
-                        <th>Access Status</th>
-                        <th class="pe-4 text-end">Control</th>
+                        <th class="ps-4 py-3 fw-black small text-uppercase opacity-50">Citizen Info</th>
+                        <th class="py-3 fw-black small text-uppercase opacity-50">Initialization</th>
+                        <th class="py-3 fw-black small text-uppercase opacity-50">Network Status</th>
+                        <th class="pe-4 text-end py-3 fw-black small text-uppercase opacity-50">Override</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -26,36 +59,115 @@
                     <tr>
                         <td class="ps-4">
                             <div class="d-flex align-items-center gap-3">
-                                <div class="avatar-sm bg-dark text-white rounded-circle d-flex align-items-center justify-content-center fw-bold">
+                                <div class="icon-circle m-0" style="width: 50px; height: 50px; background: var(--v-blue); color: white; font-size: 1.2rem;">
                                     {{ u.username|make_list|first|upper }}
                                 </div>
                                 <div>
-                                    <div class="fw-bold">{{ u.get_full_name|default:u.username }}</div>
+                                    <div class="fw-black mb-0">{{ u.get_full_name|default:u.username }}</div>
                                     <div class="text-muted small">{{ u.email }}</div>
+                                    {% if u.cancellation_count > 3 %}
+                                        <div class="text-danger x-small fw-bold mt-1" style="font-size: 0.65rem;">
+                                            <i class="fa-solid fa-circle-exclamation me-1"></i> HIGH CANCELLATIONS ({{ u.cancellation_count }})
+                                        </div>
+                                    {% endif %}
+                                    {% if u.complaint_count > 0 %}
+                                        <div class="text-warning x-small fw-bold mt-1" style="font-size: 0.65rem; color: #b45309 !important;">
+                                            <i class="fa-solid fa-triangle-exclamation me-1"></i> REPORTED TICKET ({{ u.complaint_count }})
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </td>
-                        <td>{{ u.date_joined|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="fw-bold">
+                                <i class="fa-solid fa-calendar-day text-muted me-2"></i>{{ u.date_joined|date:"M d, Y" }}
+                            </div>
+                        </td>
                         <td>
                             {% if u.is_active %}
-                                <span class="badge rounded-pill bg-success-light text-success px-3 py-1">ACTIVE</span>
+                                <span class="badge bg-success text-white rounded-pill px-3 py-2 fw-black">CONNECTED</span>
                             {% else %}
-                                <span class="badge rounded-pill bg-danger-light text-danger px-3 py-1">BLOCKED</span>
+                                <span class="badge bg-danger text-white rounded-pill px-3 py-2 fw-black">ISOLATED</span>
                             {% endif %}
                         </td>
                         <td class="pe-4 text-end">
-                            <button class="btn btn-sm btn-outline-dark rounded-pill px-4">Manage</button>
+                            {% if user.is_superuser %}
+                                <button data-user-id="{{ u.id }}" onclick="toggleUserStatus(this.dataset.userId, this)" class="btn {% if u.is_active %}btn-outline-dark{% else %}btn-dark{% endif %} rounded-pill px-4 fw-black border-2 btn-sm">
+                                    {% if u.is_active %}OVERRIDE{% else %}RESTORE{% endif %}
+                                </button>
+                            {% else %}
+                                <span class="text-muted small fw-bold">No Access</span>
+                            {% endif %}
                         </td>
                     </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="text-center py-5 text-muted">No citizens connected.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+
 </div>
 
 <style>
-    .bg-success-light { background: rgba(34, 197, 94, 0.1); }
-    .bg-danger-light { background: rgba(239, 68, 68, 0.1); }
+.text-vibrant { color: var(--v-blue); }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('userSearch');
+    const statusFilter = document.getElementById('statusFilter');
+    const tableRows = document.querySelectorAll('tbody tr:not(:has(.text-center.py-5))');
+
+    function filterTable() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value.toLowerCase();
+
+        tableRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const badge = row.querySelector('.badge');
+            const status = badge ? badge.textContent.toLowerCase() : '';
+            
+            const matchesSearch = text.includes(searchTerm);
+            const matchesStatus = statusValue === 'all' || status.includes(statusValue);
+
+            if (matchesSearch && matchesStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    searchInput.addEventListener('input', filterTable);
+    statusFilter.addEventListener('change', filterTable);
+});
+
+function toggleUserStatus(userId, btn) {
+    fetch(`/manage/user/toggle/${userId}/`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const row = btn.closest('tr');
+            const badge = row.querySelector('.badge');
+            if (data.is_active) {
+                badge.className = 'badge bg-success text-white rounded-pill px-3 py-2 fw-black';
+                badge.textContent = 'CONNECTED';
+                btn.textContent = 'OVERRIDE';
+                btn.className = 'btn btn-outline-dark rounded-pill px-4 fw-black border-2 btn-sm';
+            } else {
+                badge.className = 'badge bg-danger text-white rounded-pill px-3 py-2 fw-black';
+                badge.textContent = 'ISOLATED';
+                btn.textContent = 'RESTORE';
+                btn.className = 'btn btn-dark rounded-pill px-4 fw-black btn-sm';
+            }
+        } else {
+            alert(data.message);
+        }
+    });
+}
+</script>
 {% endblock %}

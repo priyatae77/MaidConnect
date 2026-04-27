@@ -1,33 +1,131 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Trusted Help, Instantly Found — MaidConnect{% endblock %}
 
 {% block content %}
-
-<!-- HERO SECTION -->
-<div class="hero text-center p-5">
-    <h1>Book Trusted Maids & Helpers in Minutes</h1>
-    <p>Safe • Verified • Affordable</p>
-
-    <a href="/workers/" class="btn btn-primary">Find Workers</a>
-    <a href="/register-worker/" class="btn btn-outline-primary">Become a Worker</a>
-</div>
-
-<!-- FEATURES -->
-<div class="container mt-5">
-    <div class="row text-center">
-
-        <div class="col-md-4">
-            <h4>✔ Verified Workers</h4>
+<div class="index-vibrant overflow-hidden">
+    <!-- ░░ HIGH-ENERGY HERO SECTION ░░ -->
+    <section class="hero-vibrant position-relative py-5 d-flex align-items-center">
+        <!-- Background Branding -->
+        <div class="hero-bg-text">MAIDCONNECT</div>
+        
+        <div class="container position-relative py-5 animate-fade-in" style="z-index: 2;">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="badge bg-vibrant rounded-pill px-4 py-2 fw-black shadow-sm mb-4" style="background: var(--v-blue);">
+                        📍 TAMIL NADU • TIRUPUR • COIMBATORE
+                    </div>
+                    <h1 class="display-1 fw-black mb-4">Trusted Help, <br><span style="color:var(--v-blue);">Instantly Found.</span></h1>
+                    <p class="h3 text-muted fw-medium mb-5" style="max-width: 600px;">
+                        Book verified maids, cooks & caretakers near you with the most advanced home-care platform.
+                    </p>
+                    
+                    <div class="d-flex flex-wrap gap-4 align-items-center">
+                        <a href="/workers/" class="btn-vibrant px-5 py-4 fs-4">FIND HELP NOW</a>
+                        <a href="/register/worker/" class="btn btn-outline-dark px-5 py-4 fs-5 fw-black rounded-pill border-3">JOIN AS PARTNER</a>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="col-md-4">
-            <h4>⚡ Instant Booking</h4>
+        <!-- Floating Glass Icons -->
+        <div class="floating-icons-vibrant d-none d-lg-block">
+            <div class="icon-bubble glass" style="top: 20%; right: 10%; animation-delay: 0s;"><i class="fa-solid fa-broom"></i></div>
+            <div class="icon-bubble glass" style="top: 50%; right: 5%; animation-delay: 2s;"><i class="fa-solid fa-utensils"></i></div>
+            <div class="icon-bubble glass" style="top: 75%; right: 15%; animation-delay: 4s;"><i class="fa-solid fa-baby"></i></div>
         </div>
+    </section>
 
-        <div class="col-md-4">
-            <h4>⭐ Ratings System</h4>
+    <!-- ░░ VIBRANT STATS TICKER ░░ -->
+    <div class="stats-ticker-vibrant py-4 border-top border-bottom border-light bg-white">
+        <div class="container">
+            <div class="row text-center g-4">
+                <div class="col-md-4">
+                    <h2 class="display-4 fw-black text-vibrant mb-0">500+</h2>
+                    <p class="fw-black text-uppercase small opacity-50">JOBS COMPLETED</p>
+                </div>
+                <div class="col-md-4 border-start border-end">
+                    <h2 class="display-4 fw-black text-vibrant mb-0">100+</h2>
+                    <p class="fw-black text-uppercase small opacity-50">VERIFIED PARTNERS</p>
+                </div>
+                <div class="col-md-4">
+                    <h2 class="display-4 fw-black text-vibrant mb-0">4.9/5</h2>
+                    <p class="fw-black text-uppercase small opacity-50">USER RATING</p>
+                </div>
+            </div>
         </div>
-
     </div>
+
+    <!-- ░░ SPECIALIZATIONS ░░ -->
+    <section class="py-5 bg-light">
+        <div class="container py-5">
+            <h2 class="display-4 fw-black mb-5 text-center">Our <span style="color:var(--v-blue);">Specializations.</span></h2>
+            <div class="row g-4">
+                {% for service in services %}
+                <div class="col-6 col-md-3">
+                    <div class="dynamic-card text-center p-5 bg-white border-vibrant hover-lift shadow-sm">
+                        <div class="icon-circle mx-auto mb-4" style="background: var(--v-blue); color: white;"><i class="fa-solid fa-star"></i></div>
+                        <h4 class="fw-black mb-0">{{ service.name }}</h4>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-6 col-md-3">
+                    <div class="dynamic-card text-center p-5 bg-white border-vibrant">
+                        <div class="icon-circle mx-auto mb-4" style="background: var(--v-blue); color: white;"><i class="fa-solid fa-broom"></i></div>
+                        <h4 class="fw-black mb-0">Cleaning</h4>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="dynamic-card text-center p-5 bg-white border-vibrant">
+                        <div class="icon-circle mx-auto mb-4" style="background: var(--v-yellow); color: var(--text-dark);"><i class="fa-solid fa-utensils"></i></div>
+                        <h4 class="fw-black mb-0">Cooking</h4>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="dynamic-card text-center p-5 bg-white border-vibrant">
+                        <div class="icon-circle mx-auto mb-4" style="background: var(--v-pink); color: white;"><i class="fa-solid fa-baby"></i></div>
+                        <h4 class="fw-black mb-0">Baby Care</h4>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="dynamic-card text-center p-5 bg-white border-vibrant">
+                        <div class="icon-circle mx-auto mb-4" style="background: var(--v-purple); color: white;"><i class="fa-solid fa-heart"></i></div>
+                        <h4 class="fw-black mb-0">Elder Care</h4>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
 </div>
 
+<style>
+.index-vibrant { background: white; }
+.hero-vibrant { min-height: 85vh; background: #FAFAFA; }
+.text-vibrant { color: var(--v-blue); }
+.icon-bubble {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: var(--v-blue);
+    animation: floatBubble 6s ease-in-out infinite;
+}
+.icon-bubble.glass {
+    background: rgba(255,255,255,0.4);
+    backdrop-filter: blur(10px);
+    border: 3px solid white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+@keyframes floatBubble {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-30px) rotate(10deg); }
+}
+</style>
 {% endblock %}

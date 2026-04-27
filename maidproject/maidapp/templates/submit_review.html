@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Rate Your Experience — MaidConnect{% endblock %}
+
+{% block content %}
+<div class="container py-5 animate-fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="dynamic-card p-5 bg-white border-vibrant shadow-vibrant text-center">
+                <div class="badge bg-vibrant rounded-pill px-4 py-2 mb-4" style="background: var(--v-blue);">
+                    <i class="fa-solid fa-star me-2"></i> SHARE FEEDBACK
+                </div>
+                
+                <h2 class="fw-black mb-1">How was your service?</h2>
+                <p class="text-muted mb-5">Rate your experience with <strong>{{ booking.worker.user.first_name }}</strong></p>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <!-- ░░ STAR RATING UI ░░ -->
+                    <div class="star-rating mb-5">
+                        <i class="fa-solid fa-star star-btn" data-value="1"></i>
+                        <i class="fa-solid fa-star star-btn" data-value="2"></i>
+                        <i class="fa-solid fa-star star-btn" data-value="3"></i>
+                        <i class="fa-solid fa-star star-btn" data-value="4"></i>
+                        <i class="fa-solid fa-star star-btn" data-value="5"></i>
+                    </div>
+                    
+                    {{ form.rating }}
+                    
+                    <div class="text-start mb-4">
+                        <label class="fw-black text-uppercase small opacity-50 mb-2">Detailed Feedback</label>
+                        {{ form.comment }}
+                    </div>
+
+                    <button type="submit" class="btn-vibrant w-100 py-3 fs-5 fw-black border-0">SUBMIT REVIEW</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.star-rating {
+    font-size: 3rem;
+    color: #e9ecef;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.star-rating .star-btn:hover,
+.star-rating .star-btn.active {
+    color: var(--v-yellow);
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 10px rgba(255, 222, 89, 0.5));
+}
+.star-btn { transition: transform 0.2s; display: inline-block; padding: 0 5px; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.star-btn');
+    const ratingInput = document.getElementById('id_rating');
+    
+    // Set default (5 stars)
+    updateStars(5);
+    ratingInput.value = 5;
+
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            const val = this.getAttribute('data-value');
+            ratingInput.value = val;
+            updateStars(val);
+        });
+
+        star.addEventListener('mouseover', function() {
+            updateStars(this.getAttribute('data-value'));
+        });
+
+        star.addEventListener('mouseout', function() {
+            updateStars(ratingInput.value);
+        });
+    });
+
+    function updateStars(val) {
+        stars.forEach(s => {
+            if (s.getAttribute('data-value') <= val) {
+                s.classList.add('active');
+            } else {
+                s.classList.remove('active');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

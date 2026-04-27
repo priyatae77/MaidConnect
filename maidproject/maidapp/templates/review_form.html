@@ -4,90 +4,96 @@
 {% block title %}Share Your Feedback — MaidConnect{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="dash-card p-5 animate-scale shadow-lg" style="background:#fff; border-radius:3rem;">
-                
-                <div class="text-center mb-5">
-                    <div class="mb-3" style="font-size:3rem;">⭐</div>
-                    <h2 class="fw-black mb-1">How was your service?</h2>
-                    <p class="text-muted">Rate your experience with <span class="fw-bold text-brand">{{ booking.worker.user.username|title }}</span></p>
-                </div>
+<div class="review-vibrant py-5 animate-fade-in">
+    <!-- Background Branding -->
+    <div class="hero-bg-text" style="top: 15%; color: rgba(255, 92, 141, 0.03);">FEEDBACK</div>
 
-                <form method="POST">
-                    {% csrf_token %}
+    <div class="container position-relative py-5" style="z-index: 2;">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="dynamic-card p-5 border-vibrant bg-white shadow-vibrant text-center">
                     
-                    <!-- Star Rating (Simple Radio approach) -->
-                    <div class="mb-4 text-center">
-                        <label class="label-sm d-block mb-3">SELECT RATING</label>
-                        <div class="d-flex justify-content-center gap-3 rating-stars">
-                            {% for i in "54321"|make_list %}
-                            <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" class="btn-check" required>
-                            <label class="star-label" for="star{{ i }}">
-                                <i class="fa-solid fa-star"></i>
-                                <span class="d-block mt-1">{{ i }}</span>
-                            </label>
-                            {% endfor %}
-                        </div>
-                    </div>
-
                     <div class="mb-5">
-                        <label class="label-sm mb-2 d-block">SHARE YOUR THOUGHTS</label>
-                        <textarea name="comment" class="form-control-premium" rows="4" placeholder="How was the punctuality? Did they do a good job?"></textarea>
+                        <div class="display-1 mb-4">🌟</div>
+                        <h1 class="display-4 fw-black mb-1">How was the <span style="color:var(--v-blue);">Service?</span></h1>
+                        <p class="h5 text-muted fw-medium">Rate your experience with <span class="fw-black text-vibrant">{{ booking.worker.user.username|title }}</span></p>
                     </div>
 
-                    <button type="submit" class="btn btn-brand w-100 rounded-pill py-3 fw-black shadow-brand">
-                        Submit Review <i class="fa-solid fa-paper-plane ms-2"></i>
-                    </button>
-                    
-                    <div class="text-center mt-4">
-                        <a href="{% url 'my_bookings' %}" class="fw-bold text-muted text-decoration-none small">Go Back</a>
-                    </div>
-                </form>
+                    <form method="POST" class="vibrant-form">
+                        {% csrf_token %}
+                        
+                        <!-- VIBRANT STAR RATING -->
+                        <div class="mb-5">
+                            <label class="fw-black text-uppercase small opacity-50 mb-4 d-block">SELECT YOUR RATING</label>
+                            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                {% for i in "54321"|make_list %}
+                                <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" class="btn-check" required>
+                                <label class="v-star-label" for="star{{ i }}">
+                                    <i class="fa-solid fa-star"></i>
+                                    <span class="d-block mt-1">{{ i }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-5 text-start">
+                            <label class="fw-black text-uppercase small opacity-50 mb-2">SHARE YOUR THOUGHTS</label>
+                            <textarea name="comment" class="vibrant-input" rows="4" placeholder="How was the punctuality? Did they do a good job?"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-vibrant w-100 py-3 mb-4 fs-5">SUBMIT MY REVIEW</button>
+                        
+                        <div class="text-center">
+                            <a href="{% url 'my_bookings' %}" class="fw-black text-muted text-decoration-none">GO BACK</a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    .star-label {
-        width: 60px;
-        height: 60px;
-        border: 2px solid var(--border);
-        border-radius: 1rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s;
-        color: #cbd5e1;
-    }
-    .star-label i { font-size: 1.2rem; }
-    .star-label span { font-size: 0.7rem; font-weight: 800; }
+.review-vibrant { background: #FAFAFA; min-height: 80vh; display: flex; align-items: center; }
+.text-vibrant { color: var(--v-blue); }
+.v-star-label {
+    width: 80px;
+    height: 80px;
+    border: 3px solid #F1F5F9;
+    border-radius: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--t-base);
+    color: #cbd5e1;
+    background: white;
+}
+.v-star-label i { font-size: 1.5rem; }
+.v-star-label span { font-size: 0.9rem; font-weight: 800; }
 
-    .btn-check:checked + .star-label {
-        border-color: var(--brand);
-        background: var(--brand-light);
-        color: var(--brand);
-        transform: scale(1.1);
-    }
-    
-    .form-control-premium {
-        width: 100%;
-        padding: 1rem;
-        background: var(--bg-alt);
-        border: 2px solid transparent;
-        border-radius: 1.5rem;
-        font-weight: 600;
-        font-size: 0.9rem;
-        outline: none;
-        transition: all 0.2s;
-    }
-    .form-control-premium:focus {
-        border-color: var(--brand);
-        background: #fff;
-    }
+.btn-check:checked + .v-star-label {
+    border-color: var(--v-yellow);
+    background: var(--v-yellow);
+    color: var(--text-dark);
+    transform: scale(1.15);
+    box-shadow: var(--shadow-vibrant);
+}
+.vibrant-input {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: #F1F5F9;
+    border: 3px solid #E2E8F0;
+    border-radius: 1.2rem;
+    font-weight: 600;
+    transition: var(--t-base);
+}
+.vibrant-input:focus {
+    outline: none;
+    border-color: var(--v-blue);
+    background: white;
+    box-shadow: 0 10px 30px rgba(63, 79, 207, 0.1);
+}
 </style>
 {% endblock %}

@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage KYC Verifications — Admin Dashboard{% endblock %}
+
+{% block content %}
+<section class="admin-kyc py-5">
+    <div class="container py-5">
+        
+        <div class="d-flex align-items-center justify-content-between mb-5 animate-fade-in">
+            <div>
+                <h1 class="display-5 fw-black">Verification <span style="color:var(--v-pink);">Center.</span></h1>
+                <p class="text-muted">Review and approve worker government identities.</p>
+            </div>
+            <div class="d-flex gap-3">
+                <div class="stat-badge p-3 px-4 rounded-5 bg-white border shadow-sm">
+                    <div class="small fw-black text-uppercase opacity-50">Pending</div>
+                    <div class="h4 fw-black mb-0 text-vibrant">{{ pending_kyc.count }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TABS ── -->
+        {% csrf_token %}
+        <ul class="nav nav-pills mb-5 gap-3 animate-fade-in" id="kycTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active rounded-pill px-4 fw-black" data-bs-toggle="pill" data-bs-target="#pending">PENDING</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-pill px-4 fw-black" data-bs-toggle="pill" data-bs-target="#approved">APPROVED</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-pill px-4 fw-black" data-bs-toggle="pill" data-bs-target="#rejected">REJECTED</button>
+            </li>
+             <div class="tab-content animate-fade-in" style="animation-delay: 0.1s;">
+            <!-- Pending Tab -->
+            <div class="tab-pane fade show active" id="pending">
+                <div class="table-responsive bg-white rounded-5 shadow-sm p-4">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr class="fw-black text-uppercase small opacity-50">
+                                <th class="border-0 px-4 py-3">Worker Name</th>
+                                <th class="border-0 py-3">Aadhaar No</th>
+                                <th class="border-0 py-3">PAN No</th>
+                                <th class="border-0 py-3">Documents</th>
+                                <th class="border-0 py-3">Status</th>
+                                <th class="border-0 px-4 py-3 text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for worker in pending_kyc %}
+                            <tr>
+                                <td class="px-4">
+                                    <div class="d-flex align-items-center gap-3">
+                                        {% if worker.photo %}
+                                            <img src="{{ worker.photo.url }}" class="rounded-circle object-fit-cover" style="width: 45px; height: 45px;">
+                                        {% else %}
+                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                                                <i class="fa-solid fa-user text-muted"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <div class="fw-black">{{ worker.user.get_full_name }}</div>
+                                            <div class="small text-muted">@{{ worker.user.username }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code class="fw-bold text-dark">{{ worker.masked_aadhar }}</code></td>
+                                <td><code class="fw-bold text-dark">{{ worker.masked_pan }}</code></td>
+                                <td>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        {% if worker.aadhar_front %}
+                                        <div class="kyc-doc-preview">
+                                            <img src="{{ worker.aadhar_front.url }}" alt="Aadhaar Front">
+                                            <span class="preview-label">ADHR FRONT</span>
+                                        </div>
+                                        {% endif %}
+                                        {% if worker.aadhar_back %}
+                                        <div class="kyc-doc-preview">
+                                            <img src="{{ worker.aadhar_back.url }}" alt="Aadhaar Back">
+                                            <span class="preview-label">ADHR BACK</span>
+                                        </div>
+                                        {% endif %}
+                                        {% if worker.pan_photo %}
+                                        <div class="kyc-doc-preview">
+                                            <img src="{{ worker.pan_photo.url }}" alt="PAN">
+                                            <span class="preview-label">PAN</span>
+                                        </div>
+                                        {% endif %}
+                                        {% if worker.selfie %}
+                                        <div class="kyc-doc-preview">
+                                            <img src="{{ worker.selfie.url }}" alt="Selfie">
+                                            <span class="preview-label">SELFIE</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3 py-2 fw-black small">PENDING</span></td>
+                                <td class="px-4 text-end" data-worker-row="{{ worker.id }}">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        {% if user.is_superuser %}
+                                        <button data-worker-id="{{ worker.id }}" data-action="approve" class="btn btn-sm btn-success rounded-pill px-3 fw-black kyc-action-btn">APPROVE</button>
+                                        <button class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-black" data-bs-toggle="modal" data-bs-target="#rejectModal{{ worker.id }}">REJECT</button>
+                                        {% else %}
+                                        <span class="badge bg-light text-muted rounded-pill px-3 py-2 fw-black small">VIEW ONLY</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Reject Modal -->
+                            <div class="modal fade" id="rejectModal{{ worker.id }}" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content border-0 rounded-5 shadow-vibrant">
+                                        <form method="POST" action="{% url 'reject_kyc' worker.id %}">
+                                            {% csrf_token %}
+                                            <div class="modal-body p-5">
+                                                <h3 class="fw-black mb-4">Reject Verification</h3>
+                                                <div class="mb-4">
+                                                    <label class="fw-bold small opacity-50 mb-2 text-uppercase">Reason for Rejection</label>
+                                                    <textarea id="reason{{ worker.id }}" name="reason" class="vibrant-input" rows="4" placeholder="e.g. Aadhaar photo is blurry" required></textarea>
+                                                </div>
+                                                <div class="d-grid gap-3">
+                                                    <button type="button" data-worker-id="{{ worker.id }}" data-action="reject" data-reason-input="reason{{ worker.id }}" class="btn-vibrant py-3 kyc-action-btn" style="background: var(--v-pink);">CONFIRM REJECTION</button>
+                                                    <button type="button" class="btn btn-light rounded-pill py-3 fw-black" data-bs-dismiss="modal">CANCEL</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <tr><td colspan="6" class="text-center py-5 text-muted">No pending verifications found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Approved Tab -->
+            <div class="tab-pane fade" id="approved">
+                <div class="table-responsive bg-white rounded-5 shadow-sm p-4">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr class="fw-black text-uppercase small opacity-50">
+                                <th class="border-0 px-4 py-3">Worker Name</th>
+                                <th class="border-0 py-3">Aadhaar</th>
+                                <th class="border-0 py-3">Verified On</th>
+                                <th class="border-0 py-3">Status</th>
+                                <th class="border-0 px-4 py-3 text-end">Profile</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for worker in approved_kyc %}
+                            <tr>
+                                <td class="px-4">
+                                    <div class="fw-black">{{ worker.user.get_full_name }}</div>
+                                    <div class="small text-muted">@{{ worker.user.username }}</div>
+                                </td>
+                                <td><code class="text-dark">{{ worker.masked_aadhar }}</code></td>
+                                <td><span class="small fw-bold text-muted">{{ worker.kyc_verified_at|date:"d M Y" }}</span></td>
+                                <td><span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-black small">VERIFIED</span></td>
+                                <td class="px-4 text-end">
+                                    <a href="{% url 'worker_detail' worker.id %}" 
+                                       class="btn btn-sm btn-light rounded-pill px-3 fw-black"
+                                       onclick="window.location.href=this.href; return true;">VIEW</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="text-center py-5 text-muted">No approved workers yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Rejected Tab -->
+            <div class="tab-pane fade" id="rejected">
+                <div class="table-responsive bg-white rounded-5 shadow-sm p-4">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr class="fw-black text-uppercase small opacity-50">
+                                <th class="border-0 px-4 py-3">Worker Name</th>
+                                <th class="border-0 py-3">Rejection Reason</th>
+                                <th class="border-0 py-3">Status</th>
+                                <th class="border-0 px-4 py-3 text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for worker in rejected_kyc %}
+                            <tr>
+                                <td class="px-4">
+                                    <div class="fw-black">{{ worker.user.get_full_name }}</div>
+                                    <div class="small text-muted">@{{ worker.user.username }}</div>
+                                </td>
+                                <td><span class="text-danger small fw-bold">{{ worker.rejection_reason }}</span></td>
+                                <td><span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-2 fw-black small">REJECTED</span></td>
+                                <td class="px-4 text-end">
+                                    <form method="POST" action="{% url 'block_worker' worker.id %}" onsubmit="return confirm('Block this user?')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-link text-danger fw-black p-0">BLOCK USER</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center py-5 text-muted">No rejected records.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.admin-kyc { background: #F8F9FA; min-height: 100vh; }
+.nav-pills .nav-link { color: var(--text-dark); background: white; border: 1px solid #eee; transition: 0.3s; }
+.nav-pills .nav-link.active { background: var(--v-blue) !important; color: white !important; }
+.vibrant-input { width: 100%; padding: 1rem; background: #F8FAFC; border: 2px solid #F1F5F9; border-radius: 1rem; font-weight: 600; }
+.table > :not(caption) > * > * { border-bottom-width: 1px; border-color: #f1f5f9; padding-top: 1.2rem; padding-bottom: 1.2rem; }
+.dropdown-item:active { background-color: var(--v-blue); }
+
+/* KYC Doc Preview Styles */
+.kyc-doc-preview {
+    position: relative;
+    width: 60px;
+    height: 40px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #eee;
+    cursor: zoom-in;
+    transition: 0.3s;
+}
+.kyc-doc-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(6px);
+    transition: 0.3s;
+}
+.kyc-doc-preview:hover {
+    width: 180px;
+    height: 120px;
+    z-index: 10;
+    border-color: var(--v-blue);
+    box-shadow: 0 10px 30px rgba(63, 79, 207, 0.2);
+}
+.kyc-doc-preview:hover img {
+    filter: blur(0);
+}
+.preview-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    font-size: 0.5rem;
+    font-weight: 900;
+    text-align: center;
+    padding: 2px 0;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.kyc-action-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const workerId = this.dataset.workerId;
+            const action = this.dataset.action;
+            let reason = '';
+            
+            if (action === 'reject') {
+                const inputId = this.dataset.reasonInput;
+                reason = document.getElementById(inputId).value;
+                if (!reason) {
+                    alert("Please provide a reason for rejection.");
+                    return;
+                }
+            }
+            
+            handleKYC(workerId, action, reason);
+        });
+    });
+});
+
+function handleKYC(workerId, action, reason = '') {
+    const url = action === 'approve' ? `/manage/kyc/approve/${workerId}/` : `/manage/kyc/reject/${workerId}/`;
+    const formData = new FormData();
+    if (reason) formData.append('reason', reason);
+    
+    // High-reliability CSRF retrieval
+    const csrftoken = window.CSRF_TOKEN || document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+    
+    if (!csrftoken) {
+        console.error("CSRF Token Missing");
+        alert("Security error: Please refresh the page and try again.");
+        return;
+    }
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({ reason: reason })
+    })
+    .then(r => {
+        if (!r.ok) {
+            return r.text().then(text => {
+                throw new Error(`Server returned ${r.status}: ${text.substring(0, 100)}`);
+            });
+        }
+        return r.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            const container = document.querySelector(`[data-worker-row="${workerId}"]`);
+            if (!container) {
+                location.reload(); // Fallback if row not found
+                return;
+            }
+            const row = container.closest('tr');
+            if (row) {
+                const badge = row.querySelector('.badge');
+                if (action === 'approve') {
+                    badge.className = 'badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-black small';
+                    badge.textContent = 'VERIFIED';
+                } else {
+                    badge.className = 'badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-2 fw-black small';
+                    badge.textContent = 'REJECTED';
+                }
+                row.querySelectorAll('button').forEach(btn => {
+                    if (!btn.classList.contains('btn-light')) btn.disabled = true;
+                });
+                
+                const modalEl = document.getElementById(`rejectModal${workerId}`);
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }
+            }
+        } else {
+            alert("Error: " + (data.message || "Unknown error"));
+        }
+    })
+    .catch(err => {
+        console.error("KYC Action Failed:", err);
+        alert(`Verification Failed: ${err.message}`);
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Submit Support Ticket — MaidConnect{% endblock %}
+
+{% block content %}
+<div class="support-vibrant py-5 animate-fade-in">
+    <!-- Background Branding -->
+    <div class="hero-bg-text" style="top: 15%; color: rgba(255, 92, 141, 0.03);">SUPPORT</div>
+
+    <div class="container position-relative py-5" style="z-index: 2;">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="dynamic-card p-5 border-vibrant bg-white shadow-vibrant text-center">
+                    
+                    <div class="mb-5">
+                        <div class="display-1 mb-4">📢</div>
+                        <h1 class="display-4 fw-black mb-1">Submit <span style="color:var(--v-blue);">Ticket.</span></h1>
+                        <p class="h5 text-muted fw-medium">Having an issue? Our team is here to help you resolve it.</p>
+                    </div>
+
+                    <form method="POST" action="{% url 'submit_complaint' %}" class="vibrant-form">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4 text-start">
+                            <label class="fw-black text-uppercase small opacity-50 mb-2">RELATED BOOKING (OPTIONAL)</label>
+                            <select name="booking_id" class="vibrant-input">
+                                <option value="">-- General Inquiry --</option>
+                                {% for b in bookings %}
+                                    <option value="{{ b.id }}" {% if booking and booking.id == b.id %}selected{% endif %}>
+                                        {{ b.booking_id_str|default:b.id }} - 
+                                        {% if request.user.role == 'user' %}{{ b.worker.user.first_name }}{% else %}{{ b.user.first_name }}{% endif %} 
+                                        ({{ b.booking_date|date:"M d, Y" }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-5 text-start">
+                            <label class="fw-black text-uppercase small opacity-50 mb-2">ISSUE DETAILS</label>
+                            <textarea name="message" class="vibrant-input" rows="5" placeholder="Please describe the issue in detail..." required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-vibrant w-100 py-3 mb-4 fs-5">SUBMIT SUPPORT TICKET</button>
+                        
+                        <div class="text-center">
+                            {% if request.user.role == 'worker' %}
+                                <a href="{% url 'worker_dashboard' %}" class="fw-black text-muted text-decoration-none">CANCEL & RETURN</a>
+                            {% else %}
+                                <a href="{% url 'user_dashboard' %}" class="fw-black text-muted text-decoration-none">CANCEL & RETURN</a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.support-vibrant { background: #FAFAFA; min-height: 80vh; display: flex; align-items: center; }
+.text-vibrant { color: var(--v-blue); }
+.vibrant-input {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: #F1F5F9;
+    border: 3px solid #E2E8F0;
+    border-radius: 1.2rem;
+    font-weight: 600;
+    transition: var(--t-base);
+}
+.vibrant-input:focus {
+    outline: none;
+    border-color: var(--v-blue);
+    background: white;
+    box-shadow: 0 10px 30px rgba(63, 79, 207, 0.1);
+}
+</style>
+{% endblock %}

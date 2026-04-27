@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Complete Your KYC — MaidConnect{% endblock %}
+
+{% block content %}
+<section class="kyc-vibrant py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                <div class="text-center mb-5 animate-fade-in">
+                    <div class="badge bg-vibrant rounded-pill px-4 py-2 mb-3" style="background: var(--v-blue);">IDENTITY VERIFICATION</div>
+                    <h1 class="display-4 fw-black">Trust is our <span style="color:var(--v-pink);">Priority.</span></h1>
+                    <p class="h5 text-muted">Please upload your government-issued documents to start accepting bookings.</p>
+                </div>
+
+                {% if worker.kyc_status == 'approved' %}
+                <div class="dynamic-card text-center p-5 border-success animate-fade-in">
+                    <div class="icon-circle mx-auto mb-4" style="background: #e1f7ec; color: #28a745;">
+                        <i class="fa-solid fa-check-double"></i>
+                    </div>
+                    <h2 class="fw-black text-success">Verification Complete!</h2>
+                    <p class="text-muted">Your identity has been verified. You are now a trusted partner on MaidConnect.</p>
+                    <a href="{% url 'worker_dashboard' %}" class="btn-vibrant py-3 px-5">GO TO DASHBOARD</a>
+                </div>
+                {% elif worker.kyc_status == 'rejected' %}
+                <div class="alert alert-danger rounded-5 border-0 p-5 mb-5 shadow-sm animate-fade-in">
+                    <h3 class="fw-black mb-3"><i class="fa-solid fa-triangle-exclamation me-2"></i> KYC Rejected</h3>
+                    <p class="fw-medium mb-4">Reason: <span class="text-decoration-underline">{{ worker.rejection_reason }}</span></p>
+                    <p class="small opacity-75">Please re-upload clear copies of your documents below.</p>
+                </div>
+                {% endif %}
+
+                {% if worker.kyc_status != 'approved' %}
+                <form method="POST" enctype="multipart/form-data" class="dynamic-card bg-white p-5 border-vibrant shadow-vibrant animate-fade-in" style="animation-delay: 0.2s;">
+                    {% csrf_token %}
+                    
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-6">
+                            <label class="fw-black text-uppercase small opacity-50 mb-3">Aadhaar Card Number</label>
+                            <input type="text" name="aadhar_no" value="{{ worker.aadhar_no|default:'' }}" class="vibrant-input" placeholder="1234 5678 9012" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-black text-uppercase small opacity-50 mb-3">PAN Card Number</label>
+                            <input type="text" name="pan_no" value="{{ worker.pan_no|default:'' }}" class="vibrant-input" placeholder="ABCDE1234F" required>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-6">
+                            <label class="fw-black text-uppercase small opacity-50 mb-3">Aadhaar Front Side</label>
+                            <div class="kyc-upload-box">
+                                <input type="file" name="aadhar_front" class="form-control" accept="image/*,application/pdf" required>
+                                <div class="small text-muted mt-2">Max 2MB (JPG/PNG/PDF)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-black text-uppercase small opacity-50 mb-3">Aadhaar Back Side</label>
+                            <div class="kyc-upload-box">
+                                <input type="file" name="aadhar_back" class="form-control" accept="image/*,application/pdf" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-6">
+                            <label class="fw-black text-uppercase small opacity-50 mb-3">PAN Card Photo</label>
+                            <div class="kyc-upload-box">
+                                <input type="file" name="pan_photo" class="form-control" accept="image/*,application/pdf" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-black text-uppercase small opacity-50 mb-3">Your Selfie (Face ID)</label>
+                            <div class="kyc-upload-box">
+                                <input type="file" name="selfie" class="form-control" accept="image/*" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-4 mb-5" style="background: rgba(63, 79, 207, 0.05); border-left: 4px solid var(--v-blue);">
+                        <div class="d-flex gap-3">
+                            <i class="fa-solid fa-shield-halved text-vibrant h4"></i>
+                            <div>
+                                <h6 class="fw-black mb-1">Privacy Guarantee</h6>
+                                <p class="small text-muted mb-1">Your documents are encrypted and only accessible by authorized verification officers.</p>
+                                <p class="small fw-bold text-dark mb-0">“This information is used only for verification purposes and will not be shared publicly.”</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-vibrant w-100 py-4 fs-5 fw-black">SUBMIT DOCUMENTS FOR APPROVAL</button>
+                </form>
+                {% endif %}
+
+                <div class="text-center mt-5">
+                    <p class="text-muted small">Need help? <a href="#" class="text-vibrant fw-bold">Contact Verification Support</a></p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.kyc-vibrant { background: #FAFAFA; min-height: 100vh; }
+.kyc-upload-box {
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    transition: 0.3s;
+}
+.kyc-upload-box:focus-within {
+    border-color: var(--v-blue);
+    background: white;
+}
+.kyc-upload-box input[type="file"] {
+    background: transparent;
+    border: none;
+    font-weight: 600;
+}
+</style>
+{% endblock %}

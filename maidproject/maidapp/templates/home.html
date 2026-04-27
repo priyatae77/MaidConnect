@@ -1,270 +1,206 @@
 {% extends "base.html" %}
 {% load static %}
 {% load mc_tags %}
-
-{% block title %}MaidConnect — Premium Verified Home Services in Tamil Nadu{% endblock %}
+{% block extra_head %}
+<style>
+    .trust-badge { font-weight: 800; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+    .rotate-small { transform: rotate(-2deg); }
+    .premium-frame { transform: rotate(-2deg); transition: transform 0.4s ease; }
+    .premium-frame:hover { transform: rotate(0deg); }
+</style>
+{% endblock %}
 
 {% block content %}
 
-<!-- ═══════════════════════════════════════════════════════════
-     HERO SECTION (Coral & Candy Style)
-     ═══════════════════════════════════════════════════════════ -->
-<div class="hero-premium">
-    <div class="container text-center py-5">
-        <div class="animate-up mb-4">
-            <span class="badge rounded-pill px-4 py-2" 
-                  style="background:rgba(255, 75, 145, 0.1); color:var(--brand); font-size:0.8rem; font-weight:800; letter-spacing:0.05em;">
-                <i class="fa-solid fa-location-dot me-1"></i> FOCUS: TAMIL NADU • TIRUPUR • COIMBATORE • CHENNAI
-            </span>
-        </div>
+<!-- ░░ HERO SECTION (LESA INSPIRED) ░░ -->
+<section class="hero-vibrant">
+    <!-- Liquid Blobs Container -->
+    <div class="blob-area">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
 
-        <h1 class="display-3 fw-black mb-4" style="letter-spacing:-2px; line-height:1.1;">
-            Trusted Help, <span style="color:var(--brand);">Easily</span> Found.
-        </h1>
-        <p class="h5 text-muted mb-5 fw-medium mx-auto" style="max-width:700px; line-height:1.6;">
-            Book verified cooks, cleaners, and caretakers for your home. Simple, safe, and reliable service in just a few clicks.
-        </p>
+    <div class="hero-bg-text">MAIDCONNECT</div>
 
-        <!-- Dynamic AJAX Search -->
-        <div class="search-premium mx-auto shadow-lg mb-4" style="position:relative;">
-            <div class="search-field">
-                <i class="fa-solid fa-magnifying-glass text-muted"></i>
-                <input type="text" id="main-search" placeholder="What kind of help do you need?" autocomplete="off">
-            </div>
-            <div class="search-divider"></div>
-            <div class="search-field">
-                <i class="fa-solid fa-location-crosshairs text-muted"></i>
-                <input type="text" id="loc-search" placeholder="Enter your area..." autocomplete="off">
-                <!-- Location Suggestions Dropdown -->
-                <div id="loc-suggestions" class="suggestions-dropdown d-none"></div>
-            </div>
-            <button class="btn-brand px-5 fw-bold" onclick="performSearch()">Search Now</button>
-        </div>
 
-        <div class="d-flex justify-content-center gap-3 mb-5">
-            <a href="{% url 'register_choice' %}" class="btn btn-outline-dark rounded-pill px-5 py-3 fw-bold d-flex align-items-center gap-2 shadow-sm animate-up">
-                <i class="fa-solid fa-briefcase text-brand"></i> Join as Service Partner
-            </a>
-        </div>
+    <div class="container position-relative py-5" style="z-index: 2;">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <div class="badge rounded-pill px-4 py-2 mb-4 shadow-sm text-white" style="background: var(--v-blue);">
+                    <i class="fa-solid fa-bolt-lightning me-2"></i> NEW: EXPRESS BOOKING LIVE
+                </div>
+                <h1 class="display-1 fw-black mb-4" style="color: var(--v-blue);">Elevate Your <br>
+                    <span class="highlight" style="color: var(--v-blue);">Home Life.</span>
+                </h1>
+                <p class="h4 text-muted fw-medium mb-5 pe-lg-5">Premium verified home services at your doorstep.
+                    Experience the gold standard of care.</p>
 
-        <!-- Achievement Insights (Real Numbers) -->
-        <div class="d-flex justify-content-center gap-5 mt-5 flex-wrap">
-            <div class="insight-block">
-                <div class="insight-val">{{ platform_bookings|add:"520" }}+</div>
-                <div class="insight-label">Jobs Completed</div>
+                <div class="d-flex flex-wrap gap-3 mb-5">
+                    <a href="{% url 'services' %}"
+                        class="btn-vibrant py-3 px-5 fs-5 fw-black text-decoration-none" style="background: var(--v-blue);">EXPLORE SERVICES</a>
+                    <a href="{% url 'worker_register' %}"
+                        class="btn btn-outline-dark rounded-pill py-3 px-5 fs-5 fw-black">JOIN AS PARTNER</a>
+                </div>
+
+                <div class="d-flex flex-wrap gap-4">
+                    <div class="trust-badge">
+                        <i class="fa-solid fa-shield-check text-success me-1"></i> Verified Workers
+                    </div>
+                    <div class="trust-badge">
+                        <i class="fa-solid fa-lock-keyhole text-info me-1"></i> Secure Booking
+                    </div>
+                </div>
             </div>
-            <div class="insight-block">
-                <div class="insight-val">{{ platform_workers|add:"30" }}+</div>
-                <div class="insight-label">Verified Partners</div>
-            </div>
-            <div class="insight-block">
-                <div class="insight-val">4.9/5</div>
-                <div class="insight-label">Customer Satisfaction</div>
+
+            <div class="col-lg-5 position-relative" style="min-height: 450px;">
+                <!-- Floating Service Icons -->
+                <div class="floating-icons-wrapper">
+                    <div class="icon-circle floating-icon position-absolute shadow-vibrant"
+                        style="top:10%; left:20%; background: var(--v-blue); color:white; width:90px; height:90px; z-index:3;">
+                        <i class="fa-solid fa-broom"></i>
+                    </div>
+                    <div class="icon-circle floating-icon position-absolute shadow-vibrant"
+                        style="top:35%; right:0%; background: var(--v-pink); color:white; width:70px; height:70px; animation-delay: 1s; z-index:3;">
+                        <i class="fa-solid fa-utensils"></i>
+                    </div>
+                    <div class="icon-circle floating-icon position-absolute shadow-vibrant"
+                        style="bottom:15%; left:35%; background: var(--v-yellow); color:var(--text-dark); width:80px; height:80px; animation-delay: 2s; z-index:3;">
+                        <i class="fa-solid fa-baby-carriage"></i>
+                    </div>
+                </div>
+                <div class="premium-frame p-3 bg-white rounded-5 shadow-vibrant d-none">
+                    <img src="https://images.unsplash.com/photo-1528740561666-dc2479dc08ab?q=80&w=800&auto=format&fit=crop"
+                        class="img-fluid rounded-5" alt="Premium Service">
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<!-- ═══════════════════════════════════════════════════════════
-     CATEGORY BUBBLES
-     ═══════════════════════════════════════════════════════════ -->
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-black mb-0">Our Specializations</h3>
-        <a href="/workers/" class="text-brand fw-bold text-decoration-none">Explore All <i class="fa-solid fa-arrow-right small"></i></a>
-    </div>
-    <div class="categories-grid">
-        {% for cat in categories %}
-        <a href="/workers/?category={{ cat.id }}" class="cat-pill-card animate-scale">
-            <div class="cat-icon-wrap">
-                {% if cat.image %}
-                    <img src="{{ cat.image.url }}" alt="{{ cat.name }}">
-                {% else %}
-                    <i class="fa-solid fa-hand-holding-heart" style="color:var(--brand);"></i>
-                {% endif %}
-            </div>
-            <div class="cat-name">{{ cat.name }}</div>
-        </a>
-        {% endfor %}
-    </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════
-     TESTIMONIALS (Carousel Advancement)
-     ═══════════════════════════════════════════════════════════ -->
-<div class="testimonials-sec py-5" style="background:var(--bg-alt);">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-black">Voices of Maid<span style="color:var(--brand-deep);">Connect</span></h2>
-            <p class="text-muted">Trusted by thousands of families across Tamil Nadu.</p>
+<!-- ░░ SERVICES GRID ░░ -->
+<section class="services-vibrant py-5" id="services">
+    <div class="container py-5">
+        <div class="text-center mb-5 pb-4">
+            <h2 class="display-3 fw-black">Premium <span style="color:var(--v-pink);">Offerings.</span></h2>
+            <p class="h5 text-muted">A comprehensive suite of care, tailored for you.</p>
         </div>
-        
-        <div id="testiCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <div class="testi-card mx-auto">
-                        <div class="stars mb-3">⭐⭐⭐⭐⭐</div>
-                        <p class="testi-text italic">"Extremely satisfied with the cooking service. The cook is very professional and the Aadhar verification gave us huge peace of mind."</p>
-                        <div class="testi-user d-flex align-items-center gap-3 mt-4">
-                            <div class="user-avatar" style="background:var(--brand);">R</div>
-                            <div>
-                                <div class="fw-bold">Ravi Kumar</div>
-                                <div class="x-small text-muted">Coimbatore District</div>
-                            </div>
+
+        <div class="row g-4">
+            {% define_services as service_list %}
+            {% for s in service_list %}
+            <div class="col-sm-6 col-lg-3">
+                <div class="dynamic-card text-center service-card-link hover-lift"
+                    data-url="{% url 'worker_list' %}?category={{ s.slug }}">
+                    <div class="icon-circle mx-auto service-icon shadow-vibrant mb-3" data-color="{{ s.color }}"
+                        style="color: white; width: 80px; height: 80px; font-size: 1.8rem;">
+                        <i class="fa-solid {{ s.icon }}"></i>
+                    </div>
+                    <h4 class="fw-black mb-2">{{ s.name }}</h4>
+                    <p class="small text-muted mb-0">{{ s.desc }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- ░░ IMPACT SECTION ░░ -->
+<section class="impact-vibrant py-5" style="background: #0A0A0A; color: white;">
+    <div class="container py-5">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-5">
+                <h2 class="display-4 fw-black mb-4">Making Real <br>
+                    <span style="color:var(--v-yellow);">Impact.</span>
+                </h2>
+                <p class="h5 text-white-50 fw-medium">We're more than just a service—we're a community of care and
+                    excellence.</p>
+            </div>
+            <div class="col-lg-7">
+                <div class="row g-4 text-center">
+                    <div class="col-6">
+                        <div class="p-4 rounded-5 border border-white border-opacity-10"
+                            style="background: rgba(255,255,255,0.02);">
+                            <h1 class="display-2 fw-black mb-0 counter" data-target="5000">0</h1>
+                            <p class="fw-black text-uppercase small opacity-50">Happy Families</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-4 rounded-5 border border-white border-opacity-10"
+                            style="background: rgba(255,255,255,0.02);">
+                            <h1 class="display-2 fw-black mb-0 counter" data-target="1200">0</h1>
+                            <p class="fw-black text-uppercase small opacity-50">Verified Partners</p>
                         </div>
                     </div>
                 </div>
-                <!-- Add more items as needed -->
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<!-- ═══════════════════════════════════════════════════════════
-     STYLES
-     ═══════════════════════════════════════════════════════════ -->
-<style>
-    .hero-premium {
-        background: radial-gradient(circle at top right, rgba(255, 75, 145,0.05) 0%, #fff 70%);
-        padding: 5rem 0;
-    }
-    .search-premium {
-        background: #fff;
-        max-width: 900px;
-        border-radius: 100px;
-        display: flex;
-        padding: 0.6rem;
-        border: 1px solid rgba(0,0,0,0.08);
-    }
-    .search-field { flex: 1; display: flex; align-items: center; padding: 0 1.5rem; }
-    .search-field input { border: none; outline: none; padding: 0.5rem; width: 100%; font-weight: 600; font-size: 0.95rem; }
-    .search-divider { width: 1px; background: rgba(0,0,0,0.1); height: 30px; margin: auto 0; }
-    
-    .insight-block { text-align: center; }
-    .insight-val { font-size: 2.2rem; font-weight: 900; color: var(--text); }
-    .insight-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 0.2rem; }
-
-    .categories-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        gap: 1.5rem;
-    }
-    .cat-pill-card {
-        background: #fff;
-        border: 1px solid rgba(0,0,0,0.05);
-        border-radius: 1.5rem;
-        padding: 1.5rem;
-        text-align: center;
-        text-decoration: none;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .cat-pill-card:hover { transform: scale(1.05); border-color: var(--brand); box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
-    .cat-icon-wrap { width: 60px; height: 60px; background: var(--bg-alt); border-radius: 1rem; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; overflow: hidden; }
-    .cat-icon-wrap img { width: 100%; height: 100%; object-fit: cover; }
-    .cat-name { font-weight: 800; font-size: 0.85rem; color: var(--text); }
-
-    .testi-card {
-        background: #fff;
-        max-width: 600px;
-        padding: 3rem;
-        border-radius: 2rem;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.03);
-    }
-    .user-avatar { width: 40px; height: 40px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-
-    /* Suggestions Dropdown Styles */
-    .suggestions-dropdown {
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(10%);
-        width: 300px;
-        background: #fff;
-        border-radius: 1.5rem;
-        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-        z-index: 9999;
-        margin-top: 10px;
-        overflow: hidden;
-        border: 1px solid rgba(0,0,0,0.05);
-    }
-    .suggestion-item {
-        padding: 1rem 1.5rem;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 0.9rem;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .suggestion-item:hover { background: var(--bg-alt); color: var(--brand); }
-    .suggestion-item i { color: #cbd5e1; }
-</style>
-
-<!-- ═══════════════════════════════════════════════════════════
-     PARTNER CTA (Earn with us)
-     ═══════════════════════════════════════════════════════════ -->
-<div class="container py-5 mt-5">
-    <div class="partner-cta-card p-5 text-center text-white shadow-lg" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius:3rem;">
-        <h2 class="fw-black mb-3">Ready to earn with <span style="color:var(--brand);">MaidConnect?</span></h2>
-        <p class="opacity-75 mb-5 fs-5 mx-auto" style="max-width:600px;">Join 300+ professionals providing high-quality home services. We handle the bookings, you handle the magic.</p>
-        <div class="d-flex justify-content-center gap-3 flex-wrap">
-            <a href="{% url 'register_choice' %}" class="btn btn-brand px-5 py-3 fw-black rounded-pill">Start Earning Today</a>
-            <a href="{% url 'about' %}" class="btn btn-outline-light px-5 py-3 fw-bold rounded-pill">Learn More</a>
+<!-- ░░ TESTIMONIALS ░░ -->
+<section class="testimonials-vibrant py-5 overflow-hidden">
+    <div class="container py-5">
+        <div id="testimonialSlider" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <div class="text-center px-lg-5">
+                        <div class="display-5 fw-black mb-4">"MaidConnect completely <span
+                                style="color:var(--v-blue);">transformed</span> my weekly routine. The quality of care
+                            is unmatched."</div>
+                        <h5 class="fw-black" style="color:var(--v-blue);">— Anjali R., Coimbatore</h5>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <div class="text-center px-lg-5">
+                        <div class="display-5 fw-black mb-4">"Finally, a service I can <span
+                                style="color:var(--v-pink);">trust</span> with my parents. The verification process
+                            gives real peace of mind."</div>
+                        <h5 class="fw-black" style="color:var(--v-blue);">— Rahul S., Tirupur</h5>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</section>
 
-{% endblock %}
-
-{% block extra_js %}
 <script>
-    const locInput = document.getElementById('loc-search');
-    const locSuggestions = document.getElementById('loc-suggestions');
+    document.addEventListener('DOMContentLoaded', function () {
 
-    locInput.addEventListener('input', function() {
-        const query = this.value;
-        if (query.length < 2) {
-            locSuggestions.classList.add('d-none');
-            return;
-        }
-
-        fetch(`/api/locations/?q=${encodeURIComponent(query)}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.length > 0) {
-                    locSuggestions.innerHTML = data.map(loc => `
-                        <div class="suggestion-item" onclick="selectLocation('${loc}')">
-                            <i class="fa-solid fa-location-dot"></i>
-                            <span>${loc}</span>
-                        </div>
-                    `).join('');
-                    locSuggestions.classList.remove('d-none');
-                } else {
-                    locSuggestions.classList.add('d-none');
+        // ─── COUNTER ANIMATION ───
+        const counters = document.querySelectorAll('.counter');
+        const countObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = +entry.target.getAttribute('data-target');
+                    let count = 0;
+                    const speed = target / 50;
+                    const updateCount = () => {
+                        if (count < target) {
+                            count += speed;
+                            entry.target.innerText = Math.ceil(count) + '+';
+                            setTimeout(updateCount, 20);
+                        } else {
+                            entry.target.innerText = target + '+';
+                        }
+                    }
+                    updateCount();
+                    countObserver.unobserve(entry.target);
                 }
             });
-    });
+        }, { threshold: 0.5 });
+        counters.forEach(c => countObserver.observe(c));
 
-    function selectLocation(loc) {
-        locInput.value = loc;
-        locSuggestions.classList.add('d-none');
-    }
-
-    function performSearch() {
-        const search = document.getElementById('main-search').value;
-        const loc = document.getElementById('loc-search').value;
-        let url = '/workers/?';
-        if (search) url += `search=${encodeURIComponent(search)}&`;
-        if (loc) url += `location=${encodeURIComponent(loc)}`;
-        window.location.href = url;
-    }
-
-    // Close suggestions when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!locInput.contains(e.target) && !locSuggestions.contains(e.target)) {
-            locSuggestions.classList.add('d-none');
-        }
+        // ─── SERVICE CARD CLICK + ICON COLOR ───
+        document.querySelectorAll('.service-card-link').forEach(card => {
+            const icon = card.querySelector('.service-icon');
+            if (icon) icon.style.backgroundColor = icon.getAttribute('data-color');
+            card.addEventListener('click', () => {
+                const url = card.getAttribute('data-url');
+                if (url) window.location.href = url;
+            });
+        });
     });
 </script>
+
 {% endblock %}

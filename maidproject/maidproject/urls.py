@@ -32,5 +32,8 @@ urlpatterns = [
     path('', include('maidapp.urls')),
 ]
 
+handler403 = 'maidapp.views.custom_403_view'
+handler404 = 'maidapp.views.custom_404_view'
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

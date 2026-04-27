@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage All Bookings — MaidConnect Admin{% endblock %}
+
+{% block content %}
+<section class="admin-bookings py-5">
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="display-5 fw-black mb-1">System <span style="color:var(--v-pink);">Bookings</span></h1>
+                <p class="text-muted fw-medium">Monitor all service interactions across the platform.</p>
+            </div>
+        </div>
+
+        <div class="table-responsive bg-white rounded-5 shadow-vibrant p-4 border-vibrant">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr class="fw-black text-uppercase small opacity-50">
+                        <th class="border-0 px-4 py-3">ID</th>
+                        <th class="border-0 py-3">Customer</th>
+                        <th class="border-0 py-3">Worker</th>
+                        <th class="border-0 py-3">Service</th>
+                        <th class="border-0 py-3">Date</th>
+                        <th class="border-0 py-3">Status</th>
+                        <th class="border-0 px-4 py-3 text-end">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr>
+                        <td class="px-4 fw-bold text-vibrant">#{{ booking.booking_id_str }}</td>
+                        <td>
+                            <div class="fw-black">{{ booking.user.get_full_name }}</div>
+                            <div class="small text-muted">@{{ booking.user.username }}</div>
+                        </td>
+                        <td>
+                            <div class="fw-bold">{{ booking.worker.user.get_full_name }}</div>
+                            <div class="small text-muted">{{ booking.worker.location }}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark rounded-pill px-3">{{ booking.service_type|title }}</span>
+                        </td>
+                        <td class="small fw-medium">{{ booking.booking_date|date:"d M Y, h:i A" }}</td>
+                        <td>
+                            {% if booking.status == 'pending' %}
+                                <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3 py-2 fw-black small">PENDING</span>
+                            {% elif booking.status == 'confirmed' %}
+                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-black small">CONFIRMED</span>
+                            {% elif booking.status == 'cancelled' %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-2 fw-black small">CANCELLED</span>
+                            {% else %}
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3 py-2 fw-black small">{{ booking.status|upper }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 text-end fw-black text-vibrant">₹{{ booking.total_price }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-center py-5 text-muted h6">No bookings found in the system.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<style>
+.admin-bookings { background: #F8F9FA; min-height: 100vh; }
+.table > :not(caption) > * > * { border-bottom-width: 1px; border-color: #f1f5f9; padding-top: 1.2rem; padding-bottom: 1.2rem; }
+</style>
+{% endblock %}

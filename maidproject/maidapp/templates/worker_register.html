@@ -1,152 +1,515 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Become a Service Partner — MaidConnect Marketplace{% endblock %}
+{% block title %}Become a Service Partner — MaidConnect{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row align-items-center mb-5 animate-up">
-        <div class="col-lg-6">
-            <h1 class="display-3 fw-black mb-1" style="letter-spacing:-2.5px; line-height:1;">
-                Join Our <span style="color:var(--brand-deep);">Team</span>.
-            </h1>
-            <p class="h5 text-muted fw-medium lh-base">Apply now to become a trusted help in our marketplace.</p>
-        </div>
-        <div class="col-lg-6 text-lg-end">
-            <span class="badge rounded-pill bg-dark px-4 py-2" style="font-size:0.8rem; letter-spacing:0.1em;">PHASE: VERIFICATION</span>
-        </div>
-    </div>
 
-    <div class="row g-5">
-        <!-- Application Form -->
-        <div class="col-lg-8">
-            <form method="POST" enctype="multipart/form-data" class="dash-card p-5 shadow-lg border-0" style="background:#fff; border-radius:3rem;">
-                {% csrf_token %}
-                
-                <!-- SECTION 1: Identity -->
-                <div class="mb-5">
-                    <h5 class="fw-black mb-4"><i class="fa-solid fa-user-check text-brand me-2"></i> 1. Your Details</h5>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="label-sm mb-2 d-block">CHOOSE USERNAME</label>
-                            <input type="text" name="username" class="form-control-premium" placeholder="e.g., kumar_cook" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="label-sm mb-2 d-block">EMAIL ADDRESS</label>
-                            <input type="email" name="email" class="form-control-premium" placeholder="kumar@example.com" required>
-                        </div>
-                    </div>
-                </div>
+<!-- ░░ TWO-STEP VERIFIED WORKER REGISTRATION ░░ -->
+<section class="registration-vibrant py-4 overflow-hidden">
+    <div class="hero-bg-text" style="top: 15%; color: rgba(63, 79, 207, 0.03);">PARTNER</div>
 
-                <!-- SECTION 2: Region & Contact -->
-                <div class="mb-5">
-                    <h5 class="fw-black mb-4"><i class="fa-solid fa-map-location-dot text-brand me-2"></i> 2. Where You Work</h5>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label class="label-sm mb-2 d-block">SERVICE DISTRICT</label>
-                            <select name="district" class="form-control-premium" required>
-                                <option value="">Select District</option>
-                                <option>Coimbatore</option>
-                                <option>Tirupur</option>
-                                <option>Chennai</option>
-                                <option>Trichy</option>
-                                <option>Salem</option>
-                                <option>Karur</option>
-                                <option>Tuticorin</option>
-                                <option>Pondicherry</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="label-sm mb-2 d-block">PINCODE</label>
-                            <input type="text" name="pincode" class="form-control-premium" placeholder="641XXX" required>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="label-sm mb-2 d-block">FULL BASE ADDRESS</label>
-                        <textarea name="address" class="form-control-premium" rows="2" placeholder="Exact location for background verification..." required></textarea>
-                    </div>
-                </div>
-
-                <!-- SECTION 3: Documents (Original Upload) -->
-                <div class="mb-5">
-                    <h5 class="fw-black mb-4"><i class="fa-solid fa-id-card text-brand me-2"></i> 3. Original Document Verification</h5>
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <div class="p-4 rounded-4" style="background:var(--bg-alt);">
-                                <label class="label-sm mb-3 d-block">AADHAR CARD PHOTO</label>
-                                <input type="file" name="aadhar_photo" class="form-control form-control-sm border-0" required>
-                                <div class="x-small text-muted mt-2">Maximum file size: 5MB (JPG/PNG)</div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="p-4 rounded-4" style="background:var(--bg-alt);">
-                                <label class="label-sm mb-3 d-block">PAN CARD PHOTO</label>
-                                <input type="file" name="pan_photo" class="form-control form-control-sm border-0" required>
-                                <div class="x-small text-muted mt-2">Must match the original document.</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SECTION 4: Professional Specs -->
-                <div class="mb-5">
-                    <h5 class="fw-black mb-4"><i class="fa-solid fa-briefcase text-brand me-2"></i> 4. Service Specifics</h5>
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="label-sm mb-2 d-block">BASE PRICE (Per Day)</label>
-                            <input type="number" name="price_per_day" class="form-control-premium" placeholder="₹ 600" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="label-sm mb-2 d-block">EXPERIENCE (Years)</label>
-                            <input type="number" name="experience" class="form-control-premium" placeholder="5" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="label-sm mb-2 d-block">PASSWORD</label>
-                            <input type="password" name="password" class="form-control-premium" placeholder="••••••••" required>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-brand w-100 rounded-pill py-3 fw-black shadow-brand">
-                    Submit Application & Verify OTP <i class="fa-solid fa-arrow-right ms-2"></i>
-                </button>
-            </form>
-        </div>
-
-        <!-- Sidebar Requirements -->
-        <div class="col-lg-4">
-            <div class="p-4 rounded-4 mb-4" style="background:#000; color:#fff;">
-                <h6 class="fw-black mb-4 text-brand">Application Checklist</h6>
-                <ul class="list-unstyled small fw-bold" style="line-height:2.2;">
-                    <li><i class="fa-solid fa-check-circle text-brand me-2"></i> Valid Mobile Number</li>
-                    <li><i class="fa-solid fa-check-circle text-brand me-2"></i> Active Email Access</li>
-                    <li><i class="fa-solid fa-check-circle text-brand me-2"></i> Original Aadhar Card</li>
-                    <li><i class="fa-solid fa-check-circle text-brand me-2"></i> Clear Background Photo</li>
-                    <li><i class="fa-solid fa-check-circle text-brand me-2"></i> 2+ Years Experience</li>
-                </ul>
-            </div>
-            
-            <div class="p-4 rounded-4" style="background:var(--brand-light); color:var(--brand);">
-                <h6 class="fw-black mb-2">Notice for TN Region</h6>
-                <p class="x-small mb-0 fw-bold">We are currently prioritizing partners in Tirupur and Coimbatore districts for instant activation.</p>
+    <div class="container position-relative py-4" style="z-index: 2;">
+        
+        <div class="row align-items-center mb-4 animate-fade-in">
+            <div class="col-lg-8">
+                <h1 class="display-3 fw-black mb-3">Join Our <span style="color:var(--v-pink);">Winning Team.</span></h1>
+                <p class="h5 text-muted fw-medium">Verified professionals earn 3x more. Start your verification now.</p>
             </div>
         </div>
+
+        <div class="row g-5">
+            <!-- Sidebar Steps -->
+            <div class="col-lg-4 animate-fade-in">
+                <div class="reg-steps-vibrant sticky-top" style="top: 120px;">
+                    <div class="step-item-vibrant active" id="step1Indicator">
+                        <div class="step-icon">1</div>
+                        <div>
+                            <h4 class="fw-black mb-1">Verify Email</h4>
+                            <p class="text-muted small mb-0">Secure your digital identity.</p>
+                        </div>
+                    </div>
+                    <div class="step-item-vibrant" id="step2Indicator">
+                        <div class="step-icon" style="background: var(--v-pink);">2</div>
+                        <div>
+                            <h4 class="fw-black mb-1">Service Profile</h4>
+                            <p class="text-muted small mb-0">Setup your skills and location.</p>
+                        </div>
+                    </div>
+                    <div class="step-item-vibrant" id="step3Indicator">
+                        <div class="step-icon" style="background: var(--v-yellow); color: var(--text-dark);">3</div>
+                        <div>
+                            <h4 class="fw-black mb-1">KYC Check</h4>
+                            <p class="text-muted small mb-0">Manual document verification.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8 animate-fade-in" style="animation-delay: 0.2s;">
+                <div class="dynamic-card bg-white p-4 border-vibrant shadow-vibrant" style="height: auto !important; cursor: default;">
+                               <!-- STEP 1a: EMAIL INPUT -->
+                    <div id="step1EmailBox">
+                        <div class="mb-4">
+                            <h3 class="fw-black mb-3">Step 1: <span style="color:var(--v-blue);">Verification</span></h3>
+                            <p class="text-muted">Enter your official email to receive a secure 6-digit code.</p>
+                        </div>
+                        <div class="mb-4">
+                            <label class="fw-black text-uppercase small opacity-50 mb-2">Work Email Address</label>
+                            <input type="email" id="id_email_verify" class="vibrant-input" placeholder="partner@example.com" autocomplete="email">
+                        </div>
+                        <button type="button" id="btnSendOTP" class="btn-vibrant w-100 py-3 mb-3">
+                            <span id="wSendText">SEND VERIFICATION CODE</span>
+                            <span id="wSendSpinner" style="display:none;"><span class="spinner-border spinner-border-sm me-2"></span>Sending...</span>
+                        </button>
+                    </div>
+
+                    <!-- STEP 1b: 6-BOX OTP -->
+                    <div id="step1OTPBox" style="display:none;">
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <button type="button" id="btnChangeEmail" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Change
+                            </button>
+                            <div>
+                                <p class="fw-black mb-0 small">OTP sent to</p>
+                                <p class="text-vibrant fw-black mb-0" id="wEmailDisplay"></p>
+                            </div>
+                        </div>
+                        <label class="fw-black text-uppercase small opacity-50 mb-3 d-block">Enter 6-Digit OTP</label>
+                        <div class="reg-otp-boxes-wrap" id="wOtpWrap">
+                            <input class="reg-otp-box" id="wOtp0" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+                            <input class="reg-otp-box" id="wOtp1" type="text" inputmode="numeric" maxlength="1">
+                            <input class="reg-otp-box" id="wOtp2" type="text" inputmode="numeric" maxlength="1">
+                            <input class="reg-otp-box" id="wOtp3" type="text" inputmode="numeric" maxlength="1">
+                            <input class="reg-otp-box" id="wOtp4" type="text" inputmode="numeric" maxlength="1">
+                            <input class="reg-otp-box" id="wOtp5" type="text" inputmode="numeric" maxlength="1">
+                        </div>
+                        <div class="reg-otp-timer mt-3 mb-4">
+                            <i class="fa-regular fa-clock me-1"></i>
+                            Expires in <span id="wCountdown" class="reg-countdown">05:00</span>
+                        </div>
+                        <button type="button" id="btnVerifyOTP" class="btn-vibrant w-100 py-3 mb-3" style="background:var(--v-blue);">
+                            <span id="wVerifyText">VERIFY &amp; START PROFILE</span>
+                            <span id="wVerifySpinner" style="display:none;"><span class="spinner-border spinner-border-sm me-2"></span>Verifying...</span>
+                        </button>
+                        <div class="text-center">
+                            <span class="text-muted small">Didn't receive?</span>
+                            <button type="button" id="btnResendOTP" class="reg-resend-btn" disabled>
+                                Resend OTP <span id="wResendTimer" class="reg-resend-cd">(60s)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: FULL WORKER FORM -->
+                    <form method="POST" enctype="multipart/form-data" id="workerRegForm" 
+                          {% if not user_form.errors and not worker_form.errors %}style="display: none;"{% endif %} novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="email" id="id_email_final">
+
+                        {% if user_form.errors or worker_form.errors %}
+                        <div class="alert alert-danger rounded-4 border-0 mb-4 animate-shake">
+                            <h5 class="fw-black mb-2"><i class="fa-solid fa-triangle-exclamation me-2"></i> Please fix the following:</h5>
+                            <ul class="mb-0 small fw-bold">
+                                {% for field, errors in user_form.errors.items %}
+                                    <li>User Info - {{ field|capfirst }}: {{ errors|striptags }}</li>
+                                {% endfor %}
+                                {% for field, errors in worker_form.errors.items %}
+                                    <li>Partner Info - {{ field|capfirst }}: {{ errors|striptags }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-4">
+                            <h3 class="fw-black mb-3">Step 2: <span style="color:var(--v-pink);">Service Profile</span></h3>
+                            <div class="d-flex align-items-center justify-content-between bg-light p-3 rounded-4">
+                                <div class="d-flex align-items-center gap-2 text-success">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    <span class="fw-black small text-uppercase">Email Verified</span>
+                                </div>
+                                <span class="badge bg-white text-dark border rounded-pill px-3 fw-bold" id="displayEmail"></span>
+                            </div>
+                        </div>
+
+                        <!-- Identity Section -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">First Name</label>
+                                <input type="text" name="first_name" class="vibrant-input" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">Last Name</label>
+                                <input type="text" name="last_name" class="vibrant-input" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">Username</label>
+                                <input type="text" name="username" class="vibrant-input" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">Mobile Number</label>
+                                <input type="tel" name="phone" class="vibrant-input" placeholder="9876543210" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">Password</label>
+                                <div class="position-relative">
+                                    <input type="password" name="password" id="wRegPassword" class="vibrant-input" required placeholder="Minimum 8 characters">
+                                    <button type="button" class="pwd-toggle-btn" onclick="togglePwd('wRegPassword', this)">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">Confirm Password</label>
+                                <div class="position-relative">
+                                    <input type="password" name="confirm_password" id="wConfirmPassword" class="vibrant-input" required placeholder="Repeat password">
+                                    <button type="button" class="pwd-toggle-btn" onclick="togglePwd('wConfirmPassword', this)">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 opacity-10">
+
+                        <!-- Service Details -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-12">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">Service Categories (Select Multiple)</label>
+                                <div class="row g-3">
+                                    {% for cat in categories %}
+                                    <div class="col-md-4">
+                                        <div class="category-checkbox-wrap">
+                                            <input type="checkbox" name="categories" value="{{ cat.id }}" id="cat_{{ cat.id }}" class="btn-check">
+                                            <label class="btn btn-outline-vibrant w-100 py-2 fw-bold" for="cat_{{ cat.id }}">
+                                                {{ cat.name }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">Years of Experience</label>
+                                <input type="number" name="experience" class="vibrant-input" placeholder="e.g. 5" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">Service Location (City/Area)</label>
+                                <input type="text" name="location" class="vibrant-input" placeholder="e.g. Tirupur North" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">Price Per Day (₹)</label>
+                                <input type="number" name="price_per_day" class="vibrant-input" placeholder="e.g. 800" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-black text-uppercase small opacity-50 mb-2">Profile Photo (Face Clear)</label>
+                                <input type="file" name="photo" class="form-control vibrant-input" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="fw-black text-uppercase small opacity-50 mb-2">Skills / Specializations</label>
+                            <input type="text" name="skills" class="vibrant-input" placeholder="e.g. Baby bathing, Cooking, Cleaning" required>
+                        </div>
+
+                        <hr class="my-4 opacity-10">
+
+                        <!-- ░░ KYC VERIFICATION SECTION ░░ -->
+                        <div class="mb-4 p-4 rounded-4" style="background: rgba(63, 79, 207, 0.02); border: 2px solid #eee;">
+                            <h4 class="fw-black mb-4 text-vibrant"><i class="fa-solid fa-shield-halved me-2"></i> KYC Verification</h4>
+                            
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <label class="fw-black text-uppercase small opacity-50 mb-2">Aadhaar Number</label>
+                                    <input type="text" name="aadhar_no" class="vibrant-input" placeholder="1234 5678 9012" required maxlength="12">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="fw-black text-uppercase small opacity-50 mb-2">PAN Number</label>
+                                    <input type="text" name="pan_no" class="vibrant-input" placeholder="ABCDE1234F" required maxlength="10">
+                                </div>
+                            </div>
+
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-4">
+                                    <label class="fw-black text-uppercase small opacity-50 mb-2">Aadhaar Front</label>
+                                    <input type="file" name="aadhar_front" class="form-control vibrant-input" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="fw-black text-uppercase small opacity-50 mb-2">Aadhaar Back</label>
+                                    <input type="file" name="aadhar_back" class="form-control vibrant-input" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="fw-black text-uppercase small opacity-50 mb-2">PAN Photo</label>
+                                    <input type="file" name="pan_photo" class="form-control vibrant-input" required>
+                                </div>
+                            </div>
+
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <label class="fw-black text-uppercase small opacity-50 mb-2">Live Selfie (Verification)</label>
+                                    <input type="file" name="selfie" class="form-control vibrant-input" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 opacity-10">
+
+                        <!-- Structured Address Section -->
+                        <div class="mb-4">
+                            <h5 class="fw-black text-vibrant mb-3"><i class="fa-solid fa-map-location-dot me-2"></i> ADDRESS DETAILS</h5>
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-12">
+                                    <label class="fw-black text-uppercase small opacity-50 mb-2">Address Line 1</label>
+                                    {{ worker_form.address_line1 }}
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="fw-black text-uppercase small opacity-50 mb-2">Address Line 2 (Optional)</label>
+                                    {{ worker_form.address_line2 }}
+                                </div>
+                            </div>
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-4">
+                                    <label class="fw-black text-uppercase small opacity-50 mb-2">City</label>
+                                    {{ worker_form.city }}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="fw-black text-uppercase small opacity-50 mb-2">State</label>
+                                    {{ worker_form.state }}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="fw-black text-uppercase small opacity-50 mb-2">Pincode</label>
+                                    {{ worker_form.pincode }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="fw-black text-uppercase small opacity-50 mb-2">Full Address (Reference)</label>
+                            <textarea name="address" class="vibrant-input" rows="3" required placeholder="Full address for internal records..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-vibrant w-100 py-4 fs-5 fw-black shadow-vibrant">CREATE PARTNER ACCOUNT</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</section>
+
+<script>
+(function(){
+  const SEND_URL   = "{% url 'send_otp' %}";
+  const VERIFY_URL = "{% url 'verify_otp_api' %}";
+  const RESEND_URL = "{% url 'resend_otp_api' %}";
+
+  const emailInput   = document.getElementById('id_email_verify');
+  const btnSend      = document.getElementById('btnSendOTP');
+  const step1Email   = document.getElementById('step1EmailBox');
+  const step1OTP     = document.getElementById('step1OTPBox');
+  const step2Form    = document.getElementById('workerRegForm');
+  const wEmailDisp   = document.getElementById('wEmailDisplay');
+  const boxes        = Array.from({length:6},(_,i)=>document.getElementById('wOtp'+i));
+  const btnVerify    = document.getElementById('btnVerifyOTP');
+  const btnResend    = document.getElementById('btnResendOTP');
+  const countdownEl  = document.getElementById('wCountdown');
+  const resendTimerEl= document.getElementById('wResendTimer');
+  const step1Ind     = document.getElementById('step1Indicator');
+  const step2Ind     = document.getElementById('step2Indicator');
+  const emailFinal   = document.getElementById('id_email_final');
+  const displayEmail = document.getElementById('displayEmail');
+  let currentEmail='', otpTimer=null, resendTimer=null;
+
+  function getCsrf(){let v=null;document.cookie.split(';').forEach(c=>{const[k,val]=c.trim().split('=');if(k==='csrftoken')v=decodeURIComponent(val);});return v;}
+
+  function showToast(msg,type='error'){
+    const icons={error:'fa-circle-xmark',success:'fa-circle-check',warning:'fa-triangle-exclamation'};
+    let tc=document.getElementById('wToastContainer');
+    if(!tc){tc=document.createElement('div');tc.id='wToastContainer';tc.style.cssText='position:fixed;top:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;max-width:340px;';document.body.appendChild(tc);}
+    const t=document.createElement('div');
+    t.className=`mc-toast toast-${type}`;
+    t.innerHTML=`<i class="fa-solid ${icons[type]} mc-toast-icon"></i><span>${msg}</span>`;
+    tc.appendChild(t);
+    setTimeout(()=>{t.classList.add('mc-toast-out');setTimeout(()=>t.remove(),350);},4000);
+  }
+
+  boxes.forEach((box,idx)=>{
+    box.addEventListener('input',e=>{
+      const v=e.target.value.replace(/\D/g,'');
+      e.target.value=v?v[v.length-1]:'';
+      if(v){box.classList.add('filled');box.classList.remove('error-box');if(idx<5)boxes[idx+1].focus();}
+      else box.classList.remove('filled');
+    });
+    box.addEventListener('keydown',e=>{
+      if(e.key==='Backspace'){if(!box.value&&idx>0){boxes[idx-1].value='';boxes[idx-1].classList.remove('filled');boxes[idx-1].focus();}box.classList.remove('filled');}
+      if(e.key==='ArrowLeft'&&idx>0)boxes[idx-1].focus();
+      if(e.key==='ArrowRight'&&idx<5)boxes[idx+1].focus();
+      if(e.key==='Enter')btnVerify.click();
+    });
+    box.addEventListener('paste',e=>{
+      e.preventDefault();
+      const p=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
+      p.split('').forEach((ch,i)=>{if(boxes[i]){boxes[i].value=ch;boxes[i].classList.add('filled');}});
+      boxes[Math.min(p.length,5)].focus();
+    });
+    box.addEventListener('focus',()=>box.select());
+  });
+
+  function getOtp(){return boxes.map(b=>b.value).join('');}
+  function disableBoxes(v){boxes.forEach(b=>b.disabled=v);}
+  function shakeBoxes(){
+    const w=document.getElementById('wOtpWrap');
+    w.classList.remove('reg-shake');void w.offsetWidth;w.classList.add('reg-shake');
+    boxes.forEach(b=>b.classList.add('error-box'));
+    setTimeout(()=>w.classList.remove('reg-shake'),500);
+  }
+
+  function startOtpCountdown(){
+    clearInterval(otpTimer);let secs=300;
+    otpTimer=setInterval(()=>{
+      secs--;
+      const m=String(Math.floor(secs/60)).padStart(2,'0'),s=String(secs%60).padStart(2,'0');
+      countdownEl.textContent=`${m}:${s}`;
+      countdownEl.className='reg-countdown'+(secs<=60?' danger':secs<=120?' warning':'');
+      if(secs<=0){clearInterval(otpTimer);countdownEl.textContent='EXPIRED';showToast('OTP expired. Please resend.','warning');disableBoxes(true);btnVerify.disabled=true;}
+    },1000);
+  }
+
+  function startResendCooldown(secs){
+    clearInterval(resendTimer);btnResend.disabled=true;
+    resendTimerEl.textContent=`(${secs}s)`;
+    resendTimer=setInterval(()=>{
+      secs--;resendTimerEl.textContent=secs>0?`(${secs}s)`:'';
+      if(secs<=0){clearInterval(resendTimer);btnResend.disabled=false;resendTimerEl.textContent='';}
+    },1000);
+  }
+
+  btnSend.addEventListener('click',async()=>{
+    const email=emailInput.value.trim();
+    if(!email||!email.includes('@')){showToast('Enter a valid email address.','error');return;}
+    btnSend.disabled=true;
+    document.getElementById('wSendText').style.display='none';
+    document.getElementById('wSendSpinner').style.display='inline';
+    try{
+      const res=await fetch(SEND_URL,{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCsrf()},body:JSON.stringify({email})});
+      let data;
+      try { data = await res.json(); } catch(je) { data = { error: "Server error (Non-JSON response). Check server logs." }; }
+      
+      if(res.ok){currentEmail=email;wEmailDisp.textContent=email;step1Email.style.display='none';step1OTP.style.display='block';startOtpCountdown();startResendCooldown(60);setTimeout(()=>boxes[0].focus(),100);showToast('OTP sent! Check your inbox.','success');}
+      else{showToast(data.error||'Failed to send OTP.','error');btnSend.disabled=false;document.getElementById('wSendText').style.display='inline';document.getElementById('wSendSpinner').style.display='none';}
+    }catch(e){showToast('Connection error. Check your internet or server status.','error');btnSend.disabled=false;document.getElementById('wSendText').style.display='inline';document.getElementById('wSendSpinner').style.display='none';}
+  });
+
+  document.getElementById('btnChangeEmail').addEventListener('click',()=>{
+    step1OTP.style.display='none';step1Email.style.display='block';
+    btnSend.disabled=false;document.getElementById('wSendText').style.display='inline';document.getElementById('wSendSpinner').style.display='none';
+    clearInterval(otpTimer);clearInterval(resendTimer);
+    boxes.forEach(b=>{b.value='';b.classList.remove('filled','error-box');});
+  });
+
+  btnVerify.addEventListener('click',async()=>{
+    const otp=getOtp();
+    if(otp.length!==6){showToast('Please fill all 6 digits.','error');return;}
+    btnVerify.disabled=true;document.getElementById('wVerifyText').style.display='none';document.getElementById('wVerifySpinner').style.display='inline';disableBoxes(true);
+    try{
+      const res=await fetch(VERIFY_URL,{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCsrf()},body:JSON.stringify({email:currentEmail,otp})});
+      const data=await res.json();
+      if(res.ok&&data.success){
+        boxes.forEach(b=>{b.classList.remove('error-box');b.classList.add('success-box');});
+        clearInterval(otpTimer);clearInterval(resendTimer);showToast('Email verified!','success');
+        setTimeout(()=>{
+          step1OTP.style.display='none';
+          emailFinal.value=currentEmail;
+          displayEmail.textContent=currentEmail;
+          step2Form.style.display='block';
+          step2Ind.classList.add('active');
+          step1Ind.classList.remove('active');
+          step1Ind.style.opacity='0.5';
+          step2Form.scrollIntoView({behavior:'smooth',block:'start'});
+        },600);
+      }else{
+        btnVerify.disabled=false;document.getElementById('wVerifyText').style.display='inline';document.getElementById('wVerifySpinner').style.display='none';disableBoxes(false);
+        shakeBoxes();showToast(data.error||'Invalid OTP. Try again.','error');
+        if(data.expired){disableBoxes(true);btnVerify.disabled=true;}
+      }
+    }catch(e){btnVerify.disabled=false;document.getElementById('wVerifyText').style.display='inline';document.getElementById('wVerifySpinner').style.display='none';disableBoxes(false);showToast('Network error.','error');}
+  });
+
+  btnResend.addEventListener('click',async()=>{
+    btnResend.disabled=true;showToast('Sending new OTP...','warning');
+    try{
+      const res=await fetch(RESEND_URL,{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCsrf()},body:JSON.stringify({email:currentEmail})});
+      const data=await res.json();
+      if(res.ok){showToast('New OTP sent!','success');boxes.forEach(b=>{b.value='';b.classList.remove('filled','error-box','success-box');});disableBoxes(false);btnVerify.disabled=false;document.getElementById('wVerifyText').style.display='inline';document.getElementById('wVerifySpinner').style.display='none';startOtpCountdown();startResendCooldown(60);boxes[0].focus();}
+      else{showToast(data.error||'Failed to resend.','error');startResendCooldown(data.wait_seconds||60);}
+    }catch(e){showToast('Network error.','error');btnResend.disabled=false;resendTimerEl.textContent='';}
+  });
+
+  // Password Toggle
+  window.togglePwd = function(id, btn) {
+    const inp = document.getElementById(id);
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    btn.querySelector('i').className = inp.type === 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+  };
+
+  // Aadhaar/PAN Formatting
+  document.addEventListener('input', e => {
+    if(e.target.name === 'aadhar_no') e.target.value = e.target.value.replace(/\D/g, '').slice(0,12);
+    if(e.target.name === 'pan_no') e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0,10);
+  });
+})();
+</script>
 
 <style>
-    .form-control-premium {
-        width: 100%;
-        padding: 0.85rem 1.25rem;
-        background: var(--bg-alt);
-        border: 2px solid transparent;
-        border-radius: 1rem;
-        font-weight: 600;
-        font-size: 0.9rem;
-        outline: none;
-        transition: all 0.2s;
-    }
-    .form-control-premium:focus { border-color: var(--brand); background: #fff; }
-    .shadow-brand { box-shadow: 0 10px 30px rgba(255, 75, 145, 0.2); }
+.registration-vibrant { background: #FAFAFA; min-height: 100vh; }
+.reg-steps-vibrant { display: flex; flex-direction: column; gap: 2.5rem; }
+.step-item-vibrant { display: flex; align-items: center; gap: 1.5rem; opacity: 0.3; transition: 0.4s; }
+.step-item-vibrant.active { opacity: 1; transform: scale(1.05); }
+.step-icon { width:50px;height:50px;background:var(--v-blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:900;box-shadow:0 10px 20px rgba(63,79,207,0.2); }
+.reg-otp-boxes-wrap { display:flex;gap:8px;justify-content:flex-start; }
+.reg-otp-box { width:52px;height:58px;border:2.5px solid #e5e7eb;border-radius:12px;font-size:1.5rem;font-weight:900;text-align:center;color:#1a1a2e;background:#f9fafb;transition:all 0.2s;outline:none;font-family:'Courier New',monospace;caret-color:transparent; }
+.reg-otp-box:focus { border-color:#3F4FCF;background:#fff;box-shadow:0 0 0 3px rgba(63,79,207,.12);transform:translateY(-2px); }
+.reg-otp-box.filled { border-color:#7c6fff;background:#f0f4ff;color:#3F4FCF; }
+.reg-otp-box.error-box { border-color:#ef4444 !important;background:#fff5f5 !important; }
+.reg-otp-box.success-box { border-color:#22c55e !important;background:#f0fdf4 !important;color:#16a34a !important; }
+.reg-otp-timer { font-size:.82rem;color:#9ca3af; }
+.reg-countdown { font-weight:800;color:#3F4FCF; }
+.reg-countdown.warning { color:#f59e0b; }
+.reg-countdown.danger { color:#ef4444; }
+.reg-resend-btn { background:none;border:none;color:#3F4FCF;font-weight:700;font-size:.88rem;cursor:pointer;padding:4px 8px;border-radius:8px;transition:all .2s;margin-left:4px; }
+.reg-resend-btn:disabled { color:#9ca3af;cursor:not-allowed; }
+.reg-resend-btn:not(:disabled):hover { background:#f0f4ff; }
+.reg-resend-cd { font-size:.8em;opacity:.7; }
+@keyframes reg-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+.reg-shake { animation:reg-shake .45s ease; }
+.mc-toast { background:white;border-radius:14px;padding:14px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 30px rgba(0,0,0,.12);border-left:4px solid #3F4FCF;font-size:.875rem;font-weight:600; }
+.mc-toast.toast-error { border-color:#ef4444; }
+.mc-toast.toast-success { border-color:#22c55e; }
+.mc-toast.toast-warning { border-color:#f59e0b; }
+.mc-toast-icon { font-size:1.1rem;flex-shrink:0; }
+.mc-toast.toast-error .mc-toast-icon { color:#ef4444; }
+.mc-toast.toast-success .mc-toast-icon { color:#22c55e; }
+.mc-toast.toast-warning .mc-toast-icon { color:#f59e0b; }
+@keyframes toastIn  { from{opacity:0;transform:translateX(60px) scale(.9)} to{opacity:1;transform:translateX(0) scale(1)} }
+@keyframes toastOut { to{opacity:0;transform:translateX(60px) scale(.85)} }
+.mc-toast { animation:toastIn .35s cubic-bezier(.34,1.56,.64,1) both; }
+.mc-toast-out { animation:toastOut .3s ease forwards; }
+
+/* New Styles */
+.btn-outline-vibrant { border: 2.5px solid #eee; color: #666; border-radius: 12px; transition: 0.3s; }
+.btn-check:checked + .btn-outline-vibrant { border-color: var(--v-blue); background: var(--v-blue); color: white; box-shadow: 0 8px 20px rgba(63, 79, 207, 0.2); }
+.pwd-toggle-btn { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 0.95rem; }
+.pwd-toggle-btn:hover { color: #3F4FCF; }
 </style>
 {% endblock %}

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Terms of Service — MaidConnect{% endblock %}
+
+{% block content %}
+<div class="legal-vibrant py-5 overflow-hidden">
+    <!-- Background Branding -->
+    <div class="hero-bg-text" style="top: 15%; color: rgba(255, 92, 141, 0.03);">TERMS</div>
+
+    <div class="container position-relative py-5" style="z-index: 2;">
+        
+        <!-- ░░ HIGH-ENERGY HEADER ░░ -->
+        <div class="text-center mb-5 pb-5 animate-fade-in">
+            <h1 class="display-2 fw-black mb-4">Terms of <span style="color:var(--v-blue);">Service.</span></h1>
+            <p class="h4 text-muted mx-auto fw-medium" style="max-width: 800px;">
+                Our guidelines for a safe, respectful, and highly reliable home care marketplace.
+            </p>
+        </div>
+
+        <div class="row g-5 justify-content-center">
+            
+            <div class="col-lg-10">
+                <!-- Introduction -->
+                <div class="dynamic-card p-5 border-vibrant bg-white shadow-vibrant mb-5 animate-fade-in">
+                    <div class="d-flex align-items-center gap-4 mb-4">
+                        <div class="icon-circle m-0" style="background: var(--v-blue); color: white;"><i class="fa-solid fa-handshake"></i></div>
+                        <h2 class="fw-black mb-0">Marketplace Rules</h2>
+                    </div>
+                    <p class="h5 text-muted fw-medium mb-0" style="line-height: 1.8;">
+                        By using MaidConnect, you agree to these terms. Our platform is a marketplace that connects customers seeking home services with independent service providers (Workers).
+                    </p>
+                </div>
+
+                <!-- Rules Grid -->
+                <div class="row g-4 mb-5 animate-fade-in" style="animation-delay: 0.2s;">
+                    <!-- Customer Rules -->
+                    <div class="col-md-6">
+                        <div class="dynamic-card h-100 p-5 border-vibrant bg-white">
+                            <h3 class="fw-black mb-4 text-vibrant">For Customers</h3>
+                            <ul class="list-unstyled h6 text-muted fw-bold" style="line-height: 2.2;">
+                                <li><i class="fa-solid fa-circle-check text-success me-2"></i> Accurate booking details</li>
+                                <li><i class="fa-solid fa-circle-check text-success me-2"></i> Safe & respectful environment</li>
+                                <li><i class="fa-solid fa-circle-check text-success me-2"></i> No fake or speculative bookings</li>
+                                <li><i class="fa-solid fa-circle-check text-success me-2"></i> Professional boundaries</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Worker Rules -->
+                    <div class="col-md-6">
+                        <div class="dynamic-card h-100 p-5 border-vibrant bg-white" style="border-color: var(--v-pink);">
+                            <h3 class="fw-black mb-4" style="color: var(--v-pink);">For Partners</h3>
+                            <ul class="list-unstyled h6 text-muted fw-bold" style="line-height: 2.2;">
+                                <li><i class="fa-solid fa-circle-check text-vibrant me-2"></i> Authentic identity info</li>
+                                <li><i class="fa-solid fa-circle-check text-vibrant me-2"></i> High service standards</li>
+                                <li><i class="fa-solid fa-circle-check text-vibrant me-2"></i> Honor accepted bookings</li>
+                                <li><i class="fa-solid fa-circle-check text-vibrant me-2"></i> Follow safety protocols</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Moderation -->
+                <div class="dynamic-card p-5 border-vibrant bg-white shadow-sm mb-5 animate-fade-in" style="animation-delay: 0.4s;">
+                    <h3 class="fw-black mb-3">Moderation & Rights</h3>
+                    <p class="h5 text-muted fw-medium mb-0" style="line-height: 1.8;">
+                        MaidConnect reserves the right to suspend or remove any account that violates these terms or compromises community safety. Verification is at our sole discretion.
+                    </p>
+                </div>
+
+                <!-- Liability -->
+                <div class="p-5 rounded-5 text-center bg-light border-vibrant animate-fade-in" style="animation-delay: 0.6s; border-style: dashed !important; border-width: 4px !important;">
+                    <h2 class="fw-black text-danger mb-3">Liability Clarification</h2>
+                    <p class="h5 text-muted fw-medium mb-0" style="line-height: 1.8;">
+                        MaidConnect acts as an intermediary. While we verify workers, the service contract is between the Customer and the Worker. MaidConnect is not liable for incidental damages arising from service performance.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+.legal-vibrant { background: #FAFAFA; }
+.text-vibrant { color: var(--v-blue); }
+</style>
+{% endblock %}

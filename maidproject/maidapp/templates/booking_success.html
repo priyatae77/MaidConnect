@@ -1,57 +1,74 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Mission Success | MaidConnect{% endblock %}
+{% block title %}Booking Successful — MaidConnect{% endblock %}
 
 {% block content %}
-<div class="container py-5 animate-fade-in">
-    <div class="row justify-content-center min-vh-75 align-items-center">
-        <div class="col-lg-7 text-center">
-            
-            <div class="mb-5">
-                <div class="display-1 vibrant-text mb-4 animate-bounce">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
-                <h1 class="display-4 fw-bold text-dark mb-3">Mission <span class="vibrant-text">Successful</span></h1>
-                <p class="lead text-muted fw-light mb-0">Engagement protocols have been initialized and confirmed.</p>
-            </div>
+<div class="booking-success-vibrant py-5 animate-fade-in">
+    <!-- Background Branding -->
+    <div class="hero-bg-text" style="top: 20%; color: rgba(255, 92, 141, 0.03);">SUCCESS</div>
 
-            <div class="glass-card p-5 border-0 shadow-lg mb-5" style="border-radius: 3rem; background: #fff;">
-                <h5 class="fw-bold text-dark mb-4">Transmission Receipt</h5>
-                <div class="row g-4 text-start">
-                    <div class="col-md-6 border-end border-secondary border-opacity-10">
-                        <div class="x-small text-muted tracking-widest text-uppercase mb-1">Status</div>
-                        <div class="fw-bold text-success d-flex align-items-center gap-2">
-                            <i class="fa-solid fa-signal-stream"></i> ACTIVE & SECURE
+    <div class="container py-5 text-center position-relative" style="z-index: 2;">
+        
+        <div class="mb-5">
+            <div class="display-1 text-vibrant mb-4 animate-bounce">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h1 class="display-2 fw-black mb-3">Booking <span style="color:var(--v-blue);">Successful!</span></h1>
+            <p class="h4 text-muted fw-medium mb-0">Your request has been sent to the partner for confirmation.</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="dynamic-card p-5 border-vibrant bg-white shadow-vibrant mb-5 animate-pop-in" style="animation-delay: 0.3s;">
+                    <h5 class="fw-black text-uppercase small opacity-50 mb-4">Transaction Details</h5>
+                    
+                    <div class="row g-4 text-start">
+                        <div class="col-6">
+                            <div class="small fw-black text-uppercase opacity-50 mb-1">Status</div>
+                            <div class="h5 fw-black text-success mb-0">
+                                <i class="fa-solid fa-shield-check me-1"></i> ACTIVE
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="small fw-black text-uppercase opacity-50 mb-1">Booking ID</div>
+                            <div class="h5 fw-black text-dark mb-0">#MC-{{ booking_id|default:"7782" }}</div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="x-small text-muted tracking-widest text-uppercase mb-1">Confirmation ID</div>
-                        <div class="fw-bold text-dark">MC-{{ 1000|random:9999 }}-PX</div>
-                    </div>
+
+                    <hr class="my-4 opacity-10">
+
+                    <p class="small text-muted fw-bold mb-0">
+                        A notification has been sent to the partner. You will be notified as soon as they accept your request.
+                    </p>
+                </div>
+
+                <div class="d-flex flex-wrap justify-content-center gap-4">
+                    <a href="{% url 'my_bookings' %}" class="btn-vibrant px-5 py-3 fs-5">VIEW MY BOOKINGS</a>
+                    <a href="/" class="btn btn-outline-dark px-5 py-3 fs-5 fw-black rounded-pill border-3">RETURN HOME</a>
                 </div>
             </div>
-
-            <div class="d-flex flex-wrap justify-content-center gap-4">
-                <a href="{% url 'my_bookings' %}" class="btn btn-vibrant btn-lg px-5">
-                    VIEW MISSION LOGS <i class="fa-solid fa-list-check ms-2 small"></i>
-                </a>
-                <a href="/" class="btn btn-outline-vibrant btn-lg px-5">
-                    RETURN TO UNIVERSE
-                </a>
-            </div>
-
         </div>
+
     </div>
 </div>
 
 <style>
-    .min-vh-75 { min-height: 75vh; }
-    .animate-bounce { animation: bounce 2s infinite; }
-    @keyframes bounce {
-        0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-        40% {transform: translateY(-20px);}
-        60% {transform: translateY(-10px);}
-    }
+.booking-success-vibrant { background: #FAFAFA; min-height: 80vh; display: flex; align-items: center; }
+.text-vibrant { color: var(--v-pink); }
+.animate-bounce { animation: bounce 2s infinite; }
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+    40% {transform: translateY(-20px);}
+    60% {transform: translateY(-10px);}
+}
+@keyframes popIn {
+    0% { opacity: 0; transform: scale(0.98); }
+    50% { transform: scale(1.03); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.animate-pop-in {
+    animation: popIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
 </style>
 {% endblock %}

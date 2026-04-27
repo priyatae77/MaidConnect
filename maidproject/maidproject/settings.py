@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     'crispy_bootstrap5',
+    'channels',
     'maidapp',
 ]
 
@@ -50,9 +53,20 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'maidapp.middleware.SingleDeviceSessionMiddleware',
+    'maidapp.middleware.RestrictPublicPagesMiddleware',
+    'maidapp.middleware.RoleBasedAccessMiddleware',
 ]
 
 ROOT_URLCONF = 'maidproject.urls'
+
+ASGI_APPLICATION = 'maidproject.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 TEMPLATES = [
     {
@@ -137,7 +151,79 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Razorpay Credentials (Dummy values for now)
-RAZORPAY_KEY_ID = 'rzp_test_wHxxxxxxx'
-RAZORPAY_KEY_SECRET = 'your_razorpay_secret_here'
+RAZORPAY_KEY_ID = "your_key_id"
+RAZORPAY_KEY_SECRET = "your_secret"
 
 LOGIN_URL = 'login'
+
+# Session Security Settings
+SESSION_COOKIE_AGE = 1800  # 30 minutes in seconds
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Email Configuration (SMTP)
+# ─────────────────────────────────────────────────────────
+# Replace the two values below with your Gmail credentials.
+# EMAIL_HOST_USER  → your Gmail address
+# EMAIL_HOST_PASSWORD → 16-digit App Password from:
+#   Google Account → Security → 2-Step Verification → App Passwords
+# ─────────────────────────────────────────────────────────
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = 'priyaetc12@gmail.com'      # ← your Gmail
+EMAIL_HOST_PASSWORD = 'dtndkkbpfpfklqtk'     # ← 16-digit App Password (no spaces)
+DEFAULT_FROM_EMAIL = 'MaidConnect <priyaetc12@gmail.com>'  # ← recipients see this name
+
+# Jazzmin Admin Theme Configuration
+JAZZMIN_SETTINGS = {
+    "site_title": "MaidConnect Admin",
+    "site_header": "MaidConnect",
+    "site_brand": "MaidConnect Admin",
+    "site_logo": None,
+    "welcome_sign": "Welcome to the MaidConnect Admin Dashboard",
+    "copyright": "MaidConnect Ltd",
+    "search_model": ["maidapp.CustomUser"],
+    "show_ui_builder": False,
+    "custom_css": None,
+    "custom_js": None,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "litera",
+    "dark_mode_theme": "darkly",
+}
+
+# ─────────────────────────────────────────────────────────
+# LOGGING — OTP email events + general Django errors
+# ─────────────────────────────────────────────────────────
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} {name}: {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'maidapp': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'django': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+    },
+}

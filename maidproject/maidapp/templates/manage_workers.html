@@ -1,25 +1,39 @@
 {% extends "dashboard_base.html" %}
 {% load static %}
 
-{% block title %}Verify Service Partners — MaidConnect{% endblock %}
+{% block title %}Partner Protocol Matrix — MaidConnect{% endblock %}
 
 {% block dashboard_content %}
-<div class="container animate-fade-in">
-    <div class="mb-5">
-        <h2 class="fw-black mb-1">Verify Service Partners</h2>
-        <p class="text-muted">Review credentials and activate or suspend worker profiles.</p>
+<div class="container py-5 animate-fade-in">
+
+    <!-- ░░ HIGH-ENERGY PARTNER MANAGEMENT HEADER ░░ -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-5 gap-4">
+        <div>
+            <div class="badge bg-vibrant rounded-pill px-3 py-2 fw-black shadow-sm mb-2" style="background: var(--v-blue);">
+                <i class="fa-solid fa-briefcase me-1"></i> PARTNER PROTOCOL
+            </div>
+            <h1 class="h2 fw-black mb-1">Partner <span style="color:var(--v-blue);">Matrix.</span></h1>
+            <p class="h5 text-muted fw-medium">Review verification metrics and activate partner profiles.</p>
+        </div>
+        <div>
+            <div class="dynamic-card p-4 text-center bg-white border-vibrant shadow-sm">
+                <div class="fw-black text-uppercase small opacity-50 mb-1">Total Signals</div>
+                <div class="h2 fw-black mb-0 text-vibrant">{{ workers.count }}</div>
+            </div>
+        </div>
     </div>
 
-    <div class="dash-card p-0 overflow-hidden">
+    <!-- ░░ VIBRANT WORKER TABLE ░░ -->
+    <div class="dynamic-card p-0 overflow-hidden bg-white border-vibrant">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-light">
                     <tr>
-                        <th class="ps-4">Worker Profile</th>
-                        <th>Categories</th>
-                        <th>Documents</th>
-                        <th>Status</th>
-                        <th class="pe-4 text-end">Action</th>
+                        <th class="ps-4 py-3 fw-black small text-uppercase opacity-50">Partner Entity</th>
+                        <th class="py-3 fw-black small text-uppercase opacity-50">Service Signature</th>
+                        <th class="py-3 fw-black small text-uppercase opacity-50">Validation</th>
+                        <th class="py-3 fw-black small text-uppercase opacity-50">System Status</th>
+                        <th class="pe-4 text-end py-3 fw-black small text-uppercase opacity-50">Control</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -27,49 +41,67 @@
                     <tr>
                         <td class="ps-4">
                             <div class="d-flex align-items-center gap-3">
-                                <div class="avatar-sm bg-brand-light text-brand rounded-circle d-flex align-items-center justify-content-center fw-bold">
+                                <div class="icon-circle m-0" style="width: 50px; height: 50px; background: var(--v-blue); color: white; font-size: 1.2rem;">
                                     {{ worker.user.username|make_list|first|upper }}
                                 </div>
                                 <div>
-                                    <div class="fw-bold">{{ worker.user.get_full_name }}</div>
-                                    <div class="text-muted small">{{ worker.user.email }}</div>
+                                    <div class="fw-black">{{ worker.user.get_full_name|default:worker.user.username }}</div>
+                                    <div class="small text-muted">{{ worker.user.email }}</div>
+                                    {% if not worker.is_verified %}
+                                        <div class="text-danger x-small fw-bold mt-1" style="font-size: 0.65rem;">
+                                            <i class="fa-solid fa-id-card-slash me-1"></i> KYC UNVERIFIED
+                                        </div>
+                                    {% endif %}
+                                    {% if worker.cancellation_count > 2 %}
+                                        <div class="text-danger x-small fw-bold mt-1" style="font-size: 0.65rem;">
+                                            <i class="fa-solid fa-circle-exclamation me-1"></i> HIGH CANCELLATIONS ({{ worker.cancellation_count }})
+                                        </div>
+                                    {% endif %}
+                                    {% if worker.complaint_count > 0 %}
+                                        <div class="text-warning x-small fw-bold mt-1" style="font-size: 0.65rem; color: #b45309 !important;">
+                                            <i class="fa-solid fa-triangle-exclamation me-1"></i> REPORTED ISSUES ({{ worker.complaint_count }})
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </td>
                         <td>
                             {% for cat in worker.categories.all %}
-                                <span class="badge bg-light text-dark x-small">{{ cat.name }}</span>
+                                <span class="badge bg-light text-dark rounded-pill px-3 py-2 fw-black small border me-1">{{ cat.name }}</span>
                             {% endfor %}
                         </td>
                         <td>
-                            <div class="small fw-bold text-success"><i class="fa-solid fa-id-card me-1"></i> Aadhar Linked</div>
+                            <div class="small fw-black text-vibrant"><i class="fa-solid fa-id-card me-1"></i> Identity Verified</div>
                         </td>
                         <td>
                             {% if worker.verified %}
-                                <span class="badge rounded-pill bg-success px-3 py-1">VERIFIED</span>
+                                <span class="badge bg-success text-white rounded-pill px-3 py-2 fw-black">AUTHORIZED</span>
                             {% else %}
-                                <span class="badge rounded-pill bg-warning text-dark px-3 py-1">PENDING</span>
+                                <span class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-black">PENDING</span>
                             {% endif %}
                         </td>
                         <td class="pe-4 text-end">
-                            <button class="btn btn-sm rounded-pill verify-btn {% if worker.verified %}btn-outline-danger{% else %}btn-brand{% endif %}"
-                                    data-id="{{ worker.id }}">
-                                {% if worker.verified %}Suspend{% else %}Verify Now{% endif %}
+                            <button class="btn btn-sm px-4 rounded-pill fw-black border-2 verify-btn {% if worker.verified %}btn-outline-danger{% else %}btn-vibrant{% endif %}"
+                                    data-url="{% url 'toggle_worker_verification' worker.id %}">
+                                {% if worker.verified %}SUSPEND{% else %}AUTHORIZE{% endif %}
                             </button>
                         </td>
                     </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center py-5 text-muted">No partners detected.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+
 </div>
 
 <script>
     document.querySelectorAll('.verify-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            const workerId = this.dataset.id;
-            fetch(`/admin-dashboard/workers/verify/${workerId}/`)
+            const fetchUrl = this.dataset.url;
+            fetch(fetchUrl)
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'success') {
@@ -79,4 +111,8 @@
         });
     });
 </script>
+
+<style>
+.text-vibrant { color: var(--v-blue); }
+</style>
 {% endblock %}

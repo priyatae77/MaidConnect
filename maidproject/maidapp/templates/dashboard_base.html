@@ -2,145 +2,203 @@
 {% load static %}
 
 {% block content %}
-<div class="dash-wrapper">
-    <!-- ── Sidebar ── -->
-    <aside class="dash-sidebar shadow-sm">
-        <div class="p-4 border-bottom mb-3">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="dash-wrapper-vibrant">
+    <!-- ── HIGH-ENERGY SIDEBAR ── -->
+    <aside class="dash-sidebar-vibrant shadow-vibrant">
+        {% if user.role == 'admin' %}
+        <!-- 👤 USER INFO (Admin Only) 👤 -->
+        <div class="p-3 border-bottom mb-3 bg-light bg-opacity-10">
             <div class="d-flex align-items-center gap-3">
-                <div class="avatar-sm bg-brand text-white rounded-circle d-flex align-items-center justify-content-center fw-bold">
-                    {{ user.username|make_list|first|upper }}
+                <div class="icon-circle m-0 overflow-hidden" style="width: 42px; height: 42px; background: white; border: 2px solid var(--v-blue);">
+                    <img src="{% static 'images/login_character.png' %}" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <div>
-                    <div class="fw-black small text-uppercase opacity-50">{{ user.role }} PANEL</div>
-                    <div class="fw-bold text-truncate" style="max-width: 120px;">{{ user.username }}</div>
+                    <div class="fw-black text-uppercase x-small opacity-50" style="font-size: 0.6rem; letter-spacing: 1px;">{{ user.role }} PANEL</div>
+                    <div class="fw-black text-dark text-truncate" style="max-width: 110px; font-size: 0.85rem;">{{ user.username }}</div>
                 </div>
             </div>
         </div>
+        {% endif %}
 
-        <nav class="p-2">
+        <nav class="flex-grow-1 px-3 mt-4">
             <ul class="nav flex-column gap-2">
-                {% if user.role == 'admin' %}
+                {% if user.role == 'admin' or user.is_superuser %}
                     <li class="nav-item">
-                        <a href="{% url 'admin_dashboard' %}" class="nav-link dash-link {% if request.path == '/admin-dashboard/' %}active{% endif %}">
-                            <i class="fa-solid fa-chart-line"></i> Analytics Overview
+                        <a href="{% url 'admin_dashboard' %}" class="v-dash-link {% if request.path == '/admin-dashboard/' %}active{% endif %}">
+                            <i class="fa-solid fa-chart-pie"></i> COMMAND CENTER
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{% url 'manage_users' %}" class="nav-link dash-link {% if 'users' in request.path %}active{% endif %}">
-                            <i class="fa-solid fa-users-gear"></i> Manage Users
+                        <a href="{% url 'admin_dashboard' %}" class="v-dash-link">
+                            <i class="fa-solid fa-file-contract"></i> OPERATIONAL SUMMARY
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{% url 'manage_workers' %}" class="nav-link dash-link {% if 'workers' in request.path %}active{% endif %}">
-                            <i class="fa-solid fa-shield-cat"></i> Verify Workers
+                        <a href="{% url 'export_report' %}" class="v-dash-link">
+                            <i class="fa-solid fa-file-invoice-dollar"></i> ENTERPRISE REPORTS
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{% url 'admin_complaints' %}" class="nav-link dash-link {% if 'complaints' in request.path %}active{% endif %}">
-                            <i class="fa-solid fa-triangle-exclamation"></i> Resolve Issues
+                        <a href="{% url 'manage_users' %}" class="v-dash-link {% if 'users' in request.path %}active{% endif %}">
+                            <i class="fa-solid fa-users"></i> CLIENT REGISTRY
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'manage_workers' %}" class="v-dash-link {% if 'workers' in request.path %}active{% endif %}">
+                            <i class="fa-solid fa-id-badge"></i> PARTNER MATRIX
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'admin_complaints' %}" class="v-dash-link {% if 'complaints' in request.path %}active{% endif %}">
+                            <i class="fa-solid fa-triangle-exclamation"></i> RESOLVE ISSUES
                         </a>
                     </li>
                 {% elif user.role == 'worker' %}
                     <li class="nav-item">
-                        <a href="{% url 'worker_dashboard' %}" class="nav-link dash-link {% if request.path == '/worker-dashboard/' %}active{% endif %}">
-                            <i class="fa-solid fa-briefcase"></i> My Active Jobs
+                        <a href="{% url 'worker_dashboard' %}" class="v-dash-link {% if request.path == '/dashboard/worker/' %}active{% endif %}">
+                            <i class="fa-solid fa-chart-line"></i> DASHBOARD
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link dash-link">
-                            <i class="fa-solid fa-wallet"></i> Earnings & Payouts
+                        <a href="{% url 'worker_jobs' %}" class="v-dash-link {% if 'jobs' in request.path %}active{% endif %}">
+                            <i class="fa-solid fa-briefcase"></i> ACTIVE JOBS
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'worker_earnings' %}" class="v-dash-link {% if 'earnings' in request.path %}active{% endif %}">
+                            <i class="fa-solid fa-wallet"></i> EARNINGS
                         </a>
                     </li>
                 {% else %}
                     <li class="nav-item">
-                        <a href="{% url 'my_bookings' %}" class="nav-link dash-link {% if request.path == '/my-bookings/' %}active{% endif %}">
-                            <i class="fa-solid fa-receipt"></i> Service History
+                        <a href="{% url 'user_dashboard' %}" class="v-dash-link {% if request.path == '/dashboard/user/' %}active{% endif %}">
+                            <i class="fa-solid fa-house-user"></i> MY BOOKINGS
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{% url 'worker_list' %}" class="v-dash-link {% if request.path == '/workers/' %}active{% endif %}">
+                            <i class="fa-solid fa-magnifying-glass"></i> SEARCH WORKERS
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'booking_new' %}" class="v-dash-link {% if request.path == '/book/new/' %}active{% endif %}">
+                            <i class="fa-solid fa-calendar-plus"></i> BOOK SERVICE
+                        </a>
+                    </li>
+
                 {% endif %}
                 
                 <li class="nav-item">
-                    <a href="#" class="nav-link dash-link">
-                        <i class="fa-solid fa-headset"></i> Support & Help
+                    <a href="javascript:void(0)" onclick="showToast('Support Center coming soon! Contact admin for urgent help.')" class="v-dash-link">
+                        <i class="fa-solid fa-circle-question"></i> HELP CENTER
                     </a>
                 </li>
             </ul>
         </nav>
-
-        <div class="mt-auto p-4 border-top">
-            <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm w-100 rounded-pill">
-                <i class="fa-solid fa-power-off me-1"></i> Logout
-            </a>
-        </div>
     </aside>
 
-    <!-- ── Main Content Area ── -->
-    <main class="dash-main p-4 p-lg-5">
+    <!-- ── DYNAMIC MAIN CONTENT ── -->
+    <main class="dash-main-vibrant">
         {% block dashboard_content %}{% endblock %}
     </main>
 </div>
 
+<div id="vibrant-toast" class="vibrant-toast"></div>
+
 <style>
-    .dash-wrapper {
-        display: flex;
-        min-height: calc(100vh - 72px);
-        background: var(--bg);
-    }
+.dash-wrapper-vibrant {
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+    min-height: calc(100vh - 85px);
+    background: #FAFAFA;
+}
+.dash-sidebar-vibrant {
+    width: 250px;
+    min-width: 250px;
+    max-width: 250px;
+    flex-shrink: 0;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 85px;
+    height: calc(100vh - 85px);
+    border-right: 1px solid #E2E8F0;
+    z-index: 100;
+}
+.v-dash-link {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    margin: 0 10px 5px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 8px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+    font-size: 12.5px;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+.v-dash-link i { font-size: 18px; opacity: 0.6; width: 20px; text-align: center; transition: all 0.2s ease; }
 
-    /* Sidebar Styling */
-    .dash-sidebar {
-        width: 280px;
-        background: #fff;
-        display: flex;
-        flex-direction: column;
-        flex-shrink: 0;
-        z-index: 100;
-        position: sticky;
-        top: 72px;
-        height: calc(100vh - 72px);
-    }
+.v-dash-link:hover {
+    background: #F8FAFC;
+    color: var(--v-blue);
+    border-left-color: var(--v-blue);
+}
+.v-dash-link:hover i { opacity: 0.9; }
 
-    .dash-link {
-        color: var(--text-sub);
-        font-weight: 600;
-        font-size: 0.9rem;
-        padding: 0.75rem 1.25rem;
-        border-radius: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        transition: var(--t-fast);
-    }
+.v-dash-link.active {
+    background: #F1F5F9;
+    color: var(--v-blue);
+    border-left-color: var(--v-blue);
+}
+.v-dash-link.active i { opacity: 1; }
 
-    .dash-link i {
-        width: 20px;
-        text-align: center;
-        opacity: 0.6;
-    }
+.dash-main-vibrant { 
+    flex: 1; 
+    min-width: 0;
+    max-width: 100%;
+    position: relative; 
+    overflow: visible !important;
+}
 
-    .dash-link:hover {
-        background: var(--brand-light);
-        color: var(--brand-deep);
-    }
+.vibrant-toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--v-blue);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 1rem;
+    font-weight: 800;
+    box-shadow: var(--shadow-vibrant);
+    display: none;
+    z-index: 9999;
+    animation: slideUp 0.3s ease;
+}
+@keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-    .dash-link.active {
-        background: var(--brand);
-        color: #fff;
-        box-shadow: var(--shadow-brand);
-    }
-
-    .dash-link.active i { opacity: 1; }
-
-    /* Main Area Styling */
-    .dash-main {
-        flex-grow: 1;
-        overflow-y: auto;
-    }
-
-    .avatar-sm { width: 40px; height: 40px; }
-
-    @media (max-width: 991px) {
-        .dash-sidebar { display: none; }
-    }
+@media (max-width: 991px) {
+    .dash-sidebar-vibrant { display: none; }
+}
 </style>
+
+<script>
+function showToast(message) {
+    const toast = document.getElementById("vibrant-toast");
+    toast.innerText = message;
+    toast.style.display = "block";
+    setTimeout(() => { toast.style.display = "none"; }, 4000);
+}
+</script>
 {% endblock %}
