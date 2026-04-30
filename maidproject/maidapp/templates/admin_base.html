@@ -3,6 +3,7 @@
 
 {% block content %}
 <div class="dash-wrapper-vibrant">
+
     {% block dashboard_sidebar %}
     <!-- 📱 MOBILE SIDEBAR TOGGLE 📱 -->
     <button class="btn btn-vibrant d-lg-none position-fixed"
@@ -13,76 +14,44 @@
 
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-    <!-- 🏛️ ORIGINAL DASH SIDEBAR 🏛️ -->
+    <!-- 🏛️ ADMIN SIDEBAR 🏛️ -->
     <aside class="dash-sidebar-vibrant" id="mobileSidebar">
         <nav class="flex-grow-1 py-4 px-3">
-            {% if user.role == 'user' %}
-            <a href="{% url 'user_home' %}"
-                class="v-dash-link {% if request.resolver_match.url_name == 'user_home' %}active{% endif %}">
-                <i class="fa-solid fa-house"></i> HOME
+
+            <a href="{% url 'admin_dashboard' %}"
+                class="v-dash-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <i class="fa-solid fa-satellite-dish"></i> COMMAND CENTER
             </a>
-            <a href="{% url 'user_dashboard' %}"
-                class="v-dash-link {% if request.resolver_match.url_name == 'user_dashboard' %}active{% endif %}">
-                <i class="fa-solid fa-book-open"></i> MY BOOKINGS
+
+            <a href="{% url 'admin_bookings' %}"
+                class="v-dash-link {% if request.resolver_match.url_name == 'admin_bookings' %}active{% endif %}">
+                <i class="fa-solid fa-chart-line"></i> ENTERPRISE REPORTS
             </a>
-            <a href="{% url 'worker_list' %}"
-                class="v-dash-link {% if request.resolver_match.url_name == 'worker_list' %}active{% endif %}">
-                <i class="fa-solid fa-magnifying-glass"></i> SEARCH WORKERS
+
+            <a href="{% url 'manage_users' %}"
+                class="v-dash-link {% if request.resolver_match.url_name == 'manage_users' or request.resolver_match.url_name == 'manage_user_detail' %}active{% endif %}">
+                <i class="fa-solid fa-users"></i> CLIENT REGISTRY
             </a>
-            <a href="{% url 'booking_new' %}"
-                class="v-dash-link {% if request.resolver_match.url_name == 'booking_new' %}active{% endif %}">
-                <i class="fa-solid fa-calendar-plus"></i> BOOK SERVICE
+
+            <a href="{% url 'manage_workers' %}"
+                class="v-dash-link {% if request.resolver_match.url_name == 'manage_workers' or request.resolver_match.url_name == 'manage_worker_detail' %}active{% endif %}">
+                <i class="fa-solid fa-user-gear"></i> PARTNER MATRIX
             </a>
+
+            <a href="{% url 'admin_complaints' %}"
+                class="v-dash-link {% if request.resolver_match.url_name == 'admin_complaints' %}active{% endif %}">
+                <i class="fa-solid fa-triangle-exclamation"></i> RESOLVE ISSUES
+            </a>
+
+            <a href="{% url 'offer_management' %}"
+                class="v-dash-link {% if 'offer' in request.path %}active{% endif %}">
+                <i class="fa-solid fa-tags"></i> SMART OFFERS
+            </a>
+
             <a href="javascript:void(0)" onclick="showToast('Help Center')" class="v-dash-link">
                 <i class="fa-solid fa-circle-question"></i> HELP CENTER
             </a>
-            {% endif %}
 
-            {% if user.role == 'admin' %}
-            <a href="{% url 'admin_dashboard' %}"
-                class="v-dash-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
-                <i class="fa-solid fa-house"></i> HOME
-            </a>
-            <a href="{% url 'manage_workers' %}"
-                class="v-dash-link {% if 'manage/workers' in request.path %}active{% endif %}">
-                <i class="fa-solid fa-user-gear"></i> MANAGE PARTNERS
-            </a>
-            <a href="{% url 'manage_users' %}"
-                class="v-dash-link {% if 'manage/users' in request.path %}active{% endif %}">
-                <i class="fa-solid fa-users"></i> MANAGE CLIENTS
-            </a>
-            <a href="{% url 'admin_complaints' %}"
-                class="v-dash-link {% if 'complaints' in request.path %}active{% endif %}">
-                <i class="fa-solid fa-shield-halved"></i> COMPLAINTS
-            </a>
-            {% endif %}
-
-            {% if user.role == 'worker' %}
-            <a href="{% url 'worker_home' %}"
-                class="v-dash-link {% if request.resolver_match.url_name == 'worker_home' %}active{% endif %}">
-                <i class="fa-solid fa-house"></i> HOME
-            </a>
-            <a href="{% url 'worker_dashboard' %}"
-                class="v-dash-link {% if request.resolver_match.url_name == 'worker_dashboard' %}active{% endif %}">
-                <i class="fa-solid fa-chart-pie"></i> REPORTS
-            </a>
-            <a href="{% url 'worker_jobs' %}"
-                class="v-dash-link {% if request.resolver_match.url_name == 'worker_jobs' %}active{% endif %}">
-                <i class="fa-solid fa-calendar-check"></i> ACTIVE JOBS
-            </a>
-            <a href="{% url 'worker_earnings' %}"
-                class="v-dash-link {% if request.resolver_match.url_name == 'worker_earnings' %}active{% endif %}">
-                <i class="fa-solid fa-wallet"></i> EARNINGS
-            </a>
-            <a href="javascript:void(0)" onclick="showToast('Support Center')" class="v-dash-link">
-                <i class="fa-solid fa-circle-question"></i> HELP CENTER
-            </a>
-            {% endif %}
-
-            <a href="{% url 'profile_view' %}"
-                class="v-dash-link {% if request.resolver_match.url_name == 'profile_view' %}active{% endif %}">
-                <i class="fa-solid fa-user-circle"></i> MY PROFILE
-            </a>
         </nav>
 
         <!-- 🚪 LOGOUT BUTTON 🚪 -->
@@ -126,8 +95,8 @@
     }
 
     .dash-sidebar-vibrant {
-        width: 260px;
-        min-width: 260px;
+        width: 220px;
+        min-width: 220px;
         background: white;
         display: flex;
         flex-direction: column;
@@ -148,7 +117,6 @@
         z-index: 1;
     }
 
-    /* 🌌 PARALLAX STYLING 🌌 */
     .dash-parallax-container {
         position: absolute;
         top: 0;
@@ -170,7 +138,6 @@
         background-position: center;
         background-repeat: no-repeat;
         opacity: 0.15;
-        /* Very subtle to not disturb UI */
         filter: blur(2px);
         animation: dashboardFloat 30s infinite ease-in-out;
     }
@@ -182,37 +149,31 @@
     }
 
     @keyframes dashboardFloat {
-
-        0%,
-        100% {
-            transform: translate(0, 0) scale(1);
-        }
-
-        50% {
-            transform: translate(-2%, 2%) scale(1.05);
-        }
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        50% { transform: translate(-2%, 2%) scale(1.05); }
     }
 
     .v-dash-link {
         display: flex;
         align-items: center;
-        gap: 15px;
-        padding: 12px 20px;
-        margin-bottom: 5px;
+        gap: 12px;
+        padding: 11px 18px;
+        margin-bottom: 4px;
         color: #718096;
-        font-weight: 600;
+        font-weight: 700;
         text-decoration: none;
         transition: all 0.2s ease;
-        font-size: 13px;
+        font-size: 12px;
+        letter-spacing: 0.3px;
         border-radius: 0 50px 50px 0;
-        /* Original pill style */
-        margin-right: 15px;
+        margin-right: 12px;
     }
 
     .v-dash-link i {
-        font-size: 16px;
-        width: 20px;
+        font-size: 14px;
+        width: 18px;
         text-align: center;
+        flex-shrink: 0;
     }
 
     .v-dash-link:hover {
@@ -241,7 +202,6 @@
         transform: translateY(-2px);
     }
 
-    /* 🏁 FULL-WIDTH FOOTER 🏁 */
     footer.footer-vibrant {
         margin-left: 0 !important;
         position: relative;
@@ -265,7 +225,7 @@
     @media (max-width: 991px) {
         .dash-sidebar-vibrant {
             position: fixed;
-            left: -260px;
+            left: -220px;
             transition: all 0.3s ease;
             z-index: 1040;
         }
@@ -286,13 +246,9 @@
             z-index: 1030;
         }
 
-        .sidebar-overlay.open {
-            display: block;
-        }
+        .sidebar-overlay.open { display: block; }
 
-        .dash-main-vibrant {
-            padding: 15px;
-        }
+        .dash-main-vibrant { padding: 15px; }
     }
 </style>
 

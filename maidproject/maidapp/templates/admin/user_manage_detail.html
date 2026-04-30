@@ -1,0 +1,156 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block title %}Manage Citizen: {{ target_user.get_full_name }} — MaidConnect{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid py-5 px-lg-5 animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <a href="{% url 'manage_users' %}" class="text-vibrant fw-bold text-decoration-none mb-3 d-inline-block">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Registry
+            </a>
+            <h1 class="h2 fw-black mb-1 text-dark">{{ target_user.get_full_name|default:target_user.username }}</h1>
+            <p class="text-muted">User profile, engagement history, and account status.</p>
+        </div>
+        <div>
+            {% if user.is_superuser %}
+            <button onclick="toggleUserStatus('{{ target_user.id }}')" class="btn rounded-pill px-4 fw-black border-2 {% if target_user.is_active %}btn-outline-danger{% else %}btn-success text-white{% endif %}">
+                {% if target_user.is_active %}ISOLATE ACCOUNT{% else %}RESTORE ACCOUNT{% endif %}
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-4 pb-5 align-items-start">
+        <!-- 🟣 Sidebar: Primary Info -->
+        <div class="col-lg-4">
+            <div class="dynamic-card p-4 bg-white border-vibrant shadow-sm text-center mb-4">
+                <div class="icon-circle mx-auto mb-3" style="width: 100px; height: 100px; background: var(--v-blue); color: white; font-size: 2.5rem;">
+                    {{ target_user.username|make_list|first|upper }}
+                </div>
+                <h4 class="fw-black mb-1 text-dark">{{ target_user.get_full_name }}</h4>
+                <p class="text-muted mb-4">{{ target_user.email }}</p>
+                
+                <div class="text-start">
+                    <div class="mb-3">
+                        <label class="x-small fw-black text-uppercase opacity-50">Contact Protocol</label>
+                        <div class="fw-bold text-dark">{{ profile.phone|default:"N/A" }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="x-small fw-black text-uppercase opacity-50">Network Status</label>
+                        <div>
+                            {% if target_user.is_active %}
+                            <span class="badge bg-success text-white rounded-pill px-3 py-1 fw-black small">CONNECTED</span>
+                            {% else %}
+                            <span class="badge bg-danger text-white rounded-pill px-3 py-1 fw-black small">ISOLATED</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="x-small fw-black text-uppercase opacity-50">Initialization Date</label>
+                        <div class="fw-bold text-dark">{{ target_user.date_joined|date:"M d, Y" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dynamic-card p-4 bg-white border-vibrant shadow-sm">
+                <h6 class="fw-black text-uppercase small opacity-50 mb-3">System Statistics</h6>
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <div class="h4 fw-black mb-0 text-vibrant">{{ bookings.count }}</div>
+                        <div class="x-small text-uppercase fw-bold opacity-50">Requests</div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="h4 fw-black mb-0 text-success">{{ bookings.count }}</div>
+                        <div class="x-small text-uppercase fw-bold opacity-50">Completed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🟣 Main Content -->
+        <div class="col-lg-8">
+            <!-- Part 1: Citizen Specifications -->
+            <div class="dynamic-card p-4 bg-white border-vibrant shadow-sm mb-4">
+                <h5 class="fw-black mb-4"><i class="fa-solid fa-address-card me-2 text-vibrant"></i>Citizen Specifications</h5>
+                <div class="row g-4">
+                    <div class="col-md-12">
+                        <label class="x-small fw-black text-uppercase opacity-50">Registered Address</label>
+                        <div class="fw-bold h6 mb-1 text-dark">
+                            {{ profile.address_line1|default:"No primary address" }} 
+                            {% if profile.address_line2 %}, {{ profile.address_line2 }}{% endif %}
+                        </div>
+                        <div class="fw-medium text-muted">
+                            {{ profile.city|default:"City N/A" }}, {{ profile.district|default:"" }}
+                        </div>
+                        <div class="fw-medium text-muted">
+                            {{ profile.state|default:"State N/A" }} - {{ profile.pincode|default:"Pincode N/A" }}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="x-small fw-black text-uppercase opacity-50">Account Integrity</label>
+                        <div class="fw-bold text-dark">
+                            {% if target_user.is_otp_verified %}
+                            <i class="fa-solid fa-check-circle text-success me-1"></i> OTP Verified
+                            {% else %}
+                            <i class="fa-solid fa-times-circle text-danger me-1"></i> OTP Unverified
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="x-small fw-black text-uppercase opacity-50">Last Active Session</label>
+                        <div class="fw-bold text-dark">{{ target_user.last_login|date:"M d, Y H:i"|default:"Never" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Part 2: Engagement History -->
+            <div class="dynamic-card p-4 bg-white border-vibrant shadow-sm">
+                <h5 class="fw-black mb-4"><i class="fa-solid fa-calendar-check me-2 text-vibrant"></i>Engagement History</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr class="x-small text-uppercase opacity-50 fw-black">
+                                <th>Date</th>
+                                <th>Partner</th>
+                                <th>Status</th>
+                                <th class="text-end">Expense</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                            <tr>
+                                <td class="fw-bold text-dark">{{ booking.booking_date }}</td>
+                                <td>{{ booking.worker.user.get_full_name }}</td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-2 fw-black small 
+                                        {% if booking.status == 'completed' %}bg-success text-white
+                                        {% elif booking.status == 'pending' %}bg-warning text-dark
+                                        {% elif booking.status == 'cancelled' %}bg-danger text-white
+                                        {% else %}bg-info text-white{% endif %}">
+                                        {{ booking.status|upper }}
+                                    </span>
+                                </td>
+                                <td class="text-end fw-black text-vibrant">₹{{ booking.total_price }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center py-4 text-muted">No engagement history detected.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleUserStatus(userId) {
+    fetch(`/manage/user/toggle/${userId}/`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    .then(r => r.json())
+    .then(data => { if (data.status === 'success') location.reload(); else alert(data.message); });
+}
+</script>
+{% endblock %}

@@ -50,6 +50,7 @@
         html {
             width: 100%;
         }
+
         body {
             display: flex;
             flex-direction: column;
@@ -71,6 +72,7 @@
             z-index: -1;
             overflow: hidden;
         }
+
         .parallax-dot {
             position: absolute;
             width: 8px;
@@ -79,10 +81,26 @@
             border-radius: 50%;
             opacity: 0.15;
         }
-        .p-dot-1 { top: 15%; left: 10%; }
-        .p-dot-2 { top: 45%; right: 15%; }
-        .p-dot-3 { bottom: 25%; left: 20%; }
-        .p-dot-4 { top: 80%; right: 10%; }
+
+        .p-dot-1 {
+            top: 15%;
+            left: 10%;
+        }
+
+        .p-dot-2 {
+            top: 45%;
+            right: 15%;
+        }
+
+        .p-dot-3 {
+            bottom: 25%;
+            left: 20%;
+        }
+
+        .p-dot-4 {
+            top: 80%;
+            right: 10%;
+        }
 
         main {
             flex: 1 0 auto;
@@ -251,12 +269,12 @@
         @keyframes dashboardEntry {
             from {
                 opacity: 0;
-                transform: translateY(12px);
+                transform: scale(0.97);
             }
 
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: scale(1);
             }
         }
 
@@ -302,20 +320,21 @@
             box-shadow: var(--glow-accent) !important;
         }
 
-        /* ░░ ROYAL BLUE PRELOADER ░░ */
+        /* ░░ PREMIUM 2026 PRELOADER ░░ */
         #loader {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #3F4FCF;
+            background: radial-gradient(circle at 50% 50%, #1a237e 0%, #0d1117 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 99999;
             transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+            overflow: hidden;
         }
 
         #loader.loader-hidden {
@@ -323,42 +342,142 @@
             visibility: hidden;
         }
 
-        .loader-logo {
-            font-family: 'Outfit', sans-serif;
+        .loader-illustration {
+            position: relative;
+            z-index: 2;
+        }
+
+        .house-box {
+            width: 100px;
+            height: 100px;
+            background: var(--v-blue);
             color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border-radius: 24px;
+            position: relative;
+            animation: loaderFloat 3s infinite ease-in-out;
+        }
+
+        .sparkles i {
+            position: absolute;
+            color: #FFD700;
+            font-size: 1.2rem;
+            animation: sparklePulse 1.5s infinite;
+        }
+
+        .s-1 {
+            top: -10px;
+            right: -10px;
+            animation-delay: 0.2s !important;
+        }
+
+        .s-2 {
+            bottom: 10px;
+            left: -15px;
+            animation-delay: 0.5s !important;
+        }
+
+        .s-3 {
+            top: 20px;
+            right: -25px;
+            animation-delay: 0.8s !important;
+        }
+
+        .loader-text-brand {
+            font-family: 'Outfit', sans-serif;
             font-weight: 900;
-            font-size: 2.5rem;
-            letter-spacing: 8px;
-            margin-bottom: 20px;
-            animation: loaderPulse 1.5s infinite ease-in-out;
+            font-size: 1.8rem;
+            letter-spacing: 4px;
+            color: white;
+            margin-top: 20px;
         }
 
-        .loader-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255, 255, 255, 0.2);
-            border-top: 3px solid white;
+        .loader-subtext {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .loader-progress-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--v-blue), #818cf8);
+            animation: progressLoad 2.5s infinite ease-in-out;
+        }
+
+        .loader-bg-particles .blob {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: rgba(63, 79, 207, 0.1);
+            filter: blur(80px);
             border-radius: 50%;
-            animation: loaderSpin 1s linear infinite;
+            z-index: 1;
         }
 
-        @keyframes loaderSpin {
-            to {
-                transform: rotate(360deg);
-            }
+        .b-1 {
+            top: -100px;
+            right: -100px;
         }
 
-        @keyframes loaderPulse {
+        .b-2 {
+            bottom: -100px;
+            left: -100px;
+        }
+
+        @keyframes loaderFloat {
 
             0%,
             100% {
-                opacity: 0.6;
-                transform: scale(0.98);
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(5deg);
+            }
+        }
+
+        @keyframes sparklePulse {
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: scale(0.5);
             }
 
             50% {
                 opacity: 1;
-                transform: scale(1);
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes progressLoad {
+            0% {
+                width: 0%;
+                transform: translateX(-100%);
+            }
+
+            50% {
+                width: 70%;
+                transform: translateX(0);
+            }
+
+            100% {
+                width: 100%;
+                transform: translateX(100%);
             }
         }
 
@@ -394,16 +513,130 @@
         .extra-item {
             display: none !important;
         }
+
+        /* ─── NAV UNIFICATION ─── */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 85px !important;
+            background: #ffffff !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 0 !important;
+            display: flex;
+            align-items: center;
+            z-index: 1050;
+        }
+
+        .main-content {
+            margin-top: 85px;
+            /* Exact match to navbar height */
+        }
+
+        .navbar .container-fluid {
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .nav-link {
+            height: 85px;
+            display: flex;
+            align-items: center;
+            padding: 0 1.25rem !important;
+            color: #2D3748 !important;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 800 !important;
+        }
+
+        .navbar .navbar-brand {
+            padding: 0;
+            margin: 0;
+        }
+
+        .navbar .btn-vibrant,
+        .navbar .btn-outline-danger {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+
+        /* 🟢 STATUS COLORS 🟢 */
+        #navStatusLabel[data-is-online="true"],
+        .status-indicator-dot[data-is-online="true"] {
+            background-color: #48BB78 !important;
+            color: #48BB78 !important;
+        }
+
+        #navStatusLabel[data-is-online="false"],
+        .status-indicator-dot[data-is-online="false"] {
+            background-color: #CBD5E0 !important;
+            color: #718096 !important;
+        }
+
+        /* 👤 PROFILE ICON HOVER 👤 */
+        .navbar a[href="/profile/"] {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .navbar a[href="/profile/"]:hover {
+            transform: scale(1.08) translateY(-2px);
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+        }
+
+        .navbar a[href="/profile/"]:active {
+            transform: scale(0.95);
+            filter: brightness(0.9);
+        }
+
+        /* 📱 MOBILE MENU TRANSITION 📱 */
+        .offcanvas {
+            transition: transform 0.3s ease-in-out !important;
+        }
+
+        .offcanvas.active {
+            transform: translateX(0) !important;
+            visibility: visible !important;
+        }
+
+        /* 🔒 AUTH-BASED UI MASKING 🔒 */
+        /* Hidden public-header logic removed to allow role-specific top bars in dashboards */
     </style>
 </head>
 
-<body>
-    <!-- ░░ ROYAL BLUE PRELOADER ░░ -->
-    <div id="loader">
-        <div class="loader-logo">MAIDCONNECT</div>
-        <div class="loader-spinner"></div>
+<body class="{% if user.is_authenticated %}authenticated role-{{ user.role }}{% endif %}">
+    <!-- ░░ PREMIUM 2026 PRELOADER ░░ -->
+    <div id="loader" class="premium-loader">
+        <div class="loader-content animate-float">
+            <div class="loader-illustration mb-4">
+                <div class="house-box shadow-vibrant">
+                    <i class="fa-solid fa-house-chimney-window"></i>
+                    <div class="sparkles">
+                        <i class="fa-solid fa-sparkles s-1"></i>
+                        <i class="fa-solid fa-sparkles s-2"></i>
+                        <i class="fa-solid fa-sparkles s-3"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="loader-text-brand">MAID<span class="opacity-50">CONNECT</span></div>
+            <div class="loader-subtext">Preparing your premium experience...</div>
+            <div class="loader-progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+        <div class="loader-bg-particles">
+            <div class="blob b-1"></div>
+            <div class="blob b-2"></div>
+        </div>
     </div>
 
+    {% block navbar_container %}
+    {% if not hide_navbar %}
+    {% if not user.is_authenticated %}
     <!-- ░░ YELLOW TICKER BAR ░░ -->
     <div class="ticker-wrap">
         <div class="ticker">
@@ -413,169 +646,76 @@
             &bull;
         </div>
     </div>
+    {% endif %}
 
-    <!-- ░░ STICKY NAVBAR ░░ -->
-    <nav class="navbar navbar-expand-lg sticky-top">
-        <div class="container-fluid px-lg-5">
-            <a class="navbar-brand d-flex align-items-center gap-2 ms-lg-4" href="/">
-                <div class="logo-icon-box" style="width: 32px; height: 32px; font-size: 0.9rem; border-radius: 8px;">
-                    <i class="fa-solid fa-house-chimney-window"></i>
-                    <div class="logo-connect-dot" style="width: 7px; height: 7px;"></div>
+    <div class="public-header">
+        <!-- ░░ STICKY NAVBAR ░░ -->
+        <nav class="navbar navbar-expand-lg sticky-top">
+            <div class="container-fluid px-lg-5">
+                <a class="navbar-brand d-flex align-items-center gap-2 ms-lg-4" href="/">
+                    <div class="logo-icon-box"
+                        style="width: 32px; height: 32px; font-size: 0.9rem; border-radius: 8px;">
+                        <i class="fa-solid fa-house-chimney-window"></i>
+                        <div class="logo-connect-dot" style="width: 7px; height: 7px;"></div>
+                    </div>
+                    <div class="logo-text-navbar fw-black"
+                        style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; letter-spacing: -1px; color: var(--v-blue);">
+                        MAID<span style="color: #2D3748; opacity: 0.8;">CONNECT</span></div>
+                </a>
+                <button class="navbar-toggler border-0 shadow-none p-0" type="button" data-bs-toggle="offcanvas"
+                    data-bs-target="#mobileMenu" aria-controls="mobileMenu" aria-label="Toggle navigation">
+                    <div class="hamburger-icon" style="font-size: 1.8rem; color: var(--v-blue); line-height: 1;">☰</div>
+                </button>
+                <div class="collapse navbar-collapse d-none d-lg-block" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-center gap-4">
+                        {% if not user.is_authenticated %}
+                        {% include 'includes/navbar_public.html' %}
+                        {% elif user.is_authenticated and user.is_superuser %}
+                        {% include 'includes/navbar_admin.html' %}
+                        {% elif user.role == "worker" %}
+                        {% include 'includes/navbar_worker.html' %}
+                        {% elif user.role == "user" %}
+                        {% include 'includes/navbar_user.html' %}
+                        {% endif %}
+                    </ul>
                 </div>
-                <div class="logo-text-navbar fw-black" style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; letter-spacing: -1px; color: var(--v-blue);">MAID<span style="color: #2D3748; opacity: 0.8;">CONNECT</span></div>
-            </a>
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <i class="fa-solid fa-bars-staggered"></i>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center gap-4">
+            </div>
+        </nav>
+
+        <!-- ░░ MOBILE SLIDE-IN MENU (OFFCANVAS) ░░ -->
+        <div class="offcanvas offcanvas-start border-0 shadow-lg" tabindex="-1" id="mobileMenu"
+            aria-labelledby="mobileMenuLabel" style="width: 300px;">
+            <div class="offcanvas-header p-4 border-bottom">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="logo-icon-box"
+                        style="width: 32px; height: 32px; font-size: 0.9rem; border-radius: 8px;">
+                        <i class="fa-solid fa-house-chimney-window"></i>
+                    </div>
+                    <h5 class="offcanvas-title fw-black" id="mobileMenuLabel"
+                        style="color: var(--v-blue); letter-spacing: -1px;">MAIDCONNECT</h5>
+                </div>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas"
+                    aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body p-4">
+                <ul class="nav flex-column gap-3">
                     {% if not user.is_authenticated %}
-                    <!-- ░░ GUEST NAVBAR ░░ -->
-                    <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'home' %}">Home</a></li>
-                    <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'services' %}">Services</a></li>
-                    <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'worker_list' %}">Workers</a></li>
-                    <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'login' %}">Login</a></li>
-                    <li class="nav-item">
-                        <a class="btn-vibrant py-2 px-4 text-decoration-none fw-black"
-                            href="{% url 'register_choice' %}">GET STARTED</a>
-                    </li>
-
-                    {% elif user.role == 'admin' or user.is_superuser %}
-                    <!-- ░░ ADMIN NAVBAR ░░ -->
-
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle fw-bold" href="#" role="button"
-                            data-bs-toggle="dropdown">Management</a>
-                        <ul class="dropdown-menu glass-vibrant border-0 shadow-vibrant rounded-4 p-3 mt-2">
-                            <li><a class="dropdown-item fw-bold rounded-pill footer-link"
-                                    href="{% url 'manage_users' %}">Manage
-                                    Users{% if user_count %} ({{ user_count }}){% endif %}</a></li>
-                            <li><a class="dropdown-item fw-bold rounded-pill footer-link"
-                                    href="{% url 'manage_workers' %}">Manage
-                                    Workers{% if worker_count %} ({{ worker_count }}){% endif %}</a></li>
-                            <li><a class="dropdown-item fw-bold rounded-pill footer-link"
-                                    href="{% url 'manage_kyc' %}">Manage
-                                    KYC{% if kyc_pending_count %} ({{ kyc_pending_count }}){% endif %}</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item fw-bold rounded-pill footer-link extra-item"
-                                    href="{% url 'admin_bookings' %}">All
-                                    Bookings</a></li>
-                        </ul>
-                    </li>
-
-                    <li class="nav-item dropdown ms-lg-3">
-                        <a class="nav-link dropdown-toggle fw-black text-vibrant text-uppercase d-flex align-items-center gap-2"
-                            href="#" role="button" data-bs-toggle="dropdown">
-                            {% if user.userprofile.photo %}
-                            <img src="{{ user.userprofile.photo.url }}" class="avatar">
-                            {% else %}
-                            <div class="icon-circle m-0"
-                                style="width: 40px; height: 40px; background: var(--v-blue); color: white;">
-                                {{ user.username|make_list|first|upper }}
-                            </div>
-                            {% endif %}
-                            {{ user.first_name|default:"ADMIN" }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-vibrant rounded-4 p-3 mt-2">
-                            <li><a class="dropdown-item fw-bold text-danger rounded-pill" href="{% url 'logout' %}">
-                                    <i class="fa-solid fa-power-off me-2"></i>Logout</a>
-                            </li>
-                        </ul>
-                    </li>
-
-
-                    {% elif user.role == 'worker' %}
-                    <!-- ░░ WORKER NAVBAR ░░ -->
-
-                    <li class="nav-item"><a class="nav-link fw-bold" href="{% url 'worker_dashboard' %}">My Jobs</a>
-                    </li>
-
-                    <li class="nav-item dropdown ms-lg-3">
-                        <a class="nav-link dropdown-toggle fw-black text-vibrant text-uppercase d-flex align-items-center gap-2"
-                            href="#" role="button" data-bs-toggle="dropdown">
-                            {% if user.role == "worker" %}
-                            {% if user.workerprofile.photo %}
-                            <img src="{{ user.workerprofile.photo.url }}" class="avatar">
-                            {% else %}
-                            <img src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username|urlencode }}&background=FF6F61&color=fff&size=128"
-                                class="avatar">
-                            {% endif %}
-                            {% else %}
-                            {% if user.userprofile.photo %}
-                            <img src="{{ user.userprofile.photo.url }}" class="avatar">
-                            {% else %}
-                            <img src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username|urlencode }}&background=6C63FF&color=fff&size=128"
-                                class="avatar">
-                            {% endif %}
-                            {% endif %}
-                            {% if user.role == 'admin' or user.is_superuser %}
-                            {{ user.first_name|default:"ADMIN" }}
-                            {% else %}
-                            {{ user.first_name|default:user.username }}
-                            {% endif %}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-vibrant rounded-4 p-3 mt-2">
-                            <li><a class="dropdown-item fw-bold rounded-pill mb-1"
-                                    href="{% url 'worker_profile_update' %}"><i
-                                        class="fa-solid fa-user-gear me-2"></i>Profile</a></li>
-                            <li>
-                                <hr class="dropdown-divider opacity-10">
-                            </li>
-                            <li><a class="dropdown-item fw-bold text-danger rounded-pill" href="{% url 'logout' %}"><i
-                                        class="fa-solid fa-power-off me-2"></i>Logout</a></li>
-                        </ul>
-                    </li>
-
-
-                    {% else %}
-                    <!-- ░░ USER (CUSTOMER) NAVBAR ░░ -->
-
-
-
-                    <li class="nav-item dropdown ms-lg-3">
-                        <a class="nav-link dropdown-toggle fw-black text-vibrant text-uppercase d-flex align-items-center gap-2"
-                            href="#" role="button" data-bs-toggle="dropdown">
-                            {% if user.role == "worker" %}
-                            {% if user.workerprofile.photo %}
-                            <img src="{{ user.workerprofile.photo.url }}" class="avatar">
-                            {% else %}
-                            <img src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username|urlencode }}&background=FF6F61&color=fff&size=128"
-                                class="avatar">
-                            {% endif %}
-                            {% else %}
-                            {% if user.userprofile.photo %}
-                            <img src="{{ user.userprofile.photo.url }}" class="avatar">
-                            {% else %}
-                            <img src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username|urlencode }}&background=6C63FF&color=fff&size=128"
-                                class="avatar">
-                            {% endif %}
-                            {% endif %}
-                            {% if user.role == 'admin' or user.is_superuser %}
-                            {{ user.first_name|default:"ADMIN" }}
-                            {% else %}
-                            {{ user.first_name|default:user.username }}
-                            {% endif %}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-vibrant rounded-4 p-3 mt-2">
-                            <li><a class="dropdown-item fw-bold text-danger rounded-pill" href="{% url 'logout' %}"><i
-                                        class="fa-solid fa-power-off me-2"></i>Logout</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn-vibrant py-2 px-4 text-decoration-none fw-black ms-lg-3"
-                            href="{% url 'booking_new' %}">BOOK SERVICE</a>
-                    </li>
+                    {% include 'includes/navbar_public.html' %}
+                    {% elif user.is_authenticated and user.is_superuser %}
+                    {% include 'includes/navbar_admin.html' %}
+                    {% elif user.role == "worker" %}
+                    {% include 'includes/navbar_worker.html' %}
+                    {% elif user.role == "user" %}
+                    {% include 'includes/navbar_user.html' %}
                     {% endif %}
-
                 </ul>
             </div>
         </div>
-    </nav>
+    </div>
+    {% endif %}
+    {% endblock %}
 
-    <main>
+    <main class="main-content">
         {% if messages %}
         {% for message in messages %}
         <div
@@ -598,16 +738,20 @@
     </div>
 
     <!-- ░░ VIBRANT FOOTER ░░ -->
+    {% block global_footer %}
     <footer class="footer-vibrant">
         <div class="container">
             <div class="row g-5">
                 <div class="col-lg-4">
                     <div class="navbar-brand d-flex align-items-center gap-2 mb-4" style="color:white !important;">
-                        <div class="logo-icon-box" style="width: 32px; height: 32px; font-size: 0.9rem; border-radius: 8px; background: white; color: var(--v-blue);">
+                        <div class="logo-icon-box"
+                            style="width: 32px; height: 32px; font-size: 0.9rem; border-radius: 8px; background: white; color: var(--v-blue);">
                             <i class="fa-solid fa-house-chimney-window"></i>
                             <div class="logo-connect-dot" style="width: 7px; height: 7px;"></div>
                         </div>
-                        <div class="logo-text-navbar fw-black" style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; letter-spacing: -1px; color: white;">MAID<span>CONNECT</span></div>
+                        <div class="logo-text-navbar fw-black"
+                            style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; letter-spacing: -1px; color: white;">
+                            MAID<span>CONNECT</span></div>
                     </div>
                     <p class="opacity-75 mb-4 h6 fw-medium">The world's most energetic marketplace for home services.
                         Built for trust, speed, and joy.</p>
@@ -652,6 +796,7 @@
             </div>
         </div>
     </footer>
+    {% endblock %}
 
 
 
@@ -694,13 +839,17 @@
         });
 
         // ─── AUTO-FOCUS & SMART SCROLL UX ───
+        window.onload = function () {
+            window.scrollTo(0, 0);
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             // 1. Auto focus first visible input
             const firstInput = document.querySelector('form input:not([type="hidden"]):not([type="submit"]):not([type="button"]), form select, form textarea');
             if (firstInput && !firstInput.hasAttribute('autofocus')) {
                 setTimeout(() => {
                     if (document.activeElement === document.body) {
-                        firstInput.focus({ preventScroll: true });
+                        // firstInput.focus({ preventScroll: true }); // Disabled per USER REQUEST
                     }
                 }, 400); // Wait for preloader/animations
             }
@@ -713,7 +862,7 @@
                         const isVisible = (rect.top >= 0 && rect.bottom <= window.innerHeight);
                         // Only scroll if hidden and not a tiny field like OTP
                         if (!isVisible && !['otp', 'pincode'].includes(input.name)) {
-                            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            // input.scrollIntoView({ behavior: 'smooth', block: 'center' }); // Disabled per USER REQUEST
                         }
                     }, 350); // Mobile keyboard safety
                 });
@@ -723,7 +872,7 @@
             const error = document.querySelector('.errorlist, .is-invalid, .invalid-feedback, .text-danger');
             if (error) {
                 setTimeout(() => {
-                    error.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // error.scrollIntoView({ behavior: 'smooth', block: 'center' }); // Disabled per USER REQUEST
                 }, 800);
             }
 
@@ -806,7 +955,92 @@
                 }
             });
         });
+
+        // ── ⚡ GLOBAL NAVBAR AVAILABILITY TOGGLE ⚡ ──
+        const navToggle = document.getElementById('navAvailabilityToggle');
+        const navLabel = document.getElementById('navStatusLabel');
+
+        if (navToggle) {
+            navToggle.addEventListener('change', async function () {
+                try {
+                    const response = await fetch("{% url 'toggle_availability' %}");
+                    const data = await response.json();
+
+                    // Update Text & Color
+                    navLabel.textContent = data.is_online ? "ONLINE" : "OFFLINE";
+                    navLabel.setAttribute('data-is-online', data.is_online);
+
+                    // Also sync the dashboard toggle if it exists on the same page
+                    const dashToggle = document.getElementById('availabilityToggle');
+                    const dashLabel = document.getElementById('navStatusText');
+                    if (dashToggle) dashToggle.checked = data.is_online;
+                    if (dashLabel) {
+                        dashLabel.textContent = data.is_online ? "Online" : "Offline";
+                        if (data.is_online) {
+                            dashLabel.classList.remove('text-muted');
+                            dashLabel.classList.add('text-success');
+                        } else {
+                            dashLabel.classList.remove('text-success');
+                            dashLabel.classList.add('text-muted');
+                        }
+                    }
+                } catch (error) {
+                    console.error("Global toggle failed:", error);
+                    this.checked = !this.checked;
+                }
+            });
+        }
+
+        // ── 📱 CUSTOM MOBILE MENU TOGGLE (CLASS-BASED) 📱 ──
+        const menuBtn = document.querySelector('[data-bs-target="#mobileMenu"]');
+        const closeBtn = document.querySelector('[data-bs-dismiss="offcanvas"]');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        if (menuBtn && mobileMenu) {
+            menuBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                mobileMenu.classList.add('active');
+            });
+        }
+
+        if (closeBtn && mobileMenu) {
+            closeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                mobileMenu.classList.remove('active');
+            });
+        }
+
+        // ── ✨ SMART AUTO-CLOSE LOGIC ✨ ──
+
+        // 1. Close when clicking a link
+        mobileMenu.querySelectorAll('.nav-link, .btn-vibrant, .btn-outline-danger').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+            });
+        });
+
+        // 2. Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (mobileMenu.classList.contains('active')) {
+                // If click is NOT inside mobileMenu AND NOT on the toggle button
+                if (!mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) {
+                    mobileMenu.classList.remove('active');
+                }
+            }
+        });
     </script>
+
+    <!-- 🔍 GLOBAL KYC ZOOM MODAL 🔍 -->
+    <div class="modal fade" id="kycModal" tabindex="-1" aria-hidden="true" style="z-index: 9999;">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg bg-dark">
+                <div class="modal-body p-0 position-relative">
+                    <img id="kycZoomImg" src="" class="img-fluid w-100 rounded">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

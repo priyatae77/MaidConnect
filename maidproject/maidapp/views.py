@@ -26,9 +26,13 @@ def create_notification(user, message):
 # Local App Imports
 from maidapp.decorators import admin_required, user_required, worker_required
 from maidapp.models import (
-    WorkerProfile, Booking, UserProfile, Payment, CustomUser, OTPVerification, Category, Review, Complaint
+    WorkerProfile, Booking, UserProfile, Payment, CustomUser, OTPVerification, 
+    Category, Review, Complaint, Offer, SmartOfferSettings
 )
-from maidapp.forms import UserRegisterForm, WorkerProfileForm, UserProfileUpdateForm, WorkerProfileUpdateForm
+from maidapp.forms import (
+    UserRegisterForm, WorkerProfileForm, UserProfileUpdateForm, 
+    WorkerProfileUpdateForm, ReviewForm, OfferForm, SmartOfferSettingsForm
+)
 
 # Initialize Logger
 logger = logging.getLogger(__name__)
@@ -158,11 +162,17 @@ def resend_otp(request):
 # =========================
 
 def home(request):
+    # Fetch recent top reviews for dynamic testimonial section
+    recent_reviews = Review.objects.filter(rating__gte=4).select_related('user', 'worker__user').order_by('-created_at')[:5]
+
     return render(request, 'home.html', {
         'categories': Category.objects.all(),
         'top_workers': WorkerProfile.objects.filter(availability='available', is_verified=True).order_by('-rating_avg')[:8],
         'platform_workers': WorkerProfile.objects.filter(is_verified=True).count(),
         'platform_bookings': Booking.objects.count(),
+        'platform_users': CustomUser.objects.filter(role='user', is_active=True).count(),
+        'bookings_completed': Booking.objects.filter(status__in=['completed', 'paid']).count(),
+        'reviews': recent_reviews,
     })
 
 def about(request): return render(request, 'about.html')
@@ -177,22 +187,53 @@ def terms_of_service(request): return render(request, 'terms_of_service.html')
 
 def login_view(request):
     if request.method == "POST":
-        identifier = request.POST.get("email")
+        identifier = request.POST.get("email", "").strip()
         password = request.POST.get("password")
-        user_obj = CustomUser.objects.filter(email=identifier).first() or CustomUser.objects.filter(username=identifier).first()
+        
+        # 1. Look for user by email OR username (case-insensitive)
+        user_obj = CustomUser.objects.filter(email__iexact=identifier).first() or \
+                   CustomUser.objects.filter(username__iexact=identifier).first()
+        
         if user_obj:
             if user_obj.is_blocked:
                 messages.error(request, "Your account has been blocked due to suspicious activity.")
                 return render(request, 'login.html')
+            
+            # 2. Authenticate using the actual username found in DB
             user = authenticate(request, username=user_obj.username, password=password)
+            
             if user:
                 login(request, user)
-                if not request.session.session_key: request.session.create()
+                if not request.session.session_key: 
+                    request.session.create()
+                
                 user.session_key = request.session.session_key
                 user.save()
-                if user.role == "admin" or user.is_superuser: return redirect('admin_dashboard')
-                return redirect('worker_dashboard' if user.role == 'worker' else 'user_dashboard')
-        messages.error(request, "Invalid credentials")
+                
+                # ── Track login time for "Login Offer" (10-min window, once a day) ──
+                today = timezone.localtime(timezone.now()).date()
+                offer_used_today = Booking.objects.filter(
+                    user=user,
+                    created_at__date=today,
+                    offer_applied=True,
+                    status__in=['completed', 'paid', 'accepted']
+                ).exists()
+                
+                if not offer_used_today:
+                    request.session['login_time'] = timezone.now().isoformat()
+                    request.session['offer_active'] = True
+                else:
+                    request.session['offer_active'] = False
+                request.session.modified = True
+                
+                if user.role == "admin" or user.is_superuser: 
+                    return redirect('admin_dashboard')
+                
+                return redirect('worker_home' if user.role == 'worker' else 'user_home')
+        
+        # If we reach here, either user_obj was None or authenticate failed
+        messages.error(request, "Invalid credentials. Please check your username/email and password.")
+        
     return render(request, 'login.html')
 
 def logout_view(request):
@@ -276,28 +317,45 @@ def user_register(request):
         if not request.session.get('verified_contact'):
             messages.error(request, "Please verify your email via OTP first.")
             return redirect('register_choice')
-            
+
         if form.is_valid():
             email = form.cleaned_data.get('email')
+            username = form.cleaned_data.get('username')
+
             if request.session.get('verified_contact') != email:
                 messages.error(request, "Please verify your email via OTP first.")
             else:
-                user = form.save(commit=False)
-                user.role, user.is_otp_verified = 'user', True
-                user.save()
-                UserProfile.objects.create(
-                    user=user, 
-                    phone=form.cleaned_data.get('phone'),
-                    address_line1=form.cleaned_data.get('address_line1'),
-                    address_line2=form.cleaned_data.get('address_line2'),
-                    city=form.cleaned_data.get('city'),
-                    state=form.cleaned_data.get('state'),
-                    pincode=form.cleaned_data.get('pincode')
-                )
-                del request.session['verified_contact']
-                messages.success(request, "Registration successful! You can now login.")
-                return redirect('login')
+                # ── Pre-save duplicate checks ──
+                if CustomUser.objects.filter(username=username).exists():
+                    messages.error(request, f"The username '{username}' is already taken. Please choose a different one.")
+                    return render(request, 'user_register.html', {'form': form})
+
+                if CustomUser.objects.filter(email=email).exists():
+                    messages.error(request, "An account with this email already exists. Please login instead.")
+                    return render(request, 'user_register.html', {'form': form})
+
+                try:
+                    user = form.save(commit=False)
+                    user.role, user.is_otp_verified = 'user', True
+                    user.save()
+                    UserProfile.objects.create(
+                        user=user,
+                        phone=form.cleaned_data.get('phone'),
+                        address_line1=form.cleaned_data.get('address_line1'),
+                        address_line2=form.cleaned_data.get('address_line2'),
+                        city=form.cleaned_data.get('city'),
+                        state=form.cleaned_data.get('state'),
+                        pincode=form.cleaned_data.get('pincode')
+                    )
+                    if 'verified_contact' in request.session:
+                        del request.session['verified_contact']
+                    messages.success(request, "Registration successful! You can now login.")
+                    return redirect('login')
+                except Exception as e:
+                    logger.error(f"[User Register] Save failed: {e}")
+                    messages.error(request, "Registration failed. The username or email may already exist. Please try again.")
     return render(request, 'user_register.html', {'form': form})
+
 
 def worker_register(request):
     u_form = UserRegisterForm(request.POST or None)
@@ -310,56 +368,177 @@ def worker_register(request):
 
         if u_form.is_valid() and w_form.is_valid():
             email = u_form.cleaned_data.get('email')
+            username = u_form.cleaned_data.get('username')
+
             if request.session.get('verified_contact') != email:
                 messages.error(request, "Verify email first.")
             else:
-                user = u_form.save(commit=False)
-                user.role, user.is_otp_verified = 'worker', True
-                user.set_password(u_form.cleaned_data.get('password'))
-                user.save()
-                # Create UserProfile
-                UserProfile.objects.create(
-                    user=user, 
-                    phone=u_form.cleaned_data.get('phone'),
-                    address_line1=u_form.cleaned_data.get('address_line1'),
-                    address_line2=u_form.cleaned_data.get('address_line2'),
-                    city=u_form.cleaned_data.get('city'),
-                    state=u_form.cleaned_data.get('state'),
-                    pincode=u_form.cleaned_data.get('pincode')
-                )
-                # Ensure mobile field is populated from phone
-                worker = w_form.save(commit=False)
-                worker.user = user
-                worker.kyc_status = 'pending'
-                worker.kyc_submitted_at = timezone.now()
-                if not worker.mobile:
-                    worker.mobile = u_form.cleaned_data.get('phone')
-                worker.save()
-                w_form.save_m2m()
-                
-                # Cleanup session
-                if 'verified_contact' in request.session:
-                    del request.session['verified_contact']
+                # ── Pre-save duplicate checks ──
+                if CustomUser.objects.filter(username=username).exists():
+                    messages.error(request, f"The username '{username}' is already taken. Please choose a different one.")
+                    return render(request, 'worker_register.html', {
+                        'user_form': u_form, 'worker_form': w_form, 'categories': Category.objects.all()
+                    })
 
-                messages.success(request, "Registration successful! Your partner account is pending verification. Please login.")
-                return redirect('login')
+                if CustomUser.objects.filter(email=email).exists():
+                    messages.error(request, f"An account with the email '{email}' already exists. Please login instead.")
+                    return render(request, 'worker_register.html', {
+                        'user_form': u_form, 'worker_form': w_form, 'categories': Category.objects.all()
+                    })
+
+                try:
+                    user = u_form.save(commit=False)
+                    user.role, user.is_otp_verified = 'worker', True
+                    user.set_password(u_form.cleaned_data.get('password'))
+                    user.save()
+
+                    # Create UserProfile
+                    UserProfile.objects.create(
+                        user=user,
+                        phone=u_form.cleaned_data.get('phone'),
+                        address_line1=u_form.cleaned_data.get('address_line1'),
+                        address_line2=u_form.cleaned_data.get('address_line2'),
+                        city=u_form.cleaned_data.get('city'),
+                        state=u_form.cleaned_data.get('state'),
+                        pincode=u_form.cleaned_data.get('pincode')
+                    )
+
+                    # Ensure mobile field is populated from phone
+                    worker = w_form.save(commit=False)
+                    worker.user = user
+                    worker.kyc_status = 'pending'
+                    worker.kyc_submitted_at = timezone.now()
+                    if not worker.mobile:
+                        worker.mobile = u_form.cleaned_data.get('phone')
+                    worker.save()
+                    w_form.save_m2m()
+
+                    # Cleanup session
+                    if 'verified_contact' in request.session:
+                        del request.session['verified_contact']
+
+                    messages.success(request, "Registration successful! Your partner account is pending verification. Please login.")
+                    return redirect('login')
+
+                except Exception as e:
+                    logger.error(f"[Worker Register] Save failed: {e}")
+                    messages.error(request, "Registration failed due to a conflict. The username or email may already exist. Please try again with different details.")
         else:
-            # Display errors
+            # Display form validation errors
             for field, errors in u_form.errors.items():
-                for error in errors: messages.error(request, f"User Form: {error}")
+                for error in errors: messages.error(request, f"{error}")
             for field, errors in w_form.errors.items():
-                for error in errors: messages.error(request, f"Profile Form: {error}")
+                for error in errors: messages.error(request, f"{error}")
 
     return render(request, 'worker_register.html', {
-        'user_form': u_form, 
-        'worker_form': w_form, 
+        'user_form': u_form,
+        'worker_form': w_form,
         'categories': Category.objects.all()
     })
+
+from datetime import date, datetime, timedelta
+from django.db.models import Sum, Count, Q
+from .models import (
+    Category, WorkerProfile, Booking, Payment, Review, 
+    Complaint, Notification, CustomUser, UserProfile,
+    Offer, SmartOfferSettings
+)
+
+# ── Smart Offer Helpers ──
+
+def get_user_segment(user):
+    """Determine if user is 'new', 'inactive', or 'regular'."""
+    booking_count = Booking.objects.filter(user=user).count()
+    if booking_count == 0:
+        return 'new'
+    
+    settings = SmartOfferSettings.objects.first() or SmartOfferSettings.objects.create()
+    threshold_date = timezone.now() - timedelta(days=settings.inactive_days_threshold)
+    has_recent_booking = Booking.objects.filter(user=user, created_at__gte=threshold_date).exists()
+    
+    if not has_recent_booking:
+        return 'inactive'
+    
+    return 'regular'
+
+def get_active_smart_offer(user):
+    """Retrieve the best applicable smart offer for the user."""
+    segment = get_user_segment(user)
+    offers = Offer.objects.filter(
+        offer_type='smart',
+        is_active=True,
+        user_type__in=[segment, 'general']
+    ).order_by('-discount')
+    
+    for offer in offers:
+        # Check overall usage limit
+        if offer.usage_limit and offer.usage_count >= offer.usage_limit:
+            continue
+        # Check valid dates
+        now = timezone.now()
+        if offer.valid_from and now < offer.valid_from: continue
+        if offer.valid_to and now > offer.valid_to: continue
+        
+        return offer
+    return None
 
 # =========================
 # DASHBOARDS
 # =========================
 
+
+@never_cache
+@login_required
+@user_required
+def user_home(request):
+    popular_workers = WorkerProfile.objects.filter(kyc_status='approved', is_verified=True)[:4]
+    categories = Category.objects.all()
+    now = timezone.now()
+    today = timezone.localtime(now).date()
+
+    # 1. ── Check Daily Limit ──
+    used_booking = Booking.objects.filter(
+        user=request.user,
+        created_at__date=today,
+        offer_applied=True,
+        status__in=['completed', 'paid', 'accepted']
+    ).exists()
+
+    # ── Smart Offer Activation ──
+    offer_applied, login_offer_secs, active_smart_offer = _activate_smart_offer(request)
+    
+    # Check if we should show the popup (only once per session)
+    show_offer_popup = False
+    if offer_applied and not request.session.get('offer_popup_shown', False):
+        show_offer_popup = True
+        request.session['offer_popup_shown'] = True
+        request.session.modified = True
+
+    # Regular UI Offers (Marketing Grid)
+    priority_types = ['general']
+    segment = get_user_segment(request.user)
+    if segment == 'new':
+        priority_types.insert(0, 'first_time')
+    if now.weekday() >= 5:
+        priority_types.insert(0, 'weekend')
+
+    ui_offers = Offer.objects.filter(
+        offer_type__in=priority_types,
+        is_active=True,
+        valid_from__lte=now,
+        valid_to__gte=now
+    ).order_by('offer_type')[:4]
+
+    return render(request, 'user_home.html', {
+        'popular_workers': popular_workers,
+        'offers': ui_offers,
+        'categories': categories,
+        'offer_applied': offer_applied,
+        'login_offer_secs': login_offer_secs,
+        'offer_used_today': used_booking,
+        'show_offer_popup': show_offer_popup,
+        'active_smart_offer': active_smart_offer,
+    })
 
 @never_cache
 @login_required
@@ -370,12 +549,26 @@ def user_dashboard(request):
     bookings = Booking.objects.filter(user=request.user).order_by('-booking_date')
     total_spent = Payment.objects.filter(user=request.user, status='successful').aggregate(Sum('amount'))['amount__sum'] or 0
     
+    # ── Login Offer logic ──
+    offer_applied, login_offer_secs, _ = _activate_smart_offer(request)
+    
+    today = timezone.localtime(timezone.now()).date()
+    offer_used_today = Booking.objects.filter(
+        user=request.user,
+        created_at__date=today,
+        offer_applied=True,
+        status__in=['completed', 'paid', 'accepted']
+    ).exists()
+
     return render(request, 'user_dashboard.html', {
         'profile': profile,
         'bookings': bookings,
         'total_spent': total_spent,
         'active_count': bookings.filter(status__in=['pending','accepted','in_progress']).count(),
-        'completed_count': bookings.filter(status='completed').count(),
+        'completed_count': bookings.filter(status__in=['completed', 'paid']).count(),
+        'offer_applied': offer_applied,
+        'login_offer_secs': login_offer_secs,
+        'offer_used_today': offer_used_today,
     })
 
 @never_cache
@@ -391,8 +584,8 @@ def worker_dashboard(request):
     done_count = bookings.filter(status__in=['completed', 'paid']).count()
     
     # Earnings breakdown
-    total_earnings = bookings.filter(status='paid').aggregate(Sum('total_price'))['total_price__sum'] or 0
-    pending_earnings = bookings.filter(status__in=['accepted', 'in_progress', 'completed']).aggregate(Sum('total_price'))['total_price__sum'] or 0
+    total_earnings = bookings.filter(status__in=['completed', 'paid']).aggregate(Sum('total_price'))['total_price__sum'] or 0
+    pending_earnings = bookings.filter(status__in=['pending', 'accepted', 'in_progress']).aggregate(Sum('total_price'))['total_price__sum'] or 0
     
     # 📊 Chart Data: Earnings Trend (Last 7 Days)
     seven_days_ago = timezone.now().date() - timedelta(days=6)
@@ -421,6 +614,8 @@ def worker_dashboard(request):
     avg_rating = worker.reviews.aggregate(Avg('rating'))['rating__avg'] or 0
     avg_rating = round(avg_rating, 1)
 
+    # Convert to JSON for safe JS usage
+    import json
     return render(request, 'worker_dashboard.html', {
         'worker': worker,
         'bookings': bookings,
@@ -429,10 +624,10 @@ def worker_dashboard(request):
         'done_count': done_count,
         'total_earnings': total_earnings,
         'pending_earnings': pending_earnings,
-        'earnings_labels': earnings_labels,
-        'earnings_data': earnings_data,
-        'status_labels': status_labels,
-        'status_values': status_values,
+        'earnings_labels_json': json.dumps(earnings_labels),
+        'earnings_data_json': json.dumps(earnings_data),
+        'status_labels_json': json.dumps(status_labels),
+        'status_values_json': json.dumps(status_values),
         'avg_rating': avg_rating,
     })
 
@@ -469,7 +664,7 @@ def worker_jobs(request):
     if date_filter:
         bookings = bookings.filter(booking_date=date_filter)
         
-    client_name = request.GET.get('client_name')
+    client_name = request.GET.get('client_name', '').strip()
     if client_name:
         bookings = bookings.filter(user__first_name__icontains=client_name) | bookings.filter(user__last_name__icontains=client_name)
         
@@ -489,9 +684,13 @@ def worker_list(request):
     # Show all verified + approved workers (regardless of availability so user can still view profile)
     workers = WorkerProfile.objects.filter(kyc_status='approved', is_verified=True)
     
-    # Category Filter
-    cat = request.GET.get('category')
-    if cat: workers = workers.filter(categories__name__icontains=cat)
+    # Category Filter (Supports both ID from dropdown and Name from links)
+    cat_query = request.GET.get('category')
+    if cat_query:
+        if cat_query.isdigit():
+            workers = workers.filter(categories__id=cat_query)
+        else:
+            workers = workers.filter(categories__name__icontains=cat_query)
     
     # Location Filter
     city = request.GET.get('city')
@@ -501,8 +700,14 @@ def worker_list(request):
     if pincode: workers = workers.filter(pincode=pincode)
     
     # Search
-    search = request.GET.get('search')
-    if search: workers = workers.filter(skills__icontains=search)
+    search = request.GET.get('search') or request.GET.get('q')
+    if search:
+        workers = workers.filter(
+            Q(skills__icontains=search) | 
+            Q(user__first_name__icontains=search) | 
+            Q(user__last_name__icontains=search) |
+            Q(categories__name__icontains=search)
+        ).distinct()
     
     # Get distinct cities for filter dropdown
     cities = WorkerProfile.objects.values_list('city', flat=True).distinct()
@@ -511,12 +716,17 @@ def worker_list(request):
     for w in workers:
         w.encoded_id = base64.urlsafe_b64encode(str(w.id).encode()).decode()
     
+    # Fetch recent top reviews for dynamic testimonial section
+    recent_reviews = Review.objects.filter(rating__gte=4).select_related('user', 'worker__user').order_by('-created_at')[:5]
+    
     return render(request, 'worker_list.html', {
         'workers': workers, 
-        'selected_category': cat,
+        'categories': Category.objects.all(),
+        'selected_category': cat_query,
         'selected_city': city,
         'selected_pincode': pincode,
-        'cities': cities
+        'cities': cities,
+        'reviews': recent_reviews,
     })
 
 def worker_detail(request, worker_id):
@@ -528,10 +738,106 @@ def worker_detail(request, worker_id):
 # BOOKING SYSTEM
 # =========================
 
+_LOGIN_OFFER_WINDOW = 600  # 10 minutes in seconds
+_LOGIN_OFFER_DISCOUNT = 10  # percent
+
+def _get_login_offer_secs(request):
+    """
+    Returns remaining seconds for the personalized promotional window.
+    Supports dynamic durations per offer.
+    """
+    login_time_str = request.session.get('login_time')
+    duration_mins = request.session.get('offer_duration', 10) # Default 10 mins
+    
+    if not login_time_str:
+        return 0
+        
+    try:
+        from datetime import datetime
+        login_time = datetime.fromisoformat(login_time_str)
+        if login_time.tzinfo is None:
+            login_time = timezone.make_aware(login_time)
+            
+        now = timezone.now()
+        elapsed = (now - login_time).total_seconds()
+        remaining = int((duration_mins * 60) - elapsed)
+        return max(0, remaining)
+    except Exception as e:
+        return 0
+
+def _activate_smart_offer(request):
+    """Helper to check/activate smart offer for a user session."""
+    now = timezone.now()
+    today = timezone.localtime(now).date()
+    
+    used_booking = Booking.objects.filter(
+        user=request.user,
+        created_at__date=today,
+        offer_applied=True,
+        status__in=['completed', 'paid', 'accepted']
+    ).exists()
+    
+    if used_booking:
+        return False, 0, None
+
+    settings = SmartOfferSettings.objects.first() or SmartOfferSettings.objects.create()
+    if not settings.is_enabled:
+        return False, 0, None
+
+    login_offer_secs = _get_login_offer_secs(request)
+    if login_offer_secs <= 0:
+        # Clear stale session data to allow fresh activation
+        keys_to_clear = ['login_time', 'offer_active', 'offer_id', 'offer_duration', 'offer_pct', 'offer_label', 'offer_popup_shown']
+        for key in keys_to_clear:
+            if key in request.session: del request.session[key]
+        
+        segment = get_user_segment(request.user)
+        offer = get_active_smart_offer(request.user)
+        if offer:
+            request.session['login_time'] = now.isoformat()
+            request.session['offer_active'] = True
+            request.session['offer_id'] = offer.id
+            request.session['offer_duration'] = offer.duration_minutes
+            request.session['offer_pct'] = offer.discount
+            request.session['offer_type'] = segment # Store segment/type in session
+            
+            # Map labels
+            labels = {'new': 'Welcome Offer', 'regular': 'Special Offer', 'inactive': 'We Miss You'}
+            request.session['offer_label'] = labels.get(segment, 'Exclusive Offer')
+            
+            request.session.modified = True
+            return True, _get_login_offer_secs(request), offer
+    
+    # Check if already active
+    if request.session.get('offer_active') and login_offer_secs > 0:
+        offer_id = request.session.get('offer_id')
+        offer = Offer.objects.filter(id=offer_id).first() if offer_id else None
+        return True, login_offer_secs, offer
+
+    return False, 0, None
+
 @login_required
 def booking_config(request, worker_id):
     worker = get_object_or_404(WorkerProfile, id=worker_id)
-    return render(request, 'booking_config.html', {'worker': worker, 'today': date.today()})
+    
+    offer_applied, login_offer_secs, active_offer = _activate_smart_offer(request)
+    
+    today = timezone.localtime(timezone.now()).date()
+    used_booking = Booking.objects.filter(
+        user=request.user,
+        created_at__date=today,
+        offer_applied=True,
+        status__in=['completed', 'paid', 'accepted']
+    ).exists()
+
+    return render(request, 'booking_config.html', {
+        'worker': worker,
+        'today': today,
+        'login_offer_secs': login_offer_secs,
+        'offer_used_today': used_booking,
+        'offer_applied': offer_applied,
+        'active_offer': active_offer,
+    })
 
 @csrf_exempt
 @login_required
@@ -564,6 +870,80 @@ def book_service(request):
 
         worker = get_object_or_404(WorkerProfile, id=w_id)
         
+        # Security Check: Ensure worker is not already busy
+        if worker.status == 'busy':
+            return JsonResponse({'status': 'error', 'message': 'This worker is currently busy. Please select another.'}, status=400)
+        
+        # ── Offer Processing Logic ──
+        offer_id = request.POST.get('offer_id')
+        apply_login_offer = request.POST.get('apply_login_offer') == 'true'
+        total_price = worker.price_per_day
+        applied_offer = None
+        discount_label = None
+
+        today = timezone.localtime(timezone.now()).date()
+
+        # Enforce "one offer per day" rule across all offers
+        if apply_login_offer or offer_id:
+            used_booking = Booking.objects.filter(
+                user=request.user,
+                created_at__date=today,
+                offer_applied=True,
+                status__in=['completed', 'paid', 'accepted']
+            ).exists()
+            
+            if used_booking:
+                return JsonResponse({'status': 'error', 'message': "Today's offer already used."}, status=400)
+
+        # 1. Smart Offer / Login Offer (session-activated)
+        if apply_login_offer:
+            login_secs = _get_login_offer_secs(request)
+            if login_secs > 0:
+                pct = request.session.get('offer_pct', 10)
+                db_offer_id = request.session.get('offer_id')
+                
+                discount = (total_price * pct) / 100
+                total_price -= discount
+                discount_label = f'Special Offer ({pct}% off)'
+                
+                # Update DB if it was a tracked smart offer
+                if db_offer_id:
+                    try:
+                        off = Offer.objects.get(id=db_offer_id)
+                        off.usage_count += 1
+                        off.save()
+                        applied_offer = off
+                    except Offer.DoesNotExist:
+                        pass
+
+                # Clear session state
+                request.session.pop('login_time', None)
+                request.session.pop('offer_id', None)
+                request.session['offer_active'] = False
+                request.session.modified = True
+
+        # 2. Manual/Regular DB offer (if any, e.g. from a list)
+        elif offer_id:
+            try:
+                offer = Offer.objects.get(id=offer_id, is_active=True)
+                now = timezone.now()
+                
+                if (not offer.valid_from or now >= offer.valid_from) and \
+                   (not offer.valid_to or now <= offer.valid_to) and \
+                   (not offer.usage_limit or offer.usage_count < offer.usage_limit) and \
+                   (not offer.min_order_amount or total_price >= offer.min_order_amount):
+                    
+                    discount = (total_price * offer.discount) / 100
+                    if offer.max_discount_amount and discount > offer.max_discount_amount:
+                        discount = offer.max_discount_amount
+                    
+                    total_price -= discount
+                    offer.usage_count += 1
+                    offer.save()
+                    applied_offer = offer
+            except Offer.DoesNotExist:
+                pass
+
         booking = Booking.objects.create(
             user=request.user,
             worker=worker,
@@ -571,9 +951,19 @@ def book_service(request):
             service_address=address,
             start_time=start_time,
             booking_date=booking_date,
-            total_price=worker.price_per_day,
-            status='pending'
+            total_price=total_price,
+            status='pending',
+            offer_applied=bool(discount_label or applied_offer)
         )
+        
+        # Mark offer as used only AFTER successful booking
+        if discount_label or applied_offer:
+            request.user.last_offer_date = today
+            request.user.save()
+
+        # Update worker availability
+        worker.status = 'busy'
+        worker.save()
 
         # Notify worker
         create_notification(worker.user, f"New booking request from {request.user.first_name}! Check your dashboard.")
@@ -600,23 +990,337 @@ def book_service(request):
         return JsonResponse({'status': 'error', 'message': f'Booking failed: {str(e)}'}, status=500)
 
 @login_required
+@worker_required
+def worker_home(request):
+    """Landing page for workers."""
+    worker = get_object_or_404(WorkerProfile, user=request.user)
+    today = timezone.now().date()
+    todays_bookings = Booking.objects.filter(worker=worker, booking_date__date=today)
+    
+    # For timeline, we want today's bookings PLUS any active future bookings
+    from django.db.models import Q
+    timeline_bookings = Booking.objects.filter(
+        Q(worker=worker) & 
+        (Q(booking_date__date=today) | Q(status__in=['pending', 'accepted', 'in_progress']))
+    ).order_by('booking_date', 'start_time')
+    
+    # Calculate Today's Earnings
+    todays_earned = todays_bookings.filter(
+        status__in=['completed', 'paid']
+    ).aggregate(total=Sum('total_price'))['total'] or 0
+    
+    daily_target = worker.price_per_day
+    
+    # Recent Feedback
+    recent_reviews = Review.objects.filter(worker=worker).order_by('-created_at')[:3]
+    
+    return render(request, 'worker_home.html', {
+        'worker': worker,
+        'todays_bookings': timeline_bookings,
+        'todays_earned': todays_earned,
+        'daily_target': daily_target,
+        'recent_reviews': recent_reviews,
+        'today_date': today
+    })
+
+@login_required
+@worker_required
+def accept_booking(request, booking_id):
+    """Worker accepts a pending booking."""
+    booking = get_object_or_404(Booking, id=booking_id)
+    worker = get_object_or_404(WorkerProfile, user=request.user)
+    
+    if booking.worker != worker:
+        messages.error(request, "Unauthorized access.")
+        return redirect('worker_home')
+
+    booking.status = "accepted"
+    booking.accepted_at = timezone.now()
+    booking.save()
+    
+    messages.success(request, "Booking accepted! Check your schedule.")
+    return redirect('worker_home')
+
+@login_required
+@worker_required
+def reject_booking(request, booking_id):
+    """Worker rejects a pending booking."""
+    booking = get_object_or_404(Booking, id=booking_id)
+    worker = get_object_or_404(WorkerProfile, user=request.user)
+    
+    if booking.worker != worker:
+        messages.error(request, "Unauthorized access.")
+        return redirect('worker_home')
+
+    booking.status = "rejected"
+    booking.save()
+    
+    # Re-enable worker availability if they were busy
+    worker.status = "available"
+    worker.save()
+    
+    messages.warning(request, "Booking rejected.")
+    return redirect('worker_home')
+
+@login_required
+@worker_required
+def start_job(request, booking_id):
+    """Worker starts an accepted job."""
+    booking = get_object_or_404(Booking, id=booking_id)
+    worker = get_object_or_404(WorkerProfile, user=request.user)
+    
+    if booking.worker != worker:
+        messages.error(request, "Unauthorized access.")
+        return redirect('worker_home')
+
+    if booking.status != 'accepted':
+        messages.error(request, "Only accepted bookings can be started.")
+        return redirect('worker_home')
+
+    booking.status = "in_progress"
+    booking.save()
+    
+    messages.success(request, "Job started! Good luck.")
+    return redirect('worker_home')
+
+@login_required
+@worker_required
+def complete_job(request, booking_id):
+    """Worker completes an in-progress job."""
+    booking = get_object_or_404(Booking, id=booking_id)
+    worker = get_object_or_404(WorkerProfile, user=request.user)
+    
+    if booking.worker != worker:
+        messages.error(request, "Unauthorized access.")
+        return redirect('worker_home')
+
+    if booking.status != 'in_progress':
+        messages.error(request, "Only in-progress bookings can be completed.")
+        return redirect('worker_home')
+
+    booking.status = "completed"
+    booking.completed_at = timezone.now()
+    booking.save()
+    
+    # Free up the worker
+    worker.status = "available"
+    worker.save()
+    
+    messages.success(request, "Great job! Booking marked as completed.")
+    return redirect('worker_home')
+
+@login_required
+@worker_required
+def toggle_availability(request):
+    """Toggle worker's online/offline status."""
+    worker = get_object_or_404(WorkerProfile, user=request.user)
+    worker.is_online = not worker.is_online
+    worker.save()
+    
+    status_text = "online" if worker.is_online else "offline"
+    return JsonResponse({"status": status_text, "is_online": worker.is_online})
+
+@login_required
+@worker_required
+def api_worker_bookings(request):
+    """API endpoint for fetching today's bookings + summary stats."""
+    worker = get_object_or_404(WorkerProfile, user=request.user)
+    today = timezone.now().date()
+    
+    from django.db.models import Q
+    todays_bookings = Booking.objects.filter(worker=worker, booking_date__date=today)
+    timeline_bookings = Booking.objects.filter(
+        Q(worker=worker) & 
+        (Q(booking_date__date=today) | Q(status__in=['pending', 'accepted', 'in_progress']))
+    ).order_by('booking_date', 'start_time')
+
+    data = []
+    for b in timeline_bookings:
+        time_str = b.start_time.strftime("%I:%M %p") if b.start_time else '--:--'
+        if b.booking_date.date() != today:
+            time_str = f"{b.booking_date.strftime('%b %d')} {time_str}"
+            
+        data.append({
+            'id': b.id,
+            'customer': b.user.get_full_name() or b.user.username,
+            'time': time_str,
+            'service': b.service_type,
+            'status': b.status,
+        })
+
+    # Summary stats for dynamic cards
+    earned = todays_bookings.filter(status__in=['completed', 'paid']).aggregate(
+        total=Sum('total_price'))['total'] or 0
+        
+    active_count = timeline_bookings.filter(status__in=['pending', 'accepted', 'in_progress']).count()
+    
+    next_booking = timeline_bookings.filter(
+        status__in=['pending', 'accepted', 'in_progress']
+    ).first()
+    next_slot = next_booking.start_time.strftime("%I:%M %p") if (next_booking and next_booking.start_time) else '--:--'
+    if next_booking and next_booking.booking_date.date() != today:
+        next_slot = f"{next_booking.booking_date.strftime('%b %d')} {next_slot}"
+
+    daily_target = worker.price_per_day
+    progress = 0
+    if daily_target > 0:
+        progress = (float(earned) / daily_target) * 100
+        if progress > 100: progress = 100
+
+    return JsonResponse({
+        'bookings': data,
+        'summary': {
+            'earned': float(earned),
+            'active_count': active_count,
+            'next_slot': next_slot,
+            'daily_target': daily_target,
+            'progress': progress,
+        }
+    })
+
+@login_required
+@worker_required
+def api_worker_jobs_list(request):
+    """API endpoint for fetching all bookings for the worker."""
+    worker = get_object_or_404(WorkerProfile, user=request.user)
+    bookings = Booking.objects.filter(worker=worker).order_by('-booking_date', '-start_time')
+    
+    data = []
+    now = timezone.now()
+    for b in bookings:
+        # Urgency Check (within 1 hour of start time)
+        is_urgent = False
+        if b.start_time and b.booking_date.date() == now.date():
+            from datetime import datetime, time, combine
+            job_time = combine(now.date(), b.start_time)
+            # Use timezone aware comparison
+            job_time = timezone.make_aware(job_time, timezone.get_current_timezone())
+            time_diff = (job_time - now).total_seconds()
+            if 0 < time_diff < 3600:
+                is_urgent = True
+
+        data.append({
+            'id': b.id,
+            'booking_id_str': b.booking_id_str,
+            'customer': b.user.get_full_name() or b.user.username,
+            'address': b.service_address,
+            'price': str(b.total_price),
+            'time': b.start_time.strftime("%I:%M %p") if b.start_time else "N/A",
+            'date': b.booking_date.strftime("%Y-%m-%d"),
+            'service': b.service_type,
+            'status': b.status,
+            'is_new': b.status == 'pending',
+            'is_urgent': is_urgent
+        })
+    return JsonResponse({'jobs': data})
+
+@login_required
+@user_required
+def instant_book(request):
+    """One-click instant booking logic."""
+    worker_id = request.GET.get('worker_id')
+    if not worker_id:
+        messages.error(request, "Worker selection is required for instant booking.")
+        return redirect('worker_list')
+        
+    worker = get_object_or_404(WorkerProfile, id=worker_id)
+    
+    # Critical Availability Check
+    if worker.status == 'busy':
+        messages.warning(request, f"Sorry, {worker.user.first_name} just became busy. Please try another professional.")
+        return redirect('worker_list')
+        
+    try:
+        # Default category from worker
+        service_type = worker.categories.first().name if worker.categories.exists() else "General Service"
+        
+        # Create confirmed booking
+        booking = Booking.objects.create(
+            user=request.user,
+            worker=worker,
+            service_type=service_type,
+            service_address=request.user.userprofile.address if hasattr(request.user, 'userprofile') else "Address on file",
+            start_time="09:00:00", # Default morning slot
+            booking_date=timezone.now().date(),
+            total_price=worker.price_per_day,
+            status='accepted' # Instant book bypasses 'pending'
+        )
+        
+        # Mark worker as busy immediately
+        worker.status = 'busy'
+        worker.save()
+        
+        # Notify
+        create_notification(worker.user, f"⚡ INSTANT BOOK! You have a new confirmed booking from {request.user.first_name}.")
+        
+        # Instead of a blind redirect, show the success page with details
+        return render(request, 'instant_success.html', {'booking': booking})
+        
+    except Exception as e:
+        messages.error(request, f"Instant booking failed: {str(e)}")
+        return redirect('worker_list')
+
+@login_required
 @user_required
 def booking_new(request):
     workers = WorkerProfile.objects.filter(kyc_status='approved', is_verified=True, availability='available')
     preselected_worker = None
     
-    worker_id_encoded = request.GET.get('worker_id')
-    if worker_id_encoded:
+    worker_id_param = request.GET.get('worker_id')
+    if worker_id_param:
         try:
-            worker_id = int(base64.urlsafe_b64decode(worker_id_encoded).decode())
-            preselected_worker = WorkerProfile.objects.filter(id=worker_id, kyc_status='approved', is_verified=True).first()
-        except Exception:
-            pass
+            # Try parsing as a raw integer first (from new UI)
+            worker_id = int(worker_id_param)
+            preselected_worker = WorkerProfile.objects.filter(id=worker_id, kyc_status='approved', is_verified=True, status='available').first()
+        except (ValueError, TypeError):
+            # Fallback for older base64 encoded URLs
+            try:
+                worker_id = int(base64.urlsafe_b64decode(worker_id_param).decode())
+                preselected_worker = WorkerProfile.objects.filter(id=worker_id, kyc_status='approved', is_verified=True, status='available').first()
+            except Exception:
+                preselected_worker = None
         
+    now = timezone.now()
+    active_offers = Offer.objects.filter(
+        is_active=True,
+        valid_from__lte=now,
+        valid_to__gte=now
+    )
+
+    # ── Login Offer window ──
+    today = timezone.localtime(timezone.now()).date()
+    used_booking = Booking.objects.filter(
+        user=request.user,
+        created_at__date=today,
+        offer_applied=True,
+        status__in=['completed', 'paid', 'accepted']
+    ).first()
+    
+    offer_used_today = used_booking is not None
+    if offer_used_today:
+        import logging
+        logger = logging.getLogger('maidapp')
+        logger.debug(f"Offer blocked for {request.user.username}: Triggered by Booking {used_booking.id}")
+
+    # 🚀 AUTO-START OFFER TIMER: If not used today and (not set or expired)
+    login_offer_secs = _get_login_offer_secs(request)
+    if not offer_used_today and login_offer_secs <= 0:
+        request.session['login_time'] = timezone.now().isoformat()
+        request.session['offer_active'] = True
+        request.session.modified = True
+        login_offer_secs = _get_login_offer_secs(request)
+
+    offer_applied = request.session.get('offer_active', False) and login_offer_secs > 0 and not offer_used_today
+    
     return render(request, 'booking_new.html', {
         'workers': workers,
         'preselected_worker': preselected_worker,
-        'today': date.today()
+        'selected_worker': preselected_worker,
+        'offers': active_offers,
+        'today': date.today(),
+        'login_offer_secs': login_offer_secs,
+        'offer_used_today': offer_used_today,
+        'offer_applied': offer_applied,
     })
 
 @login_required
@@ -750,11 +1454,38 @@ def block_worker(request, worker_id):
     return redirect('manage_workers')
     
 @login_required
+def profile_view(request):
+    """
+    Unified route to show the user's profile summary based on their role.
+    """
+    if request.user.role == 'worker':
+        worker = get_object_or_404(WorkerProfile, user=request.user)
+        # Calculate earnings summary
+        total_earnings = Booking.objects.filter(worker=worker, status='paid').aggregate(Sum('total_price'))['total_price__sum'] or 0
+        pending_earnings = Booking.objects.filter(worker=worker, status__in=['accepted', 'in_progress', 'completed']).aggregate(Sum('total_price'))['total_price__sum'] or 0
+        
+        return render(request, 'worker_profile.html', {
+            'worker': worker,
+            'total_earnings': total_earnings,
+            'pending_earnings': pending_earnings,
+            'jobs_completed': worker.jobs_completed
+        })
+    elif request.user.role == 'user':
+        # Calculate total bookings for user
+        booking_count = Booking.objects.filter(user=request.user).count()
+        return render(request, 'user_profile.html', {
+            'booking_count': booking_count
+        })
+    elif request.user.is_superuser:
+        return redirect('admin_dashboard')
+    return redirect('home')
+
+@login_required
 @user_required
 def user_profile_update(request):
     profile = get_object_or_404(UserProfile, user=request.user)
     if request.method == 'POST':
-        form = UserProfileUpdateForm(request.POST, instance=profile)
+        form = UserProfileUpdateForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
             request.user.first_name = form.cleaned_data.get('first_name', request.user.first_name)
@@ -852,8 +1583,99 @@ def admin_dashboard(request):
         'booking_count': total_bookings,
         'revenue_total': total_revenue,
         'kyc_pending_count': WorkerProfile.objects.filter(kyc_status='pending').count(),
+        'pending_complaints': Complaint.objects.filter(status='open').count(),
     }
     return render(request, 'admin_dashboard.html', context)
+
+@login_required
+@admin_required
+def manage_worker_detail(request, worker_id):
+    worker = get_object_or_404(WorkerProfile, id=worker_id)
+    bookings = Booking.objects.filter(worker=worker).order_by('-booking_date')
+    return render(request, 'admin/worker_manage_detail.html', {
+        'worker': worker,
+        'bookings': bookings
+    })
+
+@login_required
+@admin_required
+def manage_user_detail(request, user_id):
+    target_user = get_object_or_404(CustomUser, id=user_id)
+    profile, _ = UserProfile.objects.get_or_create(user=target_user)
+    bookings = Booking.objects.filter(user=target_user).order_by('-booking_date')
+    return render(request, 'admin/user_manage_detail.html', {
+        'target_user': target_user,
+        'profile': profile,
+        'bookings': bookings
+    })
+
+@login_required
+@admin_required
+def offer_management(request):
+    offers = Offer.objects.all().order_by('-id')
+    settings = SmartOfferSettings.objects.first() or SmartOfferSettings.objects.create()
+    
+    # Analytics
+    total_offers = offers.count()
+    total_usage = Offer.objects.aggregate(Sum('usage_count'))['usage_count__sum'] or 0
+    most_used_offer = Offer.objects.order_by('-usage_count').first()
+    
+    # Smart Offer Stats
+    smart_offers_count = offers.filter(offer_type='smart').count()
+    
+    if request.method == 'POST':
+        form = SmartOfferSettingsForm(request.POST, instance=settings)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Smart Offer Settings updated successfully.")
+            return redirect('offer_management')
+    else:
+        form = SmartOfferSettingsForm(instance=settings)
+        
+    return render(request, 'offer_management.html', {
+        'offers': offers,
+        'settings_form': form,
+        'total_offers': total_offers,
+        'total_usage': total_usage,
+        'most_used_offer': most_used_offer,
+        'smart_offers_count': smart_offers_count,
+    })
+
+@login_required
+@admin_required
+def create_offer(request):
+    if request.method == 'POST':
+        form = OfferForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "New offer created successfully.")
+            return redirect('offer_management')
+    else:
+        form = OfferForm()
+    return render(request, 'offer_form.html', {'form': form, 'title': 'Create New Offer'})
+
+@login_required
+@admin_required
+def edit_offer(request, offer_id):
+    offer = get_object_or_404(Offer, id=offer_id)
+    if request.method == 'POST':
+        form = OfferForm(request.POST, instance=offer)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Offer '{offer.name}' updated successfully.")
+            return redirect('offer_management')
+    else:
+        form = OfferForm(instance=offer)
+    return render(request, 'offer_form.html', {'form': form, 'title': f'Edit Offer: {offer.name}'})
+
+@login_required
+@admin_required
+def delete_offer(request, offer_id):
+    offer = get_object_or_404(Offer, id=offer_id)
+    name = offer.name
+    offer.delete()
+    messages.success(request, f"Offer '{name}' deleted successfully.")
+    return redirect('offer_management')
 
 @login_required
 @admin_required
@@ -886,14 +1708,29 @@ def admin_complaints(request):
         messages.success(request, f"Complaint from @{complaint.user.username} marked as resolved.")
         return redirect('admin_complaints')
         
-    return render(request, 'manage_complaints.html', {'complaints': Complaint.objects.all().order_by('-created_at')})
+    complaints = Complaint.objects.all().order_by('-created_at')
+    open_count = complaints.filter(status='open').count()
+    return render(request, 'manage_complaints.html', {
+        'complaints': complaints,
+        'open_count': open_count
+    })
 
 @login_required
 @admin_required
 def admin_bookings(request):
     """View all bookings in the system."""
     bookings = Booking.objects.all().order_by('-booking_date')
-    return render(request, 'admin/manage_bookings.html', {'bookings': bookings})
+    ongoing_bookings = bookings.filter(status__in=['pending', 'accepted', 'in_progress'])
+    completed_bookings = bookings.filter(status__in=['completed', 'paid'])
+    
+    total_revenue = Payment.objects.filter(status='successful').aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    return render(request, 'admin/manage_bookings.html', {
+        'bookings': bookings,
+        'ongoing_count': ongoing_bookings.count(),
+        'completed_count': completed_bookings.count(),
+        'total_revenue': total_revenue
+    })
 
 @login_required
 def submit_complaint(request):
@@ -932,6 +1769,40 @@ def check_new_jobs(request):
     worker = get_object_or_404(WorkerProfile, user=request.user)
     count = Booking.objects.filter(worker=worker, status='pending').count()
     return JsonResponse({'count': count})
+
+@csrf_exempt
+def api_worker_status(request):
+    worker_id = request.GET.get('worker_id')
+    if not worker_id:
+        return JsonResponse({'error': 'worker_id parameter is required'}, status=400)
+        
+    worker = WorkerProfile.objects.filter(id=worker_id).first()
+    if worker:
+        return JsonResponse({
+            'worker_id': worker.id,
+            'status': worker.status
+        })
+        
+    return JsonResponse({'error': 'Worker not found'}, status=404)
+
+@login_required
+@user_required
+def api_bookings_list(request):
+    # Fetch the latest 10 bookings for the logged-in user
+    bookings = Booking.objects.filter(user=request.user).order_by('-created_at')[:10]
+    
+    data = []
+    for b in bookings:
+        data.append({
+            'booking_id': b.id,
+            'service_type': b.service_type,
+            'worker_name': b.worker.user.get_full_name() or b.worker.user.username,
+            'status': b.status,
+            'booking_date': b.booking_date.strftime('%Y-%m-%d') if b.booking_date else None,
+            'total_price': str(b.total_price)
+        })
+        
+    return JsonResponse({'status': 'success', 'bookings': data})
 
 def api_get_locations(request):
     locs = WorkerProfile.objects.values_list('district', flat=True).distinct()
@@ -1034,6 +1905,7 @@ def update_booking_status(request, booking_id, action):
         booking.status = 'completed'
         booking.completed_at = timezone.now()
         worker.availability = 'available'
+        worker.status = 'available'
         worker.save()
         create_notification(booking.user, f"Service completed for #{booking.booking_id_str}! Please rate your experience.")
         messages.success(request, "Job well done! Earnings updated.")
@@ -1044,6 +1916,7 @@ def update_booking_status(request, booking_id, action):
             next_job.status = 'in_progress'
             next_job.save()
             worker.availability = 'busy'
+            worker.status = 'busy'
             worker.save()
             create_notification(next_job.user, f"{worker.user.first_name} has started your service! Stay updated.")
     
@@ -1121,6 +1994,7 @@ def complete_booking_ajax(request, booking_id):
         booking.status = 'completed'
         booking.completed_at = timezone.now()
         worker.availability = 'available'
+        worker.status = 'available'
         worker.save()
         booking.save()
 
@@ -1130,6 +2004,7 @@ def complete_booking_ajax(request, booking_id):
             next_job.status = 'in_progress'
             next_job.save()
             worker.availability = 'busy'
+            worker.status = 'busy'
             worker.save()
             create_notification(next_job.user, f"{worker.user.first_name} has started your service! Stay updated.")
     
@@ -1197,6 +2072,9 @@ def complete_booking(request, id):
         try:
             booking = Booking.objects.get(id=id, worker__user=request.user)
             booking.status = "completed"
+            booking.worker.status = "available"
+            booking.worker.availability = "available"
+            booking.worker.save()
             booking.save()
             return JsonResponse({"success": True})
         except:
@@ -1445,3 +2323,25 @@ def api_complaints_list(request):
             'created_at': c.created_at.strftime("%B %d, %Y")
         })
     return JsonResponse({'complaints': data})
+
+
+# =========================
+# WORKER AVAILABILITY TOGGLE
+# =========================
+
+@login_required
+@worker_required
+def toggle_availability(request):
+    """
+    Toggle the worker's online/offline status.
+    Called via GET from the worker dashboard/home JS.
+    Returns JSON: {"is_online": true/false, "status": "success"}
+    """
+    worker = get_object_or_404(WorkerProfile, user=request.user)
+    worker.is_online = not worker.is_online
+    worker.save(update_fields=['is_online'])
+    return JsonResponse({
+        'status': 'success',
+        'is_online': worker.is_online,
+        'message': 'You are now Online' if worker.is_online else 'You are now Offline',
+    })
