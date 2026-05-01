@@ -4,25 +4,92 @@
 
 {% block title %}Verified Professionals — MaidConnect{% endblock %}
 
+{% block dashboard_bg_url %}{% static 'images/search_bg.png' %}{% endblock %}
+
+{% block dashboard_sidebar %}{% endblock %}
+
 {% block extra_head %}
 <style>
-    .marketplace-container { background: #FAFAFA; min-height: 100vh; padding: 2rem; }
-    .worker-card { 
+    .marketplace-container {
+        background: #FAFAFA;
+        min-height: 100vh;
+        padding: 1.5rem;
+    }
+
+    .worker-card {
         background: white;
         border-radius: 1.5rem;
         overflow: hidden;
-        transition: all 0.3s ease;
-        border: 1px solid rgba(0,0,0,0.03);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(0, 0, 0, 0.05);
     }
-    .worker-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-vibrant); }
-    .worker-img { height: 220px; object-fit: cover; }
+
+    .worker-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .worker-img-container {
+        height: 150px;
+        background: #f8faff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    .worker-img {
+        height: 100%;
+        width: 100%;
+        object-fit: contain;
+        border-radius: 1.2rem;
+        transition: transform 0.3s ease;
+    }
+
+    .worker-card:hover .worker-img {
+        transform: scale(1.05);
+    }
+
+    .small-badge {
+        font-size: 0.65rem;
+        padding: 3px 8px;
+    }
+
+    .card-title-vibrant {
+        font-size: 0.95rem;
+        font-weight: 900;
+    }
+
+    .card-meta-vibrant {
+        font-size: 0.7rem;
+        font-weight: 700;
+        opacity: 0.7;
+    }
+
+    @keyframes pulse-slow {
+        0% {
+            opacity: 0.7;
+        }
+
+        50% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 0.7;
+        }
+    }
+
+    .animate-pulse-slow {
+        animation: pulse-slow 3s infinite ease-in-out;
+    }
 </style>
 {% endblock %}
 
 {% block dashboard_content %}
 <section class="marketplace-container animate-fade-in px-lg-5">
     <div class="container-fluid">
-        
+
         <!-- ── FILTER HEADER ── -->
         <div class="row align-items-center mb-4 g-4">
             <div class="col-lg-6">
@@ -35,15 +102,22 @@
                         <select name="category" class="form-select border-0 bg-white shadow-sm rounded-pill px-4">
                             <option value="">All Services</option>
                             {% for cat in categories %}
-                            <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:'s' %}selected{% endif %}>{{ cat.name }}</option>
+                            {% if selected_category == cat.id|stringformat:'s' or selected_category == cat.name %}
+                            <option value="{{ cat.id }}" selected>{{ cat.name }}</option>
+                            {% else %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                            {% endif %}
                             {% endfor %}
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <input type="text" name="city" placeholder="Search City..." class="form-control border-0 bg-white shadow-sm rounded-pill px-4" value="{{ selected_city }}">
+                        <input type="text" name="city" placeholder="Search City..."
+                            class="form-control border-0 bg-white shadow-sm rounded-pill px-4"
+                            value="{{ selected_city }}">
                     </div>
                     <div class="col-md-2">
-                        <button type="submit" class="btn btn-vibrant w-100 rounded-pill"><i class="fa-solid fa-filter"></i></button>
+                        <button type="submit" class="btn btn-vibrant w-100 rounded-pill"><i
+                                class="fa-solid fa-filter"></i></button>
                     </div>
                 </form>
             </div>
@@ -52,34 +126,65 @@
         <!-- ── WORKER GRID ── -->
         <div class="row g-4">
             {% for w in workers %}
-            <div class="col-xl-3 col-lg-4 col-md-6">
-                <div class="worker-card h-100 shadow-sm">
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="worker-card h-100 shadow-sm d-flex flex-column">
                     <div class="position-relative">
-                        {% if w.photo %}
-                        <img src="{{ w.photo.url }}" class="worker-img w-100" alt="{{ w.user.first_name }}">
-                        {% else %}
-                        <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6958?auto=format&fit=crop&q=80&w=800" class="worker-img w-100" alt="Maid">
+                        <div class="worker-img-container">
+                            {% if w.photo %}
+                            <img src="{{ w.photo.url }}" class="worker-img" alt="{{ w.user.first_name }}">
+                            {% else %}
+                            <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6958?auto=format&fit=crop&q=80&w=800"
+                                class="worker-img" alt="Maid">
+                            {% endif %}
+                        </div>
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <span class="badge rounded-pill px-2 py-1 fw-black shadow-sm" style="background: var(--v-blue); color: white; font-size: 0.65rem;">₹{{ w.price_per_day }}/d</span>
+                        </div>
+                        {% if w.status == 'busy' %}
+                        <div class="position-absolute top-0 start-0 m-2 animate-pulse-slow">
+                            <span class="badge bg-danger bg-opacity-75 rounded-pill px-2 py-1 fw-black shadow-sm"
+                                style="font-size: 0.55rem;">
+                                <i class="fa-solid fa-circle small me-1"></i> BUSY
+                            </span>
+                        </div>
                         {% endif %}
-                        <div class="position-absolute top-0 end-0 m-3">
-                            <span class="badge bg-white text-vibrant rounded-pill px-3 py-2 fw-black shadow-sm">₹{{ w.price_per_day }}/day</span>
-                        </div>
                     </div>
-                    <div class="p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="fw-black mb-0">{{ w.user.get_full_name }}</h5>
-                            <div class="text-warning small"><i class="fa-solid fa-star"></i> {{ w.rating_avg|default:"5.0" }}</div>
+                    <div class="p-3 d-flex flex-column flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <h6 class="card-title-vibrant mb-0">{{ w.user.get_full_name }}</h6>
+                            <div class="text-warning" style="font-size: 0.7rem;"><i class="fa-solid fa-star"></i> {{ w.rating_avg|default:"5.0" }}</div>
                         </div>
-                        <div class="small fw-bold text-muted mb-3">
+                        <div class="card-meta-vibrant mb-2">
                             <i class="fa-solid fa-location-dot me-1"></i> {{ w.location|default:"Tirupur" }}
                         </div>
-                        <div class="d-flex flex-wrap gap-2 mb-4">
-                            {% for cat in w.categories.all %}
-                            <span class="badge bg-soft-primary text-primary rounded-pill px-3">{{ cat.name }}</span>
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            {% for cat in w.categories.all|slice:":2" %}
+                            <span class="badge bg-light text-primary rounded-pill small-badge border">{{ cat.name }}</span>
                             {% endfor %}
                         </div>
-                        <a href="{% url 'booking_new' %}?worker_id={{ w.id|encoded_id }}" class="btn btn-outline-primary w-100 rounded-pill fw-black py-2">
-                            HIRE NOW
-                        </a>
+
+                        <div class="mt-auto">
+                            {% if w.status == 'busy' %}
+                            <button disabled
+                                class="btn btn-light w-100 rounded-pill fw-black py-2 x-small text-muted border"
+                                style="cursor: not-allowed; background: #f8f9fa;">
+                                BUSY
+                            </button>
+                            {% else %}
+                            <div class="d-flex gap-1">
+                                <a href="{% url 'booking_new' %}?worker_id={{ w.id }}"
+                                    class="btn btn-outline-primary flex-grow-1 rounded-pill fw-black py-2 x-small d-flex align-items-center justify-content-center">
+                                    HIRE
+                                </a>
+                                <a href="{% url 'instant_book' %}?worker_id={{ w.id }}"
+                                    onclick="return confirm('Confirm instant booking with {{ w.user.first_name }}?')"
+                                    class="btn btn-dark rounded-pill fw-black py-2 px-2 x-small d-flex align-items-center justify-content-center"
+                                    style="background: #1A1C2C;">
+                                    ⚡
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -91,4 +196,5 @@
         </div>
     </div>
 </section>
+
 {% endblock %}

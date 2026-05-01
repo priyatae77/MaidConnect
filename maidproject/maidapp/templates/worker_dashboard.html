@@ -43,8 +43,19 @@
 {% endblock %}
 
 {% block dashboard_content %}
-<div class="workstation-container animate-fade-in">
-    
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h2 class="fw-black mb-0">Partner Workstation</h2>
+        <!-- Availability Toggle -->
+        <div class="d-flex align-items-center gap-3 bg-white p-2 px-3 rounded-pill shadow-sm border">
+            <span id="navStatusText" class="small fw-black text-uppercase {% if worker.is_online %}text-success{% else %}text-muted{% endif %}">
+                {{ worker.is_online|yesno:"Online,Offline" }}
+            </span>
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" role="switch" id="availabilityToggle" {% if worker.is_online %}checked{% endif %} style="width: 2.5rem; height: 1.25rem; cursor: pointer;">
+            </div>
+        </div>
+    </div>
+
     <!-- ── ⚡ QUICK METRICS ⚡ ── -->
     <div class="row g-4 mb-5">
         <div class="col-md-3">
@@ -142,30 +153,44 @@
                         </thead>
                         <tbody>
                             {% for b in bookings %}
-                            {% if b.status != 'completed' and b.status != 'paid' and b.status != 'cancelled' %}
                             <tr>
                                 <td class="fw-bold">#{{ b.booking_id_str }}</td>
                                 <td>
-                                    <div class="fw-black">{{ b.user.first_name }} {{ b.user.last_name }}</div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="fw-black">{{ b.user.get_full_name|default:b.user.username }}</div>
+                                        {% if b.status == 'pending' %}
+                                        <span class="badge bg-primary x-small rounded-pill" style="font-size: 0.5rem;">NEW</span>
+                                        {% endif %}
+                                        {% with job_time=b.start_time %}
+                                            {% if b.booking_date.date == today and b.status == 'accepted' %}
+                                                <!-- Urgency handled in JS for accuracy, but adding static placeholder if needed -->
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
                                     <div class="x-small text-muted">{{ b.service_address|truncatechars:20 }}</div>
                                 </td>
                                 <td><span class="badge bg-soft-primary text-primary rounded-pill px-3">{{ b.service_type }}</span></td>
-                                <td class="small fw-medium">{{ b.booking_date|date:"M d" }} at {{ b.start_time }}</td>
+                                <td class="small fw-medium">
+                                    {{ b.booking_date|date:"M d" }} at {{ b.start_time|time:"H:i" }}
+                                </td>
                                 <td class="fw-black text-success">₹{{ b.total_price }}</td>
                                 <td class="text-end">
                                     {% if b.status == 'pending' %}
                                     <div class="btn-group">
-                                        <a href="{% url 'update_booking_status' b.id 'accept' %}" class="btn btn-sm btn-primary fw-black rounded-pill px-3 me-2">ACCEPT</a>
-                                        <a href="{% url 'update_booking_status' b.id 'reject' %}" class="btn btn-sm btn-outline-danger fw-black rounded-pill px-3">REJECT</a>
+                                        <a href="{% url 'accept_booking' b.id %}" class="btn btn-sm btn-primary fw-black rounded-pill px-3 me-2 shadow-sm">ACCEPT</a>
+                                        <a href="{% url 'reject_booking' b.id %}" class="btn btn-sm btn-outline-danger fw-black rounded-pill px-3">REJECT</a>
                                     </div>
                                     {% elif b.status == 'accepted' %}
-                                    <a href="{% url 'update_booking_status' b.id 'start' %}" class="btn btn-sm btn-warning fw-black rounded-pill px-4">START WORK</a>
+                                    <a href="{% url 'start_job' b.id %}" class="btn btn-sm btn-warning fw-black rounded-pill px-4 shadow-sm">START JOB</a>
                                     {% elif b.status == 'in_progress' %}
-                                    <a href="{% url 'update_booking_status' b.id 'complete' %}" class="btn btn-sm btn-success fw-black rounded-pill px-4">COMPLETE</a>
+                                    <a href="{% url 'complete_job' b.id %}" class="btn btn-sm btn-success fw-black rounded-pill px-4 shadow-sm">COMPLETE JOB</a>
+                                    {% elif b.status == 'completed' or b.status == 'paid' %}
+                                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-black small">DONE</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary bg-opacity-10 text-muted rounded-pill px-3 py-2 fw-black small">{{ b.status|upper }}</span>
                                     {% endif %}
                                 </td>
                             </tr>
-                            {% endif %}
                             {% empty %}
                             <tr>
                                 <td colspan="6" class="text-center py-5 text-muted h6">No active operations in the pipeline.</td>
@@ -186,10 +211,10 @@ document.addEventListener('DOMContentLoaded', function() {
     new Chart(ctxEarnings, {
         type: 'line',
         data: {
-            labels: {{ earnings_labels|safe }},
+            labels: JSON.parse('{{ earnings_labels_json|safe }}'),
             datasets: [{
                 label: 'Earnings (₹)',
-                data: {{ earnings_data|safe }},
+                data: JSON.parse('{{ earnings_data_json|safe }}'),
                 borderColor: '#3F4FCF',
                 backgroundColor: 'rgba(63, 79, 207, 0.1)',
                 fill: true,
@@ -215,9 +240,9 @@ document.addEventListener('DOMContentLoaded', function() {
     new Chart(ctxStatus, {
         type: 'doughnut',
         data: {
-            labels: {{ status_labels|safe }},
+            labels: JSON.parse('{{ status_labels_json|safe }}'),
             datasets: [{
-                data: {{ status_values|safe }},
+                data: JSON.parse('{{ status_values_json|safe }}'),
                 backgroundColor: [
                     '#CBD5E0', // Pending
                     '#4299E1', // Accepted
@@ -242,5 +267,111 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// ── ⚡ LIVE AVAILABILITY TOGGLE ⚡ ──
+const availabilityToggle = document.getElementById('availabilityToggle');
+const navStatusText = document.getElementById('navStatusText');
+
+if (availabilityToggle) {
+    availabilityToggle.addEventListener('change', async function() {
+        try {
+            const response = await fetch("{% url 'toggle_availability' %}");
+            const data = await response.json();
+            
+            // Update Text & Color
+            navStatusText.textContent = data.is_online ? "Online" : "Offline";
+            if (data.is_online) {
+                navStatusText.classList.remove('text-muted');
+                navStatusText.classList.add('text-success');
+            } else {
+                navStatusText.classList.remove('text-success');
+                navStatusText.classList.add('text-muted');
+            }
+        } catch (error) {
+            console.error("Availability toggle failed:", error);
+            // Revert UI on failure
+            this.checked = !this.checked;
+        }
+    });
+}
+
+let lastJobCount = {{ requested_count|default:0 }};
+
+// ── 📊 LIVE JOB TERMINAL 📊 ──
+async function fetchJobs() {
+    try {
+        const response = await fetch("{% url 'api_worker_jobs_list' %}");
+        const data = await response.json();
+        
+        // Detect new incoming jobs
+        const currentPendingCount = data.jobs.filter(j => j.status === 'pending').length;
+        if (currentPendingCount > lastJobCount) {
+            showToast("🚀 NEW BOOKING RECEIVED! Check your operations table.");
+            // Optional: Play a subtle notification sound
+            // new Audio('/static/audio/notification.mp3').play().catch(e => {});
+        }
+        lastJobCount = currentPendingCount;
+
+        renderJobsTable(data.jobs);
+    } catch (error) {
+        console.warn("Job polling failed:", error);
+    }
+}
+
+function renderJobsTable(jobs) {
+    const tbody = document.querySelector('table tbody');
+    if (!tbody) return;
+
+    if (jobs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted h6">No active operations in the pipeline.</td></tr>`;
+        return;
+    }
+
+    let html = '';
+    jobs.forEach(b => {
+        let actionsHtml = '';
+        if (b.status === 'pending') {
+            actionsHtml = `
+                <div class="btn-group">
+                    <a href="/booking/accept/${b.id}/" class="btn btn-sm btn-primary fw-black rounded-pill px-3 me-2 shadow-sm">ACCEPT</a>
+                    <a href="/booking/reject/${b.id}/" class="btn btn-sm btn-outline-danger fw-black rounded-pill px-3">REJECT</a>
+                </div>
+            `;
+        } else if (b.status === 'accepted') {
+            actionsHtml = `<a href="/booking/start/${b.id}/" class="btn btn-sm btn-warning fw-black rounded-pill px-4 shadow-sm">START JOB</a>`;
+        } else if (b.status === 'in_progress') {
+            actionsHtml = `<a href="/booking/complete/${b.id}/" class="btn btn-sm btn-success fw-black rounded-pill px-4 shadow-sm">COMPLETE JOB</a>`;
+        } else if (b.status === 'completed' || b.status === 'paid') {
+            actionsHtml = `<span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-black small">DONE</span>`;
+        } else {
+            actionsHtml = `<span class="badge bg-secondary bg-opacity-10 text-muted rounded-pill px-3 py-2 fw-black small">${b.status.toUpperCase()}</span>`;
+        }
+
+        const urgentBadge = b.is_urgent ? `<span class="badge bg-danger x-small rounded-pill pulse-red" style="font-size: 0.5rem;">URGENT</span>` : '';
+        const newBadge = b.is_new ? `<span class="badge bg-primary x-small rounded-pill" style="font-size: 0.5rem;">NEW</span>` : '';
+
+        html += `
+            <tr>
+                <td class="fw-bold">#${b.booking_id_str}</td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="fw-black">${b.customer}</div>
+                        ${newBadge}
+                        ${urgentBadge}
+                    </div>
+                    <div class="x-small text-muted">${b.address.substring(0, 25)}...</div>
+                </td>
+                <td><span class="badge bg-soft-primary text-primary rounded-pill px-3">${b.service}</span></td>
+                <td class="small fw-medium">${b.date} at ${b.time}</td>
+                <td class="fw-black text-success">₹${b.price}</td> 
+                <td class="text-end">${actionsHtml}</td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+}
+
+setInterval(fetchJobs, 5000);
+
 </script>
 {% endblock %}

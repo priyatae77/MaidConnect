@@ -39,9 +39,46 @@
                 <!-- ░░ BOOKING FORM ░░ -->
                 <div class="card border-0 shadow-vibrant rounded-5 p-4 p-md-5 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
                     <h3 class="fw-black mb-4">Complete Your Booking</h3>
-                    
+
+
+
+                    {% if offer_applied %}
+                    <!-- ⚡ LOGIN OFFER BANNER -->
+                    <span id="loginOfferMeta" data-offer-secs="{{ login_offer_secs }}" class="d-none"></span>
+                    <div id="loginOfferBanner" class="rounded-4 mb-4 p-3 px-4 d-flex align-items-center gap-3"
+                         style="background: linear-gradient(135deg,#3F4FCF,#7c6fff); color:white;">
+                        <div style="font-size:1.8rem;">🎉</div>
+                        <div class="flex-grow-1">
+                            <div class="fw-black" style="font-size:0.95rem;">🎉 {{ request.session.offer_label|default:"Offer available for this booking" }}</div>
+                            <div style="font-size:0.8rem; opacity:0.85;">Book now within <strong id="offerCountdownTop"></strong> to get {{ request.session.offer_pct|default:10 }}% off your booking price.</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="badge rounded-pill px-3 py-2 fw-black" style="background:rgba(255,255,255,0.2); font-size:0.75rem;">AUTO-APPLIED ✓</div>
+                        </div>
+                    </div>
+                    {% elif offer_used_today %}
+                    <div class="rounded-4 mb-4 p-3 px-4 d-flex align-items-center gap-3"
+                         style="background: #e8f5e9; color:#1b5e20;">
+                        <div style="font-size:1.5rem;">✅</div>
+                        <div class="flex-grow-1">
+                            <div class="fw-black" style="font-size:0.95rem;">Today's offer already used</div>
+                            <div style="font-size:0.8rem; opacity:0.85;">Come back tomorrow for another special discount!</div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="rounded-4 mb-4 p-3 px-4 d-flex align-items-center gap-3"
+                         style="background: #f8f9fa; color:#6c757d; border: 1px dashed #dee2e6;">
+                        <div style="font-size:1.5rem;">—</div>
+                        <div class="flex-grow-1">
+                            <div class="fw-black" style="font-size:0.95rem;">No offer available</div>
+                            <div style="font-size:0.8rem; opacity:0.85;">Check back later for special discounts.</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <form id="bookingForm">
                         <input type="hidden" name="worker_id" value="{{ worker.id }}">
+                        <input type="hidden" name="apply_login_offer" id="applyLoginOfferInput" value="{% if offer_applied %}true{% else %}false{% endif %}">
                         
                         <div class="row g-4">
                             <!-- Service Type -->
@@ -81,8 +118,18 @@
 
                         <!-- Submit Button -->
                         <div class="mt-5">
-                            <button type="submit" id="submitBtn" class="btn btn-primary w-100 py-3 rounded-pill fw-black shadow-glow" style="background-color: #3F4FCF; border: none;">
-                                <span class="btn-text">CONFIRM BOOKING</span>
+                            <!-- Countdown Timer Section -->
+                            <div id="offerTimerSection" class="text-center mb-3" style="display: none;">
+                                <div id="offerTimerCard" class="d-inline-flex flex-column align-items-center bg-success bg-opacity-10 rounded-4 px-4 py-2 border border-success border-opacity-25 transition-all">
+                                    <div class="fw-black text-success" style="font-size: 0.95rem;">
+                                        <i class="fa-solid fa-hourglass-half me-1"></i> Offer expires in <span id="offerCountdown">00m 00s</span>
+                                    </div>
+                                    <div class="small fw-bold text-success text-opacity-75" style="font-size: 0.75rem;">Limited time — complete booking now</div>
+                                </div>
+                            </div>
+
+                            <button type="submit" id="submitBtn" class="btn btn-primary w-100 py-3 rounded-pill fw-black shadow-glow transition-all" style="background-color: #3F4FCF; border: none;">
+                                <span class="btn-text" id="confirmBtnText">CONFIRM BOOKING</span>
                                 <span class="spinner-border spinner-border-sm d-none" role="status"></span>
                             </button>
                         </div>
@@ -147,6 +194,63 @@ document.getElementById('bookingForm').addEventListener('submit', function(e) {
         msgDiv.innerHTML = '<div class="alert alert-danger border-0 rounded-4 fw-bold">❌ Connection error. Please try again.</div>';
     });
 });
+
+// ── Login Offer Countdown ──
+(function(){
+    var meta = document.getElementById('loginOfferMeta');
+    if (!meta) return;  // No offer active
+    var remaining   = parseInt(meta.dataset.offerSecs, 10) || 0;
+    var countdownTop = document.getElementById('offerCountdownTop');
+    var countdownEl = document.getElementById('offerCountdown');
+    var bannerEl    = document.getElementById('loginOfferBanner');
+    var timerSection = document.getElementById('offerTimerSection');
+    var timerCard    = document.getElementById('offerTimerCard');
+    var applyInput  = document.getElementById('applyLoginOfferInput');
+    var submitBtn   = document.getElementById('submitBtn');
+    var btnText     = document.getElementById('confirmBtnText');
+
+    function fmt(s) {
+        var m = Math.floor(s / 60), sec = s % 60;
+        var mStr = m < 10 ? '0' + m : m;
+        var sStr = sec < 10 ? '0' + sec : sec;
+        return mStr + 'm ' + sStr + 's';
+    }
+
+    if (remaining > 0) {
+        if (timerSection) timerSection.style.display = 'block';
+        if (countdownTop) countdownTop.textContent = fmt(remaining);
+        if (countdownEl) countdownEl.textContent = fmt(remaining);
+
+        var timer = setInterval(function(){
+            remaining--;
+            if (remaining <= 0) {
+                clearInterval(timer);
+                
+                // Hide banner
+                if (bannerEl) bannerEl.style.display = 'none';
+                
+                // Show expired state in bottom timer
+                if (timerCard) {
+                    timerCard.className = "d-inline-flex flex-column align-items-center bg-warning bg-opacity-10 rounded-4 px-4 py-2 border border-warning border-opacity-50 transition-all";
+                    timerCard.innerHTML = `
+                        <div class="fw-black text-dark" style="font-size: 0.95rem;">
+                            <i class="fa-solid fa-clock-rotate-left me-1 text-warning"></i> Offer Expired
+                        </div>
+                        <div class="small fw-bold text-muted" style="font-size: 0.75rem;">Offer expired — continue with normal booking</div>
+                    `;
+                }
+
+                // Unapply offer
+                if (applyInput) applyInput.value = 'false';
+
+            } else {
+                var timeStr = fmt(remaining);
+                if (countdownTop) countdownTop.textContent = timeStr;
+                if (countdownEl) countdownEl.textContent = timeStr;
+            }
+        }, 1000);
+    }
+})();
 </script>
 
 <style>

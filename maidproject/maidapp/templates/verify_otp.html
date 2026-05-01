@@ -244,7 +244,7 @@
     });
     box.addEventListener('focus', () => box.select());
   });
-  boxes[0].focus();
+  // boxes[0].focus(); // Disabled per USER REQUEST
 
   function otp() { return boxes.map(b=>b.value).join(''); }
   function setDisabled(v) { boxes.forEach(b=>b.disabled=v); verifyBtn.disabled=v; }

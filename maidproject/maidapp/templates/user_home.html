@@ -1,0 +1,307 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Home — MaidConnect{% endblock %}
+
+{% block dashboard_bg_url %}{% static 'images/home_bg.png' %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid py-4 px-lg-5 animate-fade-in">
+    
+
+
+    {% if offer_applied %}
+    <!-- ⚡ LOGIN OFFER BANNER -->
+    <span id="loginOfferMeta" data-offer-secs="{{ login_offer_secs }}" class="d-none"></span>
+    <div id="loginOfferBanner" class="rounded-4 mb-4 p-3 px-4 d-flex align-items-center gap-3 shadow-sm animate-fade-in"
+         style="background: linear-gradient(135deg,#157347,#198754); color:white;">
+        <div style="font-size:2rem;"><i class="fa-solid fa-gift"></i></div>
+        <div class="flex-grow-1">
+            <div class="fw-black" style="font-size:1.1rem;">🎉 {{ request.session.offer_label|default:"Special Offer Unlocked" }}</div>
+            <div style="font-size:0.9rem; opacity:0.9;">Book now within <strong id="offerCountdownTop" class="bg-white text-success px-2 py-1 rounded-2 ms-1"></strong> to get {{ request.session.offer_pct|default:10 }}% off your next booking.</div>
+        </div>
+        <div class="text-end">
+            <a href="{% url 'booking_new' %}" class="btn btn-light rounded-pill px-4 py-2 fw-black shadow-sm" style="color: #157347; font-size:0.85rem;">CLAIM NOW</a>
+        </div>
+    </div>
+
+    <script>
+    // ── Login Offer Countdown ──
+    document.addEventListener("DOMContentLoaded", function() {
+        var meta = document.getElementById('loginOfferMeta');
+        if (!meta) return;  
+        var remaining   = parseInt(meta.dataset.offerSecs, 10) || 0;
+        var countdownTop = document.getElementById('offerCountdownTop');
+        var bannerEl    = document.getElementById('loginOfferBanner');
+
+        function fmt(s) {
+            var m = Math.floor(s / 60), sec = s % 60;
+            var mStr = m < 10 ? '0' + m : m;
+            var sStr = sec < 10 ? '0' + sec : sec;
+            return mStr + 'm ' + sStr + 's';
+        }
+
+        if (remaining > 0) {
+            if (countdownTop) countdownTop.textContent = fmt(remaining);
+
+            var timer = setInterval(function(){
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    if (bannerEl) bannerEl.style.display = 'none';
+                } else {
+                    if (countdownTop) countdownTop.textContent = fmt(remaining);
+                }
+            }, 1000);
+        }
+    });
+    </script>
+    {% endif %}
+
+    <!-- 1. PERSONALIZED WELCOME SECTION -->
+    <section id="welcome-section" class="mb-5">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden" 
+             style="background: linear-gradient(135deg, #3F4FCF 0%, #7c6fff 100%);">
+            <div class="card-body p-4 p-md-5 text-white position-relative" style="z-index: 1;">
+                <div class="row align-items-center">
+                    <div class="col-lg-7">
+                        <span class="badge rounded-pill px-3 py-2 fw-black mb-3" style="font-size: 0.7rem; letter-spacing: 1px; background: rgba(255, 255, 255, 0.15); color: #FFD700;">WELCOME BACK</span>
+                        <h1 class="display-5 fw-black mb-2 text-white">Hello, {{ user.first_name|default:user.username }}! ✨</h1>
+                        <p class="lead opacity-75 mb-4 fw-medium text-white">Ready to make your home shine today? Explore our verified professionals.</p>
+                        <div class="d-flex flex-wrap gap-3">
+                            <a href="{% url 'booking_new' %}" class="btn btn-white px-4 py-3 rounded-pill fw-black text-primary shadow-sm" style="background: white; border: none;">BOOK NEW SERVICE</a>
+                            <a href="{% url 'user_dashboard' %}" class="btn btn-outline-light px-4 py-3 rounded-pill fw-black border-2">VIEW MY BOOKINGS</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Decorative Icon -->
+                <i class="fa-solid fa-house-sparkles position-absolute" style="bottom: -20px; right: 20px; font-size: 12rem; opacity: 0.1; transform: rotate(-10deg); color: white;"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. QUICK ACTION / BOOK SECTION -->
+    <section id="quick-actions" class="mb-5">
+        <h4 class="fw-black mb-4 text-uppercase small" style="letter-spacing: 1px; color: var(--v-blue);">Quick Actions</h4>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'booking_new' %}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 hover-lift h-100 bg-white">
+                        <div class="card-body p-4 text-center">
+                            <div class="icon-circle mx-auto mb-3" style="background: #EBF4FF; color: #3F4FCF; width: 60px; height: 60px; font-size: 1.5rem;">
+                                <i class="fa-solid fa-bolt-lightning"></i>
+                            </div>
+                            <h6 class="fw-black text-dark mb-1">Instant Book</h6>
+                            <p class="small text-muted mb-0 fw-bold">Get a pro in 60 mins</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'worker_list' %}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 hover-lift h-100 bg-white">
+                        <div class="card-body p-4 text-center">
+                            <div class="icon-circle mx-auto mb-3" style="background: #FFF5F5; color: #E53E3E; width: 60px; height: 60px; font-size: 1.5rem;">
+                                <i class="fa-solid fa-heart"></i>
+                            </div>
+                            <h6 class="fw-black text-dark mb-1">Favorites</h6>
+                            <p class="small text-muted mb-0 fw-bold">Rebook your trusted pros</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <a href="javascript:void(0)" onclick="showToast('Offers coming soon!')" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 hover-lift h-100 bg-white">
+                        <div class="card-body p-4 text-center">
+                            <div class="icon-circle mx-auto mb-3" style="background: #FAF5FF; color: #805AD5; width: 60px; height: 60px; font-size: 1.5rem;">
+                                <i class="fa-solid fa-gift"></i>
+                            </div>
+                            <h6 class="fw-black text-dark mb-1">Promo Deals</h6>
+                            <p class="small text-muted mb-0 fw-bold">Save big on subscriptions</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <a href="javascript:void(0)" onclick="showToast('Help center available 24/7')" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 hover-lift h-100 bg-white">
+                        <div class="card-body p-4 text-center">
+                            <div class="icon-circle mx-auto mb-3" style="background: #F0FFF4; color: #38A169; width: 60px; height: 60px; font-size: 1.5rem;">
+                                <i class="fa-solid fa-headset"></i>
+                            </div>
+                            <h6 class="fw-black text-dark mb-1">Live Support</h6>
+                            <p class="small text-muted mb-0 fw-bold">Chat with our experts</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. POPULAR WORKERS SECTION -->
+    <section id="popular-workers" class="mb-5">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h4 class="fw-black text-uppercase small mb-1" style="letter-spacing: 1px; color: var(--v-blue);">Top Rated Near You</h4>
+                <p class="text-muted small fw-bold mb-0">Professionals with 4.8+ average rating</p>
+            </div>
+            <a href="{% url 'worker_list' %}" class="text-decoration-none fw-black small text-primary">VIEW ALL <i class="fa-solid fa-arrow-right ms-1"></i></a>
+        </div>
+        
+        <div class="row g-4">
+            {% for worker in popular_workers %}
+            <div class="col-md-6 col-xl-3">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden hover-lift h-100 bg-white">
+                    <div class="position-relative bg-light" style="height: 160px; overflow: hidden;">
+                        {% if worker.photo %}
+                        <img src="{{ worker.photo.url }}" class="w-100 h-100" style="object-fit: contain; padding: 10px;" alt="{{ worker.user.first_name }}">
+                        {% else %}
+                        <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-muted">
+                            <i class="fa-solid fa-user fa-3x opacity-25"></i>
+                        </div>
+                        {% endif %}
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <span class="badge bg-white text-warning shadow-sm rounded-pill px-2 py-1 fw-black" style="font-size: 0.65rem;">
+                                <i class="fa-solid fa-star me-1"></i> {{ worker.rating_avg|default:"4.8" }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <h6 class="fw-black text-dark mb-1">{{ worker.user.first_name }} {{ worker.user.last_name|slice:":1" }}.</h6>
+                        <p class="small text-muted fw-bold mb-3">{{ worker.categories.first.name|default:"General Assistant" }}</p>
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <div class="fw-black text-primary">₹{{ worker.price_per_day|default:"800" }}<span class="small text-muted fw-bold">/day</span></div>
+                            <a href="{% url 'booking_new' %}?worker_id={{ worker.id }}" class="btn btn-vibrant btn-sm rounded-pill px-3 fw-black shadow-sm">BOOK</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="text-muted opacity-25 mb-3"><i class="fa-solid fa-users-slash fa-4x"></i></div>
+                <h5 class="fw-bold text-muted">No popular workers found</h5>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- 4. SERVICE CATEGORIES SECTION -->
+    <section id="service-categories" class="mb-5">
+        <h4 class="fw-black mb-4 text-uppercase small" style="letter-spacing: 1px; color: var(--v-blue);">Browse by Category</h4>
+        <div class="row g-4">
+            {% for category in categories %}
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="{% url 'booking_new' %}?category={{ category.name }}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 hover-lift h-100 bg-white border-vibrant-hover">
+                        <div class="card-body p-4 text-center">
+                            <div class="icon-circle mx-auto mb-3" style="width: 55px; height: 55px; background: #F8FAFC; color: #4A5568; font-size: 1.2rem;">
+                                {% with cat_name=category.name|lower %}
+                                    {% if 'cleaning' in cat_name %}<i class="fa-solid fa-broom"></i>
+                                    {% elif 'cooking' in cat_name %}<i class="fa-solid fa-utensils"></i>
+                                    {% elif 'baby' in cat_name or 'child' in cat_name %}<i class="fa-solid fa-baby"></i>
+                                    {% elif 'elder' in cat_name %}<i class="fa-solid fa-person-cane"></i>
+                                    {% elif 'driver' in cat_name or 'driving' in cat_name %}<i class="fa-solid fa-car"></i>
+                                    {% elif 'security' in cat_name %}<i class="fa-solid fa-shield-halved"></i>
+                                    {% elif 'patient' in cat_name %}<i class="fa-solid fa-hand-holding-medical"></i>
+                                    {% elif 'house' in cat_name %}<i class="fa-solid fa-house-chimney-user"></i>
+                                    {% elif 'garden' in cat_name %}<i class="fa-solid fa-leaf"></i>
+                                    {% else %}<i class="fa-solid fa-sparkles"></i>{% endif %}
+                                {% endwith %}
+                            </div>
+                            <div class="fw-black text-dark small text-uppercase" style="font-size: 0.65rem; letter-spacing: 1px;">{{ category.name }}</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center text-muted small fw-bold">No categories available</div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- 🎁 SMART OFFER POPUP 🎁 -->
+    {% if show_offer_popup and active_smart_offer %}
+    <div class="modal fade show" id="smartOfferModal" tabindex="-1" style="display: block; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 9999;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-vibrant rounded-5 overflow-hidden animate__animated animate__zoomIn">
+                <div class="modal-body p-0">
+                    <div class="p-5 text-center position-relative" style="background: linear-gradient(135deg, #3F4FCF, #7c6fff); color: white;">
+                        <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-4" onclick="closeOfferModal()" aria-label="Close"></button>
+                        
+                        <div class="display-1 mb-3">🎉</div>
+                        <h2 class="fw-black mb-2" id="offerTitle">
+                            {% if active_smart_offer.user_type == 'new' %}Welcome Offer
+                            {% elif active_smart_offer.user_type == 'inactive' %}We Miss You
+                            {% else %}Special Offer{% endif %}
+                        </h2>
+                        <p class="lead mb-4 opacity-75">
+                            {% if active_smart_offer.user_type == 'new' %}
+                            Welcome to MaidConnect! Enjoy a special <strong>{{ active_smart_offer.discount }}% OFF</strong> on your first booking.
+                            {% elif active_smart_offer.user_type == 'inactive' %}
+                            It's been a while! Here's <strong>{{ active_smart_offer.discount }}% OFF</strong> to help you get started again.
+                            {% else %}
+                            As a valued member, enjoy <strong>{{ active_smart_offer.discount }}% OFF</strong> your next service!
+                            {% endif %}
+                        </p>
+                        
+                        <div class="bg-white bg-opacity-10 rounded-4 p-3 mb-4 border border-white border-opacity-25">
+                            <div class="small text-uppercase fw-black opacity-75" style="letter-spacing: 1px;">Offer Expires In</div>
+                            <div class="h3 fw-black mb-0" id="modalCountdown">{{ active_smart_offer.duration_minutes }}m 00s</div>
+                        </div>
+
+                        <a href="{% url 'booking_new' %}" class="btn btn-white w-100 py-3 rounded-pill fw-black shadow-glow" style="color: var(--v-blue); background: white; border: none;">USE OFFER NOW</a>
+                        
+                        <div class="mt-3 x-small opacity-50 fw-bold">*Auto-applied at checkout. One use per day.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    function closeOfferModal() {
+        const modal = document.getElementById('smartOfferModal');
+        if (modal) {
+            modal.classList.remove('show');
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+        }
+    }
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        var remaining = parseInt("{{ login_offer_secs|default:0 }}");
+        var modalCountdown = document.getElementById('modalCountdown');
+        
+        function fmt(s) {
+            var m = Math.floor(s / 60), sec = s % 60;
+            return (m < 10 ? '0'+m : m) + 'm ' + (sec < 10 ? '0'+sec : sec) + 's';
+        }
+
+        if (remaining > 0) {
+            var timer = setInterval(function(){
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    closeOfferModal();
+                } else {
+                    if (modalCountdown) modalCountdown.textContent = fmt(remaining);
+                }
+            }, 1000);
+        }
+    });
+    </script>
+    {% endif %}
+
+</div>
+
+<style>
+.hover-lift { transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease; }
+.hover-lift:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(63, 79, 207, 0.1) !important; }
+.border-vibrant-hover { border: 2px solid transparent !important; transition: all 0.3s ease; }
+.border-vibrant-hover:hover { border-color: var(--v-blue) !important; }
+.btn-white { transition: all 0.3s ease; }
+.btn-white:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+.text-white { color: #ffffff !important; }
+.fw-black { font-weight: 900 !important; }
+</style>
+{% endblock %}

@@ -97,9 +97,9 @@
                             {% if booking.status == 'pending' %}
                             <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-clock me-1"></i> Pending</span>
                             {% elif booking.status == 'accepted' %}
-                            <span class="badge bg-info text-white fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-thumbs-up me-1"></i> Accepted</span>
+                            <span class="badge bg-primary text-white fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-thumbs-up me-1"></i> Assigned</span>
                             {% elif booking.status == 'in_progress' %}
-                            <span class="badge text-white fw-bold px-3 py-2 rounded-pill" style="background: var(--v-blue);"><i class="fa-solid fa-person-digging me-1"></i> In Progress</span>
+                            <span class="badge bg-info text-white fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-person-digging me-1"></i> In Progress</span>
                             {% elif booking.status == 'completed' %}
                             <span class="badge bg-success text-white fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-check-double me-1"></i> Completed</span>
                             {% elif booking.status == 'paid' %}

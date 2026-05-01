@@ -4,14 +4,14 @@
 {% block title %}Our Specialized Services — MaidConnect{% endblock %}
 
 {% block content %}
-<div class="services-vibrant py-5 overflow-hidden">
+<div class="services-vibrant py-4 overflow-hidden">
     <!-- Background Branding -->
     <div class="hero-bg-text" style="top: 15%; color: rgba(255, 92, 141, 0.03);">SERVICES</div>
 
-    <div class="container position-relative py-5" style="z-index: 2;">
+    <div class="container position-relative py-3" style="z-index: 2;">
         
         <!-- ░░ HIGH-ENERGY HEADER ░░ -->
-        <div class="text-center mb-5 pb-5 animate-fade-in">
+        <div class="text-center mb-4 pb-3 animate-fade-in">
             <div class="badge bg-vibrant rounded-pill px-4 py-2 fw-black shadow-sm mb-3" style="background: var(--v-blue);">
                 ✨ ELITE CARE SOLUTIONS
             </div>
@@ -23,40 +23,40 @@
         <div class="row g-5">
             {% for category in categories %}
             <div class="col-lg-4 col-md-6">
-                <div class="dynamic-card text-center p-5 bg-white border-vibrant hover-lift shadow-vibrant">
-                    <div class="icon-circle mx-auto mb-4" style="background: var(--v-blue); color: white;">
-                        <i class="fa-solid fa-star"></i>
+                <div class="dynamic-card text-center p-4 bg-white border-vibrant hover-lift shadow-vibrant">
+                    <div class="icon-circle mx-auto mb-3" style="background: var(--v-blue); color: white; width: 60px; height: 60px; font-size: 1.2rem;">
+                        <i class="fa-solid {% if 'clean' in category.name|lower %}fa-broom{% elif 'cook' in category.name|lower %}fa-utensils{% elif 'baby' in category.name|lower or 'child' in category.name|lower %}fa-baby{% else %}fa-star{% endif %}"></i>
                     </div>
-                    <h2 class="fw-black mb-3">{{ category.name }}</h2>
-                    <p class="h6 text-muted fw-bold mb-5 opacity-75">Professional, verified, and high-energy support for your {{ category.name|lower }} requirements.</p>
+                    <h3 class="fw-black mb-2">{{ category.name }}</h3>
+                    <p class="small text-muted fw-bold mb-4 opacity-75">Professional, verified, and high-energy support for your {{ category.name|lower }} requirements.</p>
                     
-                    <a href="{% url 'worker_list' %}?search={{ category.name }}" class="btn-vibrant w-100 py-3 fs-6">BROWSE EXPERTS</a>
+                    <a href="{% url 'worker_list' %}?category={{ category.name }}" class="btn-vibrant w-100 py-3 fs-6">BROWSE EXPERTS</a>
                 </div>
             </div>
             {% empty %}
             <!-- Mock Fallback if no categories -->
             <div class="col-lg-4 col-md-6">
-                <div class="dynamic-card text-center p-5 bg-white border-vibrant hover-lift shadow-vibrant">
-                    <div class="icon-circle mx-auto mb-4" style="background: var(--v-blue); color: white;"><i class="fa-solid fa-broom"></i></div>
-                    <h2 class="fw-black mb-3">Cleaning</h2>
-                    <p class="h6 text-muted fw-bold mb-5 opacity-75">Elite sanitization and organization for modern homes.</p>
-                    <a href="{% url 'worker_list' %}" class="btn-vibrant w-100 py-3 fs-6">BROWSE EXPERTS</a>
+                <div class="dynamic-card text-center p-4 bg-white border-vibrant hover-lift shadow-vibrant">
+                    <div class="icon-circle mx-auto mb-3" style="background: var(--v-blue); color: white; width: 60px; height: 60px; font-size: 1.2rem;"><i class="fa-solid fa-broom"></i></div>
+                    <h3 class="fw-black mb-2">Cleaning</h3>
+                    <p class="small text-muted fw-bold mb-4 opacity-75">Elite sanitization and organization for modern homes.</p>
+                    <a href="{% url 'worker_list' %}?category=Cleaning" class="btn-vibrant w-100 py-3 fs-6">BROWSE EXPERTS</a>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6">
-                <div class="dynamic-card text-center p-5 bg-white border-vibrant hover-lift shadow-vibrant">
-                    <div class="icon-circle mx-auto mb-4" style="background: var(--v-yellow); color: var(--text-dark);"><i class="fa-solid fa-utensils"></i></div>
-                    <h2 class="fw-black mb-3">Cooking</h2>
-                    <p class="h6 text-muted fw-bold mb-5 opacity-75">Nutritious, high-energy culinary support for busy families.</p>
-                    <a href="{% url 'worker_list' %}" class="btn-vibrant w-100 py-3 fs-6">BROWSE EXPERTS</a>
+                <div class="dynamic-card text-center p-4 bg-white border-vibrant hover-lift shadow-vibrant">
+                    <div class="icon-circle mx-auto mb-3" style="background: var(--v-yellow); color: var(--text-dark); width: 60px; height: 60px; font-size: 1.2rem;"><i class="fa-solid fa-utensils"></i></div>
+                    <h3 class="fw-black mb-2">Cooking</h3>
+                    <p class="small text-muted fw-bold mb-4 opacity-75">Nutritious, high-energy culinary support for busy families.</p>
+                    <a href="{% url 'worker_list' %}?category=Cooking" class="btn-vibrant w-100 py-3 fs-6">BROWSE EXPERTS</a>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6">
-                <div class="dynamic-card text-center p-5 bg-white border-vibrant hover-lift shadow-vibrant">
-                    <div class="icon-circle mx-auto mb-4" style="background: var(--v-pink); color: white;"><i class="fa-solid fa-baby"></i></div>
-                    <h2 class="fw-black mb-3">Baby Care</h2>
-                    <p class="h6 text-muted fw-bold mb-5 opacity-75">Compassionate, verified care for your most precious ones.</p>
-                    <a href="{% url 'worker_list' %}" class="btn-vibrant w-100 py-3 fs-6">BROWSE EXPERTS</a>
+                <div class="dynamic-card text-center p-4 bg-white border-vibrant hover-lift shadow-vibrant">
+                    <div class="icon-circle mx-auto mb-3" style="background: var(--v-pink); color: white; width: 60px; height: 60px; font-size: 1.2rem;"><i class="fa-solid fa-baby"></i></div>
+                    <h3 class="fw-black mb-2">Babysitting</h3>
+                    <p class="small text-muted fw-bold mb-4 opacity-75">Compassionate, verified care for your most precious ones.</p>
+                    <a href="{% url 'worker_list' %}?category=Babysitting" class="btn-vibrant w-100 py-3 fs-6">BROWSE EXPERTS</a>
                 </div>
             </div>
             {% endfor %}

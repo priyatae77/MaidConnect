@@ -1,0 +1,86 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block dashboard_bg_url %}{% static 'images/profile_bg.png' %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid p-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- 👤 PROFILE CARD 👤 -->
+            <div class="bg-white rounded-4 shadow-sm border p-5 animate-fade-in">
+                <!-- DEBUG: {{ user }} | {{ user.userprofile.phone }} -->
+                <div class="d-flex align-items-center gap-4 mb-5">
+                    <div class="position-relative">
+                        {% if user.userprofile.photo %}
+                        <img src="{{ user.userprofile.photo.url }}" class="rounded-circle shadow-sm border border-4 border-white" style="width: 120px; height: 120px; object-fit: cover;">
+                        {% else %}
+                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-black text-white shadow-sm" style="width: 120px; height: 120px; background: var(--v-blue); font-size: 3.5rem;">
+                            {{ user.username|make_list|first|upper }}
+                        </div>
+                        {% endif %}
+                        <a href="{% url 'user_profile_update' %}" class="position-absolute bottom-0 start-50 translate-middle-x badge bg-dark bg-opacity-75 text-white rounded-pill px-3 py-2 text-decoration-none" style="font-size: 0.6rem; transform: translateY(50%) translateX(-50%) !important;">
+                            <i class="fa-solid fa-camera me-1"></i> CHANGE
+                        </a>
+                    </div>
+                    <div>
+                        <h2 class="fw-black mb-1 text-dark">{{ user.get_full_name|default:user.username }}</h2>
+                        <p class="text-muted mb-0"><i class="fa-solid fa-shield-check text-success me-1"></i> Verified Customer</p>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-5">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <label class="x-small fw-black text-uppercase opacity-50 mb-1" style="letter-spacing: 1px;">Email Address</label>
+                            <div class="fw-bold text-dark">{{ user.email }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <label class="x-small fw-black text-uppercase opacity-50 mb-1" style="letter-spacing: 1px;">Phone Number</label>
+                            <div class="fw-bold text-dark">
+                                {% if user.userprofile.phone %}
+                                    {{ user.userprofile.phone }}
+                                {% else %}
+                                    Not provided
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="p-3 bg-light rounded-3">
+                            <label class="x-small fw-black text-uppercase opacity-50 mb-1" style="letter-spacing: 1px;">Home Address</label>
+                            <div class="fw-bold text-dark">
+                                {% if user.userprofile.address_line1 %}
+                                    {{ user.userprofile.address_line1 }}, {{ user.userprofile.city }} - {{ user.userprofile.pincode }}
+                                {% else %}
+                                    No address set
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 📊 ACTIVITY STATS 📊 -->
+                <div class="mb-5">
+                    <h5 class="fw-black mb-4 text-dark" style="font-size: 1rem; letter-spacing: -0.5px;">PLATFORM ACTIVITY</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="p-4 rounded-4 border text-center" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                                <div class="h2 fw-black text-dark mb-1">{{ booking_count }}</div>
+                                <div class="x-small fw-black text-muted text-uppercase">Lifetime Bookings</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <a href="{% url 'user_profile_update' %}" class="btn-vibrant py-3 px-5 text-decoration-none fw-black">EDIT PROFILE</a>
+                    <a href="{% url 'user_dashboard' %}" class="btn btn-outline-secondary py-3 px-5 rounded-pill fw-black">BACK TO DASHBOARD</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

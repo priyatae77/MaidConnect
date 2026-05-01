@@ -1,0 +1,140 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} — MaidConnect{% endblock %}
+
+{% block dashboard_content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-vibrant rounded-5 overflow-hidden animate__animated animate__fadeInUp">
+                <div class="bg-primary p-4 d-flex align-items-center gap-3" style="background: linear-gradient(135deg, #3F4FCF, #7c6fff) !important;">
+                    <div class="stat-icon-box bg-white text-primary" style="width: 50px; height: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                        <i class="fa-solid fa-gift"></i>
+                    </div>
+                    <div>
+                        <h2 class="h4 fw-black mb-0 text-white">{{ title }}</h2>
+                        <p class="small mb-0 text-white opacity-75">Configure offer details and target segmentation.</p>
+                    </div>
+                    <a href="{% url 'offer_management' %}" class="btn btn-white btn-sm ms-auto rounded-pill px-3 fw-bold">
+                        <i class="fa-solid fa-arrow-left me-1"></i> BACK
+                    </a>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="row g-4">
+                            <!-- Basic Info -->
+                            <div class="col-md-12">
+                                <label class="form-label fw-black small text-uppercase opacity-50">Offer Name</label>
+                                {{ form.name }}
+                            </div>
+                            
+                            <div class="col-md-12">
+                                <label class="form-label fw-black small text-uppercase opacity-50">Description</label>
+                                {{ form.description }}
+                            </div>
+
+                            <!-- Segmentation & Type -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-black small text-uppercase opacity-50">Offer Type</label>
+                                {{ form.offer_type }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-black small text-uppercase opacity-50">Target User Segment</label>
+                                {{ form.user_type }}
+                            </div>
+
+                            <!-- Discount Details -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-black small text-uppercase opacity-50">Discount (%)</label>
+                                {{ form.discount }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-black small text-uppercase opacity-50">Max Discount (₹)</label>
+                                {{ form.max_discount_amount }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-black small text-uppercase opacity-50">Min Order (₹)</label>
+                                {{ form.min_order_amount }}
+                            </div>
+
+                            <!-- Promo Code & Limits -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-black small text-uppercase opacity-50">Promo Code (Optional)</label>
+                                {{ form.code }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-black small text-uppercase opacity-50">Usage Limit (Total)</label>
+                                {{ form.usage_limit }}
+                            </div>
+
+                            <!-- Validity -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-black small text-uppercase opacity-50">Valid From</label>
+                                {{ form.valid_from }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-black small text-uppercase opacity-50">Valid To</label>
+                                {{ form.valid_to }}
+                            </div>
+
+                            <!-- Smart Offer Options -->
+                            <div class="col-md-12">
+                                <div class="p-3 rounded-4 bg-light bg-opacity-50 border border-dashed">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <label class="form-label fw-black small text-uppercase mb-0"><i class="fa-solid fa-clock me-1"></i> Smart Offer Duration</label>
+                                        <div style="width: 120px;">{{ form.duration_minutes }}</div>
+                                    </div>
+                                    <p class="x-small text-muted mb-0">For 'Smart Offer' types, this defines how many minutes the countdown runs once triggered for a user.</p>
+                                </div>
+                            </div>
+
+                            <!-- Activation -->
+                            <div class="col-md-12">
+                                <div class="form-check form-switch d-flex align-items-center gap-3 ps-0">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label fw-bold h6 mb-0">Is Offer Active</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-5">
+                            <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-black shadow-glow" style="background: var(--v-blue); border: none;">
+                                <i class="fa-solid fa-save me-2"></i> SAVE OFFER SETTINGS
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.vibrant-input {
+    border: 2px solid #f0f0f0;
+    border-radius: 12px;
+    padding: 10px 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+.vibrant-input:focus {
+    border-color: var(--v-blue);
+    box-shadow: 0 0 0 4px rgba(63, 79, 207, 0.1);
+    outline: none;
+}
+.form-check-input {
+    width: 3em;
+    height: 1.5em;
+    cursor: pointer;
+    margin-left: 0;
+}
+.shadow-glow {
+    box-shadow: 0 10px 20px rgba(63, 79, 207, 0.3);
+}
+</style>
+{% endblock %}

@@ -126,8 +126,9 @@ class UserProfileUpdateForm(forms.ModelForm):
     
     class Meta:
         model = UserProfile
-        fields = ['phone', 'address_line1', 'address_line2', 'city', 'state', 'pincode', 'district']
+        fields = ['photo', 'phone', 'address_line1', 'address_line2', 'city', 'state', 'pincode', 'district']
         widgets = {
+            'photo': forms.FileInput(attrs={'class': 'vibrant-input'}),
             'phone': forms.TextInput(attrs={'class': 'vibrant-input'}),
             'address_line1': forms.TextInput(attrs={'class': 'vibrant-input'}),
             'address_line2': forms.TextInput(attrs={'class': 'vibrant-input'}),
@@ -194,4 +195,41 @@ class ReviewForm(forms.ModelForm):
         widgets = {
             'rating': forms.HiddenInput(),
             'comment': forms.Textarea(attrs={'class': 'vibrant-input', 'rows': 4, 'placeholder': 'Share your experience...'}),
+        }
+
+from .models import Offer, SmartOfferSettings
+
+class OfferForm(forms.ModelForm):
+    class Meta:
+        model = Offer
+        fields = [
+            'name', 'description', 'discount', 'offer_type', 
+            'user_type', 'code', 'valid_from', 'valid_to', 
+            'max_discount_amount', 'min_order_amount', 'usage_limit', 
+            'duration_minutes', 'is_active'
+        ]
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'vibrant-input', 'placeholder': 'Offer Name'}),
+            'description': forms.Textarea(attrs={'class': 'vibrant-input', 'rows': 2, 'placeholder': 'Description'}),
+            'discount': forms.NumberInput(attrs={'class': 'vibrant-input'}),
+            'offer_type': forms.Select(attrs={'class': 'vibrant-input'}),
+            'user_type': forms.Select(attrs={'class': 'vibrant-input'}),
+            'code': forms.TextInput(attrs={'class': 'vibrant-input', 'placeholder': 'PROMOCODE'}),
+            'valid_from': forms.DateTimeInput(attrs={'class': 'vibrant-input', 'type': 'datetime-local'}),
+            'valid_to': forms.DateTimeInput(attrs={'class': 'vibrant-input', 'type': 'datetime-local'}),
+            'max_discount_amount': forms.NumberInput(attrs={'class': 'vibrant-input'}),
+            'min_order_amount': forms.NumberInput(attrs={'class': 'vibrant-input'}),
+            'usage_limit': forms.NumberInput(attrs={'class': 'vibrant-input'}),
+            'duration_minutes': forms.NumberInput(attrs={'class': 'vibrant-input'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+class SmartOfferSettingsForm(forms.ModelForm):
+    class Meta:
+        model = SmartOfferSettings
+        fields = ['is_enabled', 'inactive_days_threshold', 'default_duration_minutes']
+        widgets = {
+            'is_enabled': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'inactive_days_threshold': forms.NumberInput(attrs={'class': 'vibrant-input'}),
+            'default_duration_minutes': forms.NumberInput(attrs={'class': 'vibrant-input'}),
         }

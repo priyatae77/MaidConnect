@@ -1,0 +1,14 @@
+<!-- ░░ CUSTOMER TOPBAR ░░ -->
+
+<li class="nav-item ms-lg-4 d-flex align-items-center gap-3">
+    <a href="/profile/" class="text-decoration-none d-flex align-items-center">
+        {% if user.userprofile.photo %}
+        <img src="{{ user.userprofile.photo.url }}" class="shadow-sm border border-2 border-white rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+        {% else %}
+        <div class="icon-circle m-0 shadow-sm" style="width: 40px; height: 40px; background: var(--v-blue); color: white; font-weight: 800;">
+            {{ user.username|make_list|first|upper }}
+        </div>
+        {% endif %}
+    </a>
+    <a class="btn btn-sm btn-outline-danger fw-black rounded-pill px-3" href="{% url 'logout' %}">LOGOUT</a>
+</li>

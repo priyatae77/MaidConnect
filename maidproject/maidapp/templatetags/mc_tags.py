@@ -16,6 +16,15 @@ def multiply(value, arg):
     except (ValueError, TypeError):
         return 0
 
+@register.filter(name='percentage')
+def percentage(value, arg):
+    try:
+        if float(arg) == 0: return 0
+        p = (float(value) / float(arg)) * 100
+        return min(p, 100) # Cap at 100
+    except (ValueError, TypeError):
+        return 0
+
 @register.simple_tag
 def define_services():
     return [

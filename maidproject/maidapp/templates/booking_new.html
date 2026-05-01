@@ -3,6 +3,26 @@
 
 {% block title %}Book a Service — MaidConnect{% endblock %}
 
+{% block dashboard_bg_url %}{% static 'images/booking_service_bg.png' %}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .pulse-blue {
+        animation: pulseBlue 2s infinite;
+    }
+    @keyframes pulseBlue {
+        0% { box-shadow: 0 0 0 0 rgba(25, 118, 210, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(25, 118, 210, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(25, 118, 210, 0); }
+    }
+    .pulse-border {
+        border: 2px solid var(--v-blue) !important;
+        box-shadow: 0 0 15px rgba(63, 79, 207, 0.3);
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}
+
 {% block dashboard_content %}
 <section class="booking-journey py-4 px-lg-5">
     <div class="container-fluid">
@@ -17,10 +37,45 @@
                     <p class="text-muted fw-bold small">Select a verified professional and schedule your service in minutes.</p>
                 </div>
 
+                <!-- ░░ HIGHLIGHTED WORKER PREVIEW (Auto-Selection Mode) ░░ -->
+                <div id="topWorkerPreview" style="display:none;" class="mb-4 animate-fade-in">
+                    <div class="card border-0 shadow-lg rounded-4 overflow-hidden position-relative bg-white border-vibrant" style="border-left: 5px solid var(--v-blue) !important;">
+                        <div class="card-body p-3 p-md-4 d-flex flex-column flex-md-row align-items-center gap-4">
+                            <div class="icon-circle m-0 shadow-sm border border-light pulse-blue" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); color:#1976D2; min-width:70px; height:70px; font-size: 1.8rem;">
+                                <i class="fa-solid fa-user-check"></i>
+                            </div>
+                            <div class="text-center text-md-start flex-grow-1">
+                                <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mb-2">
+                                    <h4 class="fw-black mb-0 text-dark" id="topPreviewName">Selected Partner</h4>
+                                    <span class="badge bg-vibrant rounded-pill fw-black px-3 py-1 shadow-sm" style="font-size: 0.6rem; background: var(--v-blue);">AUTO-SELECTED</span>
+                                </div>
+                                <div class="h6 fw-bold text-muted mb-0 d-flex align-items-center justify-content-center justify-content-md-start gap-3">
+                                    <span><i class="fa-solid fa-tags me-1"></i> <span id="topPreviewCat">General</span></span>
+                                    <span class="text-warning"><i class="fa-solid fa-star me-1"></i> <span id="topPreviewRating">4.9</span></span>
+                                </div>
+                            </div>
+                            <div class="text-center text-md-end px-md-4 border-md-start border-opacity-25 mt-3 mt-md-0">
+                                <div class="fw-black h3 mb-0" style="color: var(--v-blue);">₹<span id="topPreviewPrice">0</span></div>
+                                <div class="small text-muted fw-bold text-uppercase" style="letter-spacing: 1px; font-size: 0.65rem;">Per Day Rate</div>
+                            </div>
+                            <div class="mt-3 mt-md-0">
+                                <button type="button" onclick="scrollToDropdown()" class="btn btn-dark rounded-pill fw-black btn-sm px-4 py-2 shadow-sm hover-lift">
+                                    <i class="fa-solid fa-arrows-rotate me-1"></i> CHANGE WORKER
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- ░░ BOOKING FORM ░░ -->
                 <div class="card border-0 shadow-vibrant rounded-5 p-4 p-md-5">
                     <form id="bookingForm">
                         {% csrf_token %}
+                        <input type="hidden" name="apply_login_offer" id="applyLoginOfferInput" value="{% if offer_applied %}true{% else %}false{% endif %}">
+                        <span id="loginOfferMeta" data-offer-secs="{{ login_offer_secs }}" class="d-none"></span>
+                        
+
+
                         <div class="row g-4">
 
                             <!-- Worker Selector -->
@@ -31,9 +86,10 @@
                                 <select name="worker_id" id="workerSelect" class="form-select border-0 bg-light rounded-4 p-3 fw-bold" required>
                                     <option value="">— Choose a verified expert —</option>
                                     {% for w in workers %}
-                                    <option value="{{ w.id }}" {% if preselected_worker and preselected_worker.id == w.id %}selected{% endif %}
+                                    <option value="{{ w.id }}" {% if selected_worker and selected_worker.id == w.id %}selected{% endif %}
                                         data-price="{{ w.price_per_day }}"
                                         data-cat="{{ w.categories.first.name|default:'General' }}"
+                                        data-rating="4.{{ forloop.counter|add:5|slice:':1' }}"
                                         data-city="{{ w.city }}">
                                         {{ w.user.get_full_name }} — {{ w.categories.first.name|default:"General" }} (₹{{ w.price_per_day }}/day)
                                     </option>
@@ -41,35 +97,18 @@
                                 </select>
                             </div>
 
-                            <!-- Worker Preview Card (shown when worker selected) -->
-                            <div class="col-12" id="workerPreview" style="display:none;">
-                                <div class="p-3 rounded-4 border-vibrant bg-light d-flex align-items-center gap-3">
-                                    <div class="icon-circle m-0" style="background:var(--v-blue);color:white;min-width:50px;height:50px;">
-                                        <i class="fa-solid fa-user-check"></i>
-                                    </div>
-                                    <div>
-                                        <div class="fw-black h6 mb-0" id="previewName">Selected Partner</div>
-                                        <div class="small text-muted fw-bold"><span id="previewCat">General</span> &bull; <span id="previewCity">Tirupur</span></div>
-                                    </div>
-                                    <div class="ms-auto text-end">
-                                        <div class="fw-black text-vibrant h5 mb-0">₹<span id="previewPrice">0</span></div>
-                                        <div class="x-small text-muted fw-bold">PER DAY</div>
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Service Type -->
                             <div class="col-12">
                                 <label class="form-label fw-black small text-uppercase" style="color:#3F4FCF;">
                                     <i class="fa-solid fa-broom me-1"></i> Service Required
                                 </label>
-                                <select name="service_type" class="form-select border-0 bg-light rounded-4 p-3 fw-bold" required>
+                                <select name="service_type" id="serviceSelect" class="form-select border-0 bg-light rounded-4 p-3 fw-bold" required>
                                     <option value="">Select Service</option>
-                                    <option value="Home Cleaning">Home Cleaning</option>
-                                    <option value="Kitchen Deep Clean">Kitchen Deep Clean</option>
-                                    <option value="Bathroom Sanitization">Bathroom Sanitization</option>
-                                    <option value="Full House Maid">Full House Maid</option>
-                                    <option value="Utensil Cleaning">Utensil Cleaning</option>
+                                    {% if selected_worker %}
+                                    <option value="{{ selected_worker.categories.first.name|default:'General' }}" selected>
+                                        {{ selected_worker.categories.first.name|default:'General' }}
+                                    </option>
+                                    {% endif %}
                                 </select>
                             </div>
 
@@ -96,10 +135,63 @@
                                 <textarea name="address" class="form-control border-0 bg-light rounded-4 p-3 fw-bold" rows="3" placeholder="Enter full address where service is needed..." required></textarea>
                             </div>
 
+                            <!-- ░░ OFFERS SECTION ░░ -->
+                            <div class="col-12 mt-2">
+                                <label class="form-label fw-black small text-uppercase" style="color: #157347;">
+                                    <i class="fa-solid fa-tag me-1"></i> Special Offers
+                                </label>
+                                <select name="offer_id" id="offerSelect" class="form-select border-0 bg-success bg-opacity-10 rounded-4 p-3 fw-bold" style="color: #157347;">
+                                    <option value="" {% if offer_applied %}data-is-login="true" data-pct="10" data-cap="99999" data-min="0"{% endif %}>
+                                        {% if offer_applied %}
+                                            🎉 Offer available for this booking
+                                        {% elif offer_used_today %}
+                                            ✅ Today's offer already used
+                                        {% else %}
+                                            — No offer available —
+                                        {% endif %}
+                                    </option>
+                                    {% for offer in offers %}
+                                    <option value="{{ offer.id }}" 
+                                        data-pct="{{ offer.discount_percent }}" 
+                                        data-cap="{{ offer.max_discount_amount|default:99999 }}" 
+                                        data-min="{{ offer.min_order_amount|default:0 }}">
+                                        {{ offer.title }} ({{ offer.discount_percent }}% OFF)
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- ░░ PRICE PREVIEW ░░ -->
+                            <div id="pricePreviewSection" class="col-12 mt-3 p-3 rounded-4 bg-light border border-dashed text-center" style="display:none; border-color: #dee2e6 !important;">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-muted small fw-bold">Daily Rate:</span>
+                                    <span class="fw-bold" id="basePrice">₹0</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-1 text-success" id="discountRow" style="display:none !important;">
+                                    <span class="small fw-bold">Applied Discount:</span>
+                                    <span class="fw-bold">-₹<span id="discountValue">0</span></span>
+                                </div>
+                                <hr class="my-2 opacity-10">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-black mb-0">Total Payable:</span>
+                                    <span class="h5 fw-black mb-0 text-primary" id="finalPrice">₹0</span>
+                                </div>
+                            </div>
+
                             <!-- Action -->
                             <div class="col-12 pt-3">
-                                <button type="submit" class="btn btn-vibrant w-100 py-3 rounded-4 fw-black shadow-vibrant">
-                                    CONFIRM & SECURE BOOKING <i class="fa-solid fa-arrow-right ms-2"></i>
+                                <!-- Countdown Timer Section -->
+                                <div id="offerTimerSection" class="text-center mb-3" style="display: none;">
+                                    <div id="offerTimerCard" class="d-inline-flex flex-column align-items-center bg-success bg-opacity-10 rounded-4 px-4 py-2 border border-success border-opacity-25 transition-all">
+                                        <div class="fw-black text-success" style="font-size: 0.95rem;">
+                                            <i class="fa-solid fa-hourglass-half me-1"></i> Offer expires in <span id="offerTimerText">00m 00s</span>
+                                        </div>
+                                        <div id="offerTimerSubText" class="small fw-bold text-success text-opacity-75" style="font-size: 0.75rem;">Limited time — complete booking now</div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" id="confirmBookingBtn" class="btn btn-vibrant w-100 py-3 rounded-4 fw-black shadow-vibrant transition-all">
+                                    <span id="confirmBtnText">CONFIRM & SECURE BOOKING</span> <i class="fa-solid fa-arrow-right ms-2" id="confirmBtnIcon"></i>
                                 </button>
                             </div>
 
@@ -113,31 +205,281 @@
 </section>
 
 <script>
+    const SERVICE_MAP = {
+        'Cleaning': ['Home Cleaning', 'Kitchen Deep Clean', 'Bathroom Sanitization', 'Full House Maid', 'Utensil Cleaning'],
+        'Housekeeping': ['Home Cleaning', 'Full House Maid', 'Dusting & Organizing', 'Ironing Services'],
+        'Cooking': ['South Indian Meals', 'North Indian Meals', 'Multi-Cuisine', 'Party/Event Cooking', 'Daily Meal Prep'],
+        'Babysitting': ['Infant Care (0-2 yrs)', 'Toddler Care (2-5 yrs)', 'After-school Care', 'Night Nanny'],
+        'Elder Care': ['Elderly Assistance', 'Medicine Management', 'Companion Care', 'Bedside Assistance'],
+        'Patient Care': ['Patient Nursing', 'Post-Surgery Care', 'Medical Assistance', 'Bedside Support'],
+        'Driver': ['Personal Chauffeur', 'City Driving', 'Long-distance Trip', 'Office Drop/Pick'],
+        'Driving': ['Personal Chauffeur', 'City Driving', 'Long-distance Trip', 'Office Drop/Pick'],
+        'Security': ['Premise Security', 'Night Guard', 'Event Security'],
+        'Gardening': ['Lawn Mowing', 'Plant Watering', 'Full Garden Maintenance'],
+        'Laundry': ['Washing & Drying', 'Ironing & Folding', 'Fabric Care'],
+        'General': ['Home Cleaning', 'General Assistance']
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
-        const select = document.getElementById('workerSelect');
-        const preview = document.getElementById('workerPreview');
+        const workerSelect = document.getElementById('workerSelect');
+        const serviceSelect = document.querySelector('select[name="service_type"]');
+        const topPreview = document.getElementById('topWorkerPreview');
+
+        function scrollToDropdown() {
+            const dropdown = document.getElementById('workerSelect');
+            dropdown.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            dropdown.classList.add('pulse-border');
+            setTimeout(() => dropdown.classList.remove('pulse-border'), 2000);
+            setTimeout(() => { dropdown.focus(); dropdown.click(); }, 600);
+        }
         
-        function updatePreview() {
-            const opt = select.options[select.selectedIndex];
-            if (opt.value) {
-                document.getElementById('previewName').innerText = opt.text.split('—')[0].trim();
-                document.getElementById('previewCat').innerText = opt.dataset.cat;
-                document.getElementById('previewCity').innerText = opt.dataset.city;
-                document.getElementById('previewPrice').innerText = opt.dataset.price;
-                preview.style.display = 'block';
-            } else {
-                preview.style.display = 'none';
+        // Safely read category from URL for later use
+        const urlParams = new URLSearchParams(window.location.search);
+        let urlCategory = urlParams.get('category');
+        
+        function updateServices(category) {
+            // Clear current options except first
+            serviceSelect.innerHTML = '<option value="">Select Service</option>';
+            
+            // Get services for this category or default
+            const services = SERVICE_MAP[category] || SERVICE_MAP['General'];
+            
+            services.forEach(svc => {
+                const opt = document.createElement('option');
+                opt.value = svc;
+                opt.textContent = svc;
+                serviceSelect.appendChild(opt);
+            });
+            
+            // Auto-select the first specific service to pre-fill the value
+            if (serviceSelect.options.length > 1) {
+                serviceSelect.selectedIndex = 1;
             }
         }
 
-        select.addEventListener('change', updatePreview);
-        if (select.value) updatePreview();
+        function updatePreview() {
+            const opt = workerSelect.options[workerSelect.selectedIndex];
+            if (opt.value) {
+                const category = opt.dataset.cat;
+                const rating = opt.dataset.rating || "4.8";
+                
+                document.getElementById('topPreviewName').innerText = opt.text.split('—')[0].trim();
+                document.getElementById('topPreviewCat').innerText = category;
+                document.getElementById('topPreviewRating').innerText = rating;
+                document.getElementById('topPreviewPrice').innerText = opt.dataset.price;
+                topPreview.style.display = 'block';
+
+                // Update the service dropdown based on category
+                updateServices(category);
+            } else {
+                topPreview.style.display = 'none';
+                serviceSelect.innerHTML = '<option value="">Select Service</option>';
+                if (urlCategory) {
+                    updateServices(urlCategory);
+                }
+            }
+        }
+
+        const offerSelect = document.getElementById('offerSelect');
+        const pricePreview = document.getElementById('pricePreviewSection');
+        
+        // Timer Variables
+        const meta = document.getElementById('loginOfferMeta');
+        let remainingSecs = meta ? (parseInt(meta.dataset.offerSecs, 10) || 0) : 0;
+        let isLoginOfferSelected = false;
+        
+        const timerSection = document.getElementById('offerTimerSection');
+        const timerCard = document.getElementById('offerTimerCard');
+        const timerText = document.getElementById('offerTimerText');
+        const confirmBtn = document.getElementById('confirmBookingBtn');
+        const confirmBtnText = document.getElementById('confirmBtnText');
+        const confirmBtnIcon = document.getElementById('confirmBtnIcon');
+        let timerInterval = null;
+
+        function updatePrice() {
+            const wOpt = workerSelect.options[workerSelect.selectedIndex];
+            if (!wOpt || !wOpt.value) {
+                pricePreview.style.display = 'none';
+                return;
+            }
+            
+            const basePrice = parseFloat(wOpt.dataset.price);
+            const oOpt = offerSelect.options[offerSelect.selectedIndex];
+            
+            document.getElementById('basePrice').innerText = `₹${basePrice}`;
+            
+            if (oOpt && (oOpt.value || oOpt.dataset.isLogin === "true")) {
+                const pct = parseFloat(oOpt.dataset.pct);
+                const cap = parseFloat(oOpt.dataset.cap);
+                const min = parseFloat(oOpt.dataset.min);
+                
+                if (basePrice >= min) {
+                    let discount = (basePrice * pct) / 100;
+                    if (discount > cap) discount = cap;
+                    
+                    const final = basePrice - discount;
+                    
+                    document.getElementById('discountRow').style.setProperty('display', 'flex', 'important');
+                    document.getElementById('discountValue').innerText = Math.round(discount);
+                    document.getElementById('finalPrice').innerText = `₹${Math.round(final)}`;
+                } else {
+                    document.getElementById('discountRow').style.setProperty('display', 'none', 'important');
+                    document.getElementById('finalPrice').innerText = `₹${basePrice}`;
+                }
+
+                // Update hidden input if login offer selected
+                const loginInput = document.getElementById('applyLoginOfferInput');
+                if (loginInput) {
+                    loginInput.value = (oOpt.dataset.isLogin === "true") ? "true" : "false";
+                }
+                
+                // Track selection
+                isLoginOfferSelected = (oOpt.dataset.isLogin === "true");
+
+            } else {
+                document.getElementById('discountRow').style.setProperty('display', 'none', 'important');
+                document.getElementById('finalPrice').innerText = `₹${basePrice}`;
+                const loginInput = document.getElementById('applyLoginOfferInput');
+                if (loginInput) loginInput.value = "false";
+                isLoginOfferSelected = false;
+            }
+
+            // Restore button state if it was expired but user switched offer
+            if (remainingSecs <= 0 && !isLoginOfferSelected && confirmBtn.disabled && confirmBtnText.textContent === 'OFFER EXPIRED') {
+                confirmBtn.disabled = false;
+                confirmBtn.className = 'btn btn-vibrant w-100 py-3 rounded-4 fw-black shadow-vibrant transition-all';
+                confirmBtnText.textContent = 'CONFIRM & SECURE BOOKING';
+                confirmBtnIcon.className = 'fa-solid fa-arrow-right ms-2';
+            }
+
+            renderTimerUI();
+            
+            pricePreview.style.display = 'block';
+        }
+
+        // ── TIMER LOGIC ──
+        function renderTimerUI() {
+            if (!isLoginOfferSelected) {
+                timerSection.style.display = 'none';
+                return;
+            }
+
+            if (remainingSecs <= 0) {
+                handleOfferExpiration();
+                return;
+            }
+
+            timerSection.style.display = 'block';
+            const m = Math.floor(remainingSecs / 60);
+            const s = remainingSecs % 60;
+            const mStr = m < 10 ? '0' + m : m;
+            const sStr = s < 10 ? '0' + s : s;
+            timerText.textContent = `${mStr}m ${sStr}s`;
+        }
+
+        function handleOfferExpiration() {
+            timerSection.style.display = 'block';
+            timerCard.className = "d-inline-flex flex-column align-items-center bg-warning bg-opacity-10 rounded-4 px-4 py-2 border border-warning border-opacity-50 transition-all";
+            timerCard.innerHTML = `
+                <div class="fw-black text-dark" style="font-size: 0.95rem;">
+                    <i class="fa-solid fa-clock-rotate-left me-1 text-warning"></i> Offer Expired
+                </div>
+                <div class="small fw-bold text-muted" style="font-size: 0.75rem;">Offer expired — continue with normal booking</div>
+            `;
+            
+            // Force hidden input false so the discount isn't submitted
+            const loginInput = document.getElementById('applyLoginOfferInput');
+            if (loginInput) loginInput.value = "false";
+            
+            // If the login offer is currently selected, remove it from pricing
+            if (isLoginOfferSelected) {
+                isLoginOfferSelected = false;
+                updatePrice();
+            }
+        }
+
+        if (remainingSecs > 0) {
+            timerInterval = setInterval(() => {
+                remainingSecs--;
+                if (isLoginOfferSelected) {
+                    renderTimerUI();
+                }
+                if (remainingSecs <= 0) {
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+        }
+
+        workerSelect.addEventListener('change', () => {
+            updatePreview();
+            updatePrice();
+        });
+        
+        offerSelect.addEventListener('change', updatePrice);
+        
+        // Initialization Logic
+        // The backend view centrally handles all worker_id formats (raw integer or base64)
+        // and pre-selects the dropdown option securely.
+        if (workerSelect.value) {
+            // Perceived loading state to improve UX
+            workerSelect.disabled = true;
+            const selectedOpt = workerSelect.options[workerSelect.selectedIndex];
+            const originalText = selectedOpt.textContent;
+            
+            // Show loading state directly on the selected option
+            selectedOpt.textContent = "⏳ Locating professional...";
+            
+            setTimeout(() => {
+                selectedOpt.textContent = originalText;
+                workerSelect.disabled = false;
+                updatePreview();
+                updatePrice();
+                
+                // Smoothly scroll to the booking form after selection
+                setTimeout(() => {
+                    document.getElementById('bookingForm').scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center' 
+                    });
+                }, 300);
+            }, 1200);
+        } else if (urlCategory) {
+            // If no worker selected but category exists, find first worker of that category
+            for (let i = 0; i < workerSelect.options.length; i++) {
+                if (workerSelect.options[i].dataset.cat === urlCategory) {
+                    workerSelect.selectedIndex = i;
+                    updatePreview();
+                    updatePrice();
+                    break;
+                }
+            }
+            updateServices(urlCategory);
+        }
 
         // AJAX Submission
-        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        document.getElementById('bookingForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = this.querySelector('button[type="submit"]');
+            const workerId = document.getElementById('workerSelect').value;
+
             btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> VERIFYING...';
+
+            try {
+                // Real-time Availability Verification
+                const statusRes = await fetch(`/api/worker-status/?worker_id=${workerId}`);
+                const statusData = await statusRes.json();
+
+                if (statusData.status === 'busy') {
+                    showToast("This worker is currently busy. Please select another.");
+                    btn.disabled = false;
+                    btn.innerHTML = 'CONFIRM & SECURE BOOKING <i class="fa-solid fa-arrow-right ms-2"></i>';
+                    return;
+                }
+            } catch (err) {
+                console.warn("Real-time status check bypassed due to network error.");
+            }
+
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> PROCESSING...';
 
             const formData = new FormData(this);
@@ -168,9 +510,13 @@
 
     function showToast(msg) {
         const toast = document.getElementById('vibrant-toast');
-        toast.innerText = msg;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 3000);
+        if (toast) {
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        } else {
+            alert(msg);
+        }
     }
 </script>
 {% endblock %}

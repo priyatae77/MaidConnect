@@ -1,0 +1,207 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block title %}Offer Management — MaidConnect{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid py-5 px-lg-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="display-4 fw-black mb-0">Offer <span style="color: var(--v-blue);">Hub.</span></h1>
+            <p class="h5 text-muted">Manage personalized discounts and smart offer logic.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'create_offer' %}" class="btn-vibrant py-2 px-4 text-decoration-none fw-black border-0">
+                <i class="fa-solid fa-plus me-2"></i> CREATE OFFER
+            </a>
+        </div>
+    </div>
+
+    <!-- 📊 ANALYTICS OVERVIEW -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="admin-insight-card p-4">
+                <div class="stat-icon-box bg-primary bg-opacity-10 text-primary mb-3">
+                    <i class="fa-solid fa-tags"></i>
+                </div>
+                <div class="stat-value h2 fw-black mb-0">{{ total_offers }}</div>
+                <div class="stat-label small opacity-75">Total Offers Created</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="admin-insight-card p-4">
+                <div class="stat-icon-box bg-success bg-opacity-10 text-success mb-3">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div class="stat-value h2 fw-black mb-0">{{ smart_offers_count }}</div>
+                <div class="stat-label small opacity-75">Smart Offers Active</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="admin-insight-card p-4">
+                <div class="stat-icon-box bg-warning bg-opacity-10 text-warning mb-3">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div class="stat-value h2 fw-black mb-0">{{ total_usage }}</div>
+                <div class="stat-label small opacity-75">Total Conversions</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="admin-insight-card p-4">
+                <div class="stat-icon-box bg-danger bg-opacity-10 text-danger mb-3">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div class="stat-value h2 fw-black mb-0">{% if most_used_offer %}{{ most_used_offer.discount }}%{% else %}0%{% endif %}</div>
+                <div class="stat-label small opacity-75">Top Performing Discount</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- ⚙️ GLOBAL SMART OFFER SETTINGS -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-vibrant rounded-5 p-4 animate__animated animate__fadeInLeft">
+                <h4 class="fw-black mb-4"><i class="fa-solid fa-sliders me-2 text-primary"></i> Global Controls</h4>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <div class="form-check form-switch p-0 d-flex justify-content-between align-items-center">
+                            <label class="form-check-label fw-bold h6 mb-0">Enable Smart Offer System</label>
+                            {{ settings_form.is_enabled }}
+                        </div>
+                        <p class="x-small text-muted mt-2">If disabled, automatic popups will not trigger for any user.</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-black small text-uppercase opacity-50">Inactive Threshold (Days)</label>
+                        {{ settings_form.inactive_days_threshold }}
+                        <p class="x-small text-muted mt-1">Days since last booking to consider a user "Inactive".</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-black small text-uppercase opacity-50">Default Offer Window (Min)</label>
+                        {{ settings_form.default_duration_minutes }}
+                        <p class="x-small text-muted mt-1">Standard countdown time for unlocked offers.</p>
+                    </div>
+
+                    <button type="submit" class="btn btn-dark w-100 py-3 rounded-pill fw-black">SAVE CONFIGURATION</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 📋 OFFER LIST -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-vibrant rounded-5 p-4 animate__animated animate__fadeInRight">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-black mb-0"><i class="fa-solid fa-list-ul me-2 text-primary"></i> Offer Inventory</h4>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle border-0">
+                        <thead class="bg-light">
+                            <tr class="text-uppercase x-small fw-black opacity-50">
+                                <th class="border-0 ps-3">Offer & Type</th>
+                                <th class="border-0">User Target</th>
+                                <th class="border-0 text-center">Value</th>
+                                <th class="border-0 text-center">Usage</th>
+                                <th class="border-0 text-center">Status</th>
+                                <th class="border-0 text-end pe-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for offer in offers %}
+                            <tr class="hover-lift-sm">
+                                <td class="ps-3 py-3">
+                                    <div class="fw-black mb-0">{{ offer.name }}</div>
+                                    <span class="badge rounded-pill {% if offer.offer_type == 'smart' %}bg-primary{% else %}bg-secondary{% endif %} bg-opacity-10 text-{% if offer.offer_type == 'smart' %}primary{% else %}secondary{% endif %} x-small">
+                                        {{ offer.get_offer_type_display|upper }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border x-small">{{ offer.get_user_type_display }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="fw-black text-success">{{ offer.discount }}% OFF</div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="fw-bold">{{ offer.usage_count }} / {% if offer.usage_limit %}{{ offer.usage_limit }}{% else %}∞{% endif %}</div>
+                                </td>
+                                <td class="text-center">
+                                    {% if offer.is_active %}
+                                    <span class="badge bg-success bg-opacity-10 text-success px-3">ACTIVE</span>
+                                    {% else %}
+                                    <span class="badge bg-danger bg-opacity-10 text-danger px-3">PAUSED</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-3">
+                                    <div class="d-flex gap-2 justify-content-end">
+                                        <a href="{% url 'edit_offer' offer.id %}" class="btn btn-sm btn-white border shadow-sm rounded-circle" style="width:32px; height:32px;"><i class="fa-solid fa-pen"></i></a>
+                                        <a href="{% url 'delete_offer' offer.id %}" class="btn btn-sm btn-white border shadow-sm rounded-circle text-danger" onclick="return confirm('Are you sure?')" style="width:32px; height:32px;"><i class="fa-solid fa-trash"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="opacity-25 mb-3"><i class="fa-solid fa-gift fa-3x"></i></div>
+                                    <h6 class="fw-bold text-muted">No offers found. Start by creating one!</h6>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-insight-card {
+    background: white;
+    border-radius: 25px;
+    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+    transition: transform 0.3s ease;
+}
+.admin-insight-card:hover {
+    transform: translateY(-5px);
+}
+.stat-icon-box {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    font-size: 1.2rem;
+}
+.vibrant-input {
+    border: 2px solid #f0f0f0;
+    border-radius: 12px;
+    padding: 10px 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+.vibrant-input:focus {
+    border-color: var(--v-blue);
+    box-shadow: 0 0 0 4px rgba(63, 79, 207, 0.1);
+    outline: none;
+}
+.form-check-input {
+    width: 3.5em;
+    height: 1.8em;
+    cursor: pointer;
+}
+.form-check-input:checked {
+    background-color: var(--v-blue);
+    border-color: var(--v-blue);
+}
+.hover-lift-sm:hover {
+    background-color: #fafafa !important;
+    transform: translateX(5px);
+    transition: all 0.2s ease;
+}
+</style>
+{% endblock %}

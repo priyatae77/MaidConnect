@@ -1,4 +1,4 @@
-{% extends "dashboard_base.html" %}
+{% extends "admin_base.html" %}
 {% load static %}
 
 {% block title %}Client Registry — MaidConnect{% endblock %}
@@ -51,6 +51,7 @@
                         <th class="ps-4 py-3 fw-black small text-uppercase opacity-50">Citizen Info</th>
                         <th class="py-3 fw-black small text-uppercase opacity-50">Initialization</th>
                         <th class="py-3 fw-black small text-uppercase opacity-50">Network Status</th>
+                        <th class="py-3 fw-black small text-uppercase opacity-50 text-center">Action</th>
                         <th class="pe-4 text-end py-3 fw-black small text-uppercase opacity-50">Override</th>
                     </tr>
                 </thead>
@@ -90,6 +91,11 @@
                                 <span class="badge bg-danger text-white rounded-pill px-3 py-2 fw-black">ISOLATED</span>
                             {% endif %}
                         </td>
+                        <td class="text-center">
+                            <a href="{% url 'manage_user_detail' u.id %}" class="btn btn-sm btn-white border rounded-pill px-3 fw-black small shadow-sm">
+                                <i class="fa-solid fa-eye me-1"></i> VIEW
+                            </a>
+                        </td>
                         <td class="pe-4 text-end">
                             {% if user.is_superuser %}
                                 <button data-user-id="{{ u.id }}" onclick="toggleUserStatus(this.dataset.userId, this)" class="btn {% if u.is_active %}btn-outline-dark{% else %}btn-dark{% endif %} rounded-pill px-4 fw-black border-2 btn-sm">
@@ -101,7 +107,7 @@
                         </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="4" class="text-center py-5 text-muted">No citizens connected.</td></tr>
+                    <tr><td colspan="5" class="text-center py-5 text-muted">No citizens connected.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

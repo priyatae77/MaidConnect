@@ -1,0 +1,102 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block dashboard_bg_url %}{% static 'images/profile_bg.png' %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid p-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- 🛠️ WORKER PROFILE CARD 🛠️ -->
+            <div class="bg-white rounded-4 shadow-sm border p-5 animate-fade-in">
+                <!-- DEBUG: {{ user }} | {{ user.workerprofile.mobile }} -->
+                <div class="d-flex align-items-center gap-4 mb-5">
+                    <div class="position-relative">
+                        {% if user.workerprofile.photo %}
+                        <img src="{{ user.workerprofile.photo.url }}" class="rounded-circle shadow-sm border border-4 border-white" style="width: 120px; height: 120px; object-fit: cover;">
+                        {% else %}
+                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-black text-white shadow-sm" style="width: 120px; height: 120px; background: var(--v-pink); font-size: 3rem;">
+                            {{ user.username|make_list|first|upper }}
+                        </div>
+                        {% endif %}
+                        <div class="position-absolute bottom-0 end-0 p-1 bg-white rounded-circle">
+                            <div class="rounded-circle status-indicator-dot" style="width: 20px; height: 20px; border: 3px solid white;" data-is-online="{{ user.workerprofile.is_online|yesno:'true,false' }}"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="fw-black mb-1 text-dark">{{ user.get_full_name|default:user.username }}</h2>
+                        <p class="text-muted mb-0">
+                            <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-3 py-2 fw-black small">
+                                {{ user.workerprofile.category.name|upper }} SPECIALIST
+                            </span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-5">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <label class="x-small fw-black text-uppercase opacity-50 mb-1" style="letter-spacing: 1px;">Professional Email</label>
+                            <div class="fw-bold text-dark">{{ user.email }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <label class="x-small fw-black text-uppercase opacity-50 mb-1" style="letter-spacing: 1px;">Contact Number</label>
+                            <div class="fw-bold text-dark">
+                                {% if user.workerprofile.mobile %}
+                                    {{ user.workerprofile.mobile }}
+                                {% else %}
+                                    Not provided
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="p-3 bg-light rounded-3">
+                            <label class="x-small fw-black text-uppercase opacity-50 mb-1" style="letter-spacing: 1px;">Service Address</label>
+                            <div class="fw-bold text-dark">{{ user.workerprofile.address|default:"No address set" }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 📊 PROFESSIONAL PERFORMANCE 📊 -->
+                <div class="mb-5">
+                    <h5 class="fw-black mb-4 text-dark" style="font-size: 1rem; letter-spacing: -0.5px;">PROFESSIONAL PERFORMANCE</h5>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="p-3 rounded-4 border text-center bg-white shadow-sm">
+                                <div class="h3 fw-black text-dark mb-0">{{ worker.experience }}</div>
+                                <div class="x-small fw-black text-muted text-uppercase" style="font-size: 0.6rem;">Years Exp.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 rounded-4 border text-center bg-white shadow-sm">
+                                <div class="h3 fw-black text-dark mb-0">{{ jobs_completed }}</div>
+                                <div class="x-small fw-black text-muted text-uppercase" style="font-size: 0.6rem;">Jobs Done</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 rounded-4 border text-center bg-white shadow-sm border-success border-opacity-25">
+                                <div class="h3 fw-black text-success mb-0">₹{{ total_earnings }}</div>
+                                <div class="x-small fw-black text-muted text-uppercase" style="font-size: 0.6rem;">Paid</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 rounded-4 border text-center bg-white shadow-sm border-warning border-opacity-25">
+                                <div class="h3 fw-black text-warning mb-0">₹{{ pending_earnings }}</div>
+                                <div class="x-small fw-black text-muted text-uppercase" style="font-size: 0.6rem;">Pending</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <a href="{% url 'worker_profile_update' %}" class="btn-vibrant py-3 px-5 text-decoration-none fw-black">EDIT PROFILE</a>
+                    <a href="{% url 'worker_dashboard' %}" class="btn btn-outline-secondary py-3 px-5 rounded-pill fw-black">BACK TO JOBS</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

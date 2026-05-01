@@ -9,3 +9,10 @@ db.sqlite3
 .idea/
 .vscode/
 *.log
+
+# Django media and static
+maidproject/media/
+
+# Temporary and Scratch files
+maidproject/test_output.txt
+presentation_script.md

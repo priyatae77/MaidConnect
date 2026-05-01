@@ -121,15 +121,29 @@
                     <div class="col-6">
                         <div class="p-4 rounded-5 border border-white border-opacity-10"
                             style="background: rgba(255,255,255,0.02);">
-                            <h1 class="display-2 fw-black mb-0 counter" data-target="5000">0</h1>
-                            <p class="fw-black text-uppercase small opacity-50">Happy Families</p>
+                            <h1 class="display-2 fw-black mb-0 counter" data-target="{{ platform_users }}">0</h1>
+                            <p class="fw-black text-uppercase small opacity-50 mt-2">Happy Families</p>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="p-4 rounded-5 border border-white border-opacity-10"
                             style="background: rgba(255,255,255,0.02);">
-                            <h1 class="display-2 fw-black mb-0 counter" data-target="1200">0</h1>
-                            <p class="fw-black text-uppercase small opacity-50">Verified Partners</p>
+                            <h1 class="display-2 fw-black mb-0 counter" data-target="{{ platform_workers }}">0</h1>
+                            <p class="fw-black text-uppercase small opacity-50 mt-2">Verified Partners</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-4 rounded-5 border border-white border-opacity-10"
+                            style="background: rgba(255,255,255,0.02);">
+                            <h1 class="display-2 fw-black mb-0 counter" data-target="{{ platform_bookings }}">0</h1>
+                            <p class="fw-black text-uppercase small opacity-50 mt-2">Total Bookings</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-4 rounded-5 border border-white border-opacity-10"
+                            style="background: rgba(255,255,255,0.02);">
+                            <h1 class="display-2 fw-black mb-0 counter" data-target="{{ bookings_completed }}">0</h1>
+                            <p class="fw-black text-uppercase small opacity-50 mt-2">Jobs Completed</p>
                         </div>
                     </div>
                 </div>
@@ -143,23 +157,50 @@
     <div class="container py-5">
         <div id="testimonialSlider" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <div class="text-center px-lg-5">
-                        <div class="display-5 fw-black mb-4">"MaidConnect completely <span
-                                style="color:var(--v-blue);">transformed</span> my weekly routine. The quality of care
-                            is unmatched."</div>
-                        <h5 class="fw-black" style="color:var(--v-blue);">— Anjali R., Coimbatore</h5>
+                {% if reviews %}
+                    {% for review in reviews %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <div class="text-center px-lg-5">
+                            <div class="display-5 fw-black mb-4">"{{ review.comment }}"</div>
+                            <h5 class="fw-black" style="color:var(--v-blue);">— {{ review.user.first_name }} {{ review.user.last_name|slice:":1" }}.</h5>
+                            <div class="text-warning mt-3 fs-5">
+                                {% for i in "12345" %}
+                                    <i class="fa-solid fa-star{% if forloop.counter > review.rating %} text-muted opacity-25{% endif %}"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="carousel-item">
-                    <div class="text-center px-lg-5">
-                        <div class="display-5 fw-black mb-4">"Finally, a service I can <span
-                                style="color:var(--v-pink);">trust</span> with my parents. The verification process
-                            gives real peace of mind."</div>
-                        <h5 class="fw-black" style="color:var(--v-blue);">— Rahul S., Tirupur</h5>
+                    {% endfor %}
+                {% else %}
+                    <div class="carousel-item active">
+                        <div class="text-center px-lg-5">
+                            <div class="display-5 fw-black mb-4">"MaidConnect completely <span
+                                    style="color:var(--v-blue);">transformed</span> my weekly routine. The quality of care
+                                is unmatched."</div>
+                            <h5 class="fw-black" style="color:var(--v-blue);">— Anjali R., Coimbatore</h5>
+                        </div>
                     </div>
-                </div>
+                    <div class="carousel-item">
+                        <div class="text-center px-lg-5">
+                            <div class="display-5 fw-black mb-4">"Finally, a service I can <span
+                                    style="color:var(--v-pink);">trust</span> with my parents. The verification process
+                                gives real peace of mind."</div>
+                            <h5 class="fw-black" style="color:var(--v-blue);">— Rahul S., Tirupur</h5>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
+            
+            {% if reviews|length > 1 or not reviews %}
+            <button class="carousel-control-prev" type="button" data-bs-target="#testimonialSlider" data-bs-slide="prev" style="width: 5%;">
+                <i class="fa-solid fa-chevron-left text-dark fs-2"></i>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#testimonialSlider" data-bs-slide="next" style="width: 5%;">
+                <i class="fa-solid fa-chevron-right text-dark fs-2"></i>
+                <span class="visually-hidden">Next</span>
+            </button>
+            {% endif %}
         </div>
     </div>
 </section>

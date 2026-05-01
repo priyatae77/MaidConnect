@@ -1,15 +1,32 @@
-{% extends "base.html" %}
+{% extends "admin_base.html" %}
 {% load static %}
 
 {% block title %}Manage All Bookings — MaidConnect Admin{% endblock %}
 
-{% block content %}
+{% block dashboard_content %}
 <section class="admin-bookings py-5">
     <div class="container py-4">
         <div class="d-flex justify-content-between align-items-center mb-5">
             <div>
                 <h1 class="display-5 fw-black mb-1">System <span style="color:var(--v-pink);">Bookings</span></h1>
-                <p class="text-muted fw-medium">Monitor all service interactions across the platform.</p>
+                <p class="text-muted fw-medium mb-3">Monitor all service interactions across the platform.</p>
+                <a href="{% url 'export_report' %}" class="btn btn-outline-dark rounded-pill fw-black px-4 shadow-sm border-2">
+                    <i class="fa-solid fa-download me-2"></i> Download Excel Report
+                </a>
+            </div>
+            <div class="d-flex gap-3">
+                <div class="bg-white p-3 rounded-4 shadow-sm border border-warning border-opacity-25 text-center" style="min-width: 150px;">
+                    <div class="small fw-bold text-warning text-uppercase mb-1">Ongoing</div>
+                    <div class="h3 fw-black mb-0">{{ ongoing_count }}</div>
+                </div>
+                <div class="bg-white p-3 rounded-4 shadow-sm border border-success border-opacity-25 text-center" style="min-width: 150px;">
+                    <div class="small fw-bold text-success text-uppercase mb-1">Completed</div>
+                    <div class="h3 fw-black mb-0">{{ completed_count }}</div>
+                </div>
+                <div class="bg-white p-3 rounded-4 shadow-sm border border-primary border-opacity-25 text-center" style="min-width: 150px; background: var(--v-blue) !important; color: white;">
+                    <div class="small fw-bold text-uppercase mb-1 opacity-75">Revenue</div>
+                    <div class="h3 fw-black mb-0">₹{{ total_revenue|floatformat:0 }}</div>
+                </div>
             </div>
         </div>
 

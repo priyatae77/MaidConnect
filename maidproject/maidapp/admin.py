@@ -1,5 +1,5 @@
 from django.contrib import admin
-from maidapp.models import CustomUser, UserProfile, Category, Payment, WorkerProfile, Document, Booking, Review, Complaint
+from maidapp.models import CustomUser, UserProfile, Category, Payment, WorkerProfile, Document, Booking, Review, Complaint, Offer
 
 # USER ADMIN
 class CustomUserAdmin(admin.ModelAdmin):
@@ -35,3 +35,20 @@ admin.site.register(Document, DocumentAdmin)
 admin.site.register(Booking)
 admin.site.register(Review)
 admin.site.register(Complaint)
+
+# OFFER ADMIN
+@admin.register(Offer)
+class OfferAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code', 'discount', 'offer_type', 'is_active', 'valid_to', 'usage_count')
+    list_filter = ('is_active', 'offer_type', 'valid_from', 'valid_to')
+    search_fields = ('name', 'code', 'description')
+    list_editable = ('is_active',)
+    actions = ['activate_offers', 'deactivate_offers']
+
+    def activate_offers(self, request, queryset):
+        queryset.update(is_active=True)
+    activate_offers.short_description = "Activate selected offers"
+
+    def deactivate_offers(self, request, queryset):
+        queryset.update(is_active=False)
+    deactivate_offers.short_description = "Deactivate selected offers"
